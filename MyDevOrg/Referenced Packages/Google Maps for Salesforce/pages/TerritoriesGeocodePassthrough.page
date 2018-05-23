@@ -1,0 +1,4 @@
+<apex:page standardController="Account" extensions="pexmaps.TerritoriesGeocodePassthroughController" action="{!init}"
+	title="Google Maps for Salesforce: Geocode Account">
+
+</apex:page>

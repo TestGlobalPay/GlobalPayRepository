@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldSets>
+        <fullName>FieldsToDisplay</fullName>
+        <availableFields>
+            <field>CreatedById</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.CreatedById</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>CreatedDate</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.CreatedDate</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.Family</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.Id</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.IsActive</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>LastModifiedById</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.LastModifiedById</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>LastModifiedDate</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.LastModifiedDate</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.LastReferencedDate</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.LastViewedDate</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>LineNumber</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Margin__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product2.ProductCode</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Product_Cost__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>QuoteId</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>SortOrder</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Subtotal</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Volume_Pricing_Model__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <description>Choose fields to display while adding Products or Bundles to Quote
+Note: Field value is copied if field API names are same.</description>
+        <displayedFields>
+            <field>ServiceDate</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Description</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Quantity</field>
+            <isFieldManaged>true</isFieldManaged>
+            <isRequired>true</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>ListPrice</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>UnitPrice</field>
+            <isFieldManaged>true</isFieldManaged>
+            <isRequired>true</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Discount</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>TotalPrice</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <label>FieldsToDisplay</label>
+    </fieldSets>
+    <fields>
+        <fullName>Bundle_Item__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Bundle item this item is copied from</description>
+        <externalId>false</externalId>
+        <label>Bundle Item</label>
+        <referenceTo>Product_Line_Item__c</referenceTo>
+        <relationshipLabel>Quote Line Items</relationshipLabel>
+        <relationshipName>Quote_Line_Items</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Bundle_Items__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Concise view of Product generated from a Bundle</description>
+        <externalId>false</externalId>
+        <label>Bundle Items</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Long description. Standard field stores only 255 characters</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Long description</inlineHelpText>
+        <label>Description</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Image__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(
+   PricebookEntry.Product2.Image_URL__c ==&apos;&apos;,
+  &apos;Image Unavailable&apos;,
+  IMAGE( PricebookEntry.Product2.Image_URL__c , &quot;Image Unavailable&quot;, 75, 75)
+)</formula>
+        <label>Image</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Margin__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF( 
+  UnitPrice !=0, 
+  1-(  Product_Cost__c / UnitPrice), 
+  0 
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Margin (%)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Product_Bundle__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Product Bundle name if line items are copied from Bundle.</description>
+        <externalId>false</externalId>
+        <label>Bundle Name</label>
+        <referenceTo>Product_Bundle__c</referenceTo>
+        <relationshipLabel>Quote Product</relationshipLabel>
+        <relationshipName>Quote_Product</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Product_Cost__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product_Cost__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Product Cost</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Volume_Pricing_Model__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Bulk - defines price for ALL units within the range 
+Tiered - defines price PER unit within the range</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Bulk - defines price for ALL units within the range 
+Tiered - defines price PER unit within the range</inlineHelpText>
+        <label>Volume Pricing Model</label>
+        <length>50</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <webLinks>
+        <fullName>Add_Bundle</fullName>
+        <availability>online</availability>
+        <description>Add bundle to quote</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Add Bundle</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/30.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/30.0/apex.js&quot;)} 
+
+/* Querying Quote object does not work consistently. Sometimes it errors out. */
+//Check if Quote has a Pricebook 
+var connection = sforce.connection; 
+var result = sforce.connection.query(&quot;SELECT Id, Opportunity.AccountId, Pricebook2Id FROM Quote WHERE Id=&apos;{!Quote.Id}&apos;&quot;); 
+var q= result.getArray(&quot;records&quot;); 
+
+//For Communities with URL path prefix 
+var sitePrefix = &apos;{!$Site.Prefix}&apos;!=null ? &apos;{!$Site.Prefix}&apos; : &apos;&apos;; 
+
+
+if( q[0][&apos;Opportunity&apos;][&apos;AccountId&apos;] == null)
+  alert(&apos;Account missing. Please choose an account before adding line items.&apos;)
+else{
+  if( q[0][&apos;Pricebook2Id&apos;] == null )
+    window.top.location.href = &apos;/_ui/sales/quote/lineitem/ChooseQuotePricebook/e?id={!Quote.Id}&amp;retURL=%2Fapex%2Fsfcloud__ProductBundle_Add%3Fid%3D{!Quote.Id}%26retURL%3D{!Quote.Id}%26searchType%3Dbundle&apos;;
+  else {
+    window.top.location.href = sitePrefix + &apos;/apex/sfcloud__ProductBundle_Add?id={!Quote.Id}&amp;retURL={!Quote.Id}&amp;searchType=bundle&apos;;
+    
+   //window.top.location.href = &apos;{!URLFOR($Site.Prefix+&apos;/apex/sfcloud__ProductBundle_Add?id=&apos;+Quote.Id+&apos;&amp;retURL=&apos;+Quote.Id+&apos;&amp;searchType=bundle&apos;)}&apos;; 
+  }
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Add_Bundle_PE</fullName>
+        <availability>online</availability>
+        <description>Add bundle to quote (Professional Edition org.)</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Add Bundle (PE)</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/25.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/25.0/apex.js&quot;)} 
+
+//For Communities with URL path prefix 
+var sitePrefix = &apos;{!$Site.Prefix}&apos;!=null ? &apos;{!$Site.Prefix}&apos; : &apos;&apos;; 
+window.top.location.href = sitePrefix + &apos;/apex/sfcloud__ProductBundle_Add?id={!Quote.Id}&amp;retURL={!Quote.Id}searchType=bundle&apos;;
+
+//window.top.location.href = &apos;{!URLFOR($Site.Prefix+&apos;/apex/sfcloud__ProductBundle_Add?id=&apos;+Quote.Id+&apos;&amp;retURL=&apos;+Quote.Id+&apos;&amp;searchType=bundle&apos;)}&apos;;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Add_Product</fullName>
+        <availability>online</availability>
+        <description>Add products to quote</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Add Product</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/30.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/30.0/apex.js&quot;)} 
+
+/* Querying Quote object does not work consistently. Sometimes it errors out. */
+//Check if Quote has a Pricebook 
+var connection = sforce.connection; 
+var result = sforce.connection.query(&quot;SELECT Id, Opportunity.AccountId, Pricebook2Id FROM Quote WHERE Id=&apos;{!Quote.Id}&apos;&quot;); 
+var q= result.getArray(&quot;records&quot;); 
+
+//For Communities with URL path prefix 
+var sitePrefix = &apos;{!$Site.Prefix}&apos;!=null ? &apos;{!$Site.Prefix}&apos; : &apos;&apos;; 
+
+if( q[0][&apos;Opportunity&apos;][&apos;AccountId&apos;] == null)
+  alert(&apos;Account missing. Please choose an account before adding line items.&apos;)
+else{
+  if( q[0][&apos;Pricebook2Id&apos;] == null )
+    window.top.location.href = &apos;/_ui/sales/quote/lineitem/ChooseQuotePricebook/e?id={!Quote.Id}&amp;retURL=%2Fapex%2Fsfcloud__ProductBundle_Add%3Fid%3D{!Quote.Id}%26retURL%3D{!Quote.Id}%26searchType%3Dproduct&apos;;
+  else {
+    window.top.location.href = sitePrefix + &apos;/apex/sfcloud__ProductBundle_Add?id={!Quote.Id}&amp;retURL={!Quote.Id}&amp;searchType=product&apos;;
+
+    //window.top.location.href = &apos;{!URLFOR($Site.Prefix+&apos;/apex/sfcloud__ProductBundle_Add?id=&apos;+Quote.Id+&apos;&amp;retURL=&apos;+Quote.Id+&apos;&amp;searchType=product&apos;)}&apos;;
+  }
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Add_Product_PE</fullName>
+        <availability>online</availability>
+        <description>Add products to quote (Professional Edition org.)</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Add Product (PE)</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/25.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/25.0/apex.js&quot;)} 
+
+//For Communities with URL path prefix 
+var sitePrefix = &apos;{!$Site.Prefix}&apos;!=null ? &apos;{!$Site.Prefix}&apos; : &apos;&apos;; 
+window.top.location.href = sitePrefix + &apos;/apex/sfcloud__ProductBundle_Add?id={!Quote.Id}&amp;retURL={!Quote.Id}searchType=product&apos;;
+
+//window.top.location.href = &apos;{!URLFOR($Site.Prefix+&apos;/apex/sfcloud__ProductBundle_Add?id=&apos;+Quote.Id+&apos;&amp;retURL=&apos;+Quote.Id+&apos;&amp;searchType=product&apos;)}&apos;;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Create_Bundle</fullName>
+        <availability>online</availability>
+        <description>Create bundle on the fly</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Create Bundle</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/25.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/25.0/apex.js&quot;)} 
+
+//Get records selected by the user 
+var selectedRecords= {!GETRECORDIDS( $ObjectType.QuoteLineItem)}; 
+
+//For Communities with URL path prefix 
+var sitePrefix = &apos;{!$Site.Prefix}&apos;!=null ? &apos;{!$Site.Prefix}&apos; : &apos;&apos;; 
+
+if (selectedRecords[0] == null || selectedRecords[1] == null) { 
+  alert(&quot;Minimum 2 records must be selected to create Bundle.&quot;) 
+} 
+else { 
+  //Construct VF URL 
+  var queryString = new Array(); 
+  queryString[0] = &apos;{!Quote.Id}&apos;; 
+  queryString[1] = &apos;BundleOnTheFly&apos;; 
+  //Replace all comma with hyphen for selectedRecords var, because the code splits queryString by comma, and selectedRecords by hypen 
+  queryString[2] = selectedRecords.toString().replace(/,/g, &quot;-&quot;); 
+  
+  window.top.location.href = sitePrefix + &apos;/apex/sfcloud__ProductBundle_ListButton?queryString=&apos; + queryString;
+  //window.top.location.href = &apos;{!URLFOR($Site.Prefix+&apos;/apex/sfcloud__ProductBundle_ListButton?queryString=&apos;)}&apos; + queryString; 
+
+
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Sort</fullName>
+        <availability>online</availability>
+        <description>Sort products as per the bundle</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Sort</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/30.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/30.0/apex.js&quot;)}
+{!REQUIRESCRIPT(&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;)}
+
+//Get confirmation token and set webform field
+$.ajax({
+   url:&quot;./oppitm/lineitemsort.jsp?id={!Quote.Id}&quot;,
+   contentType:&quot;text/html&quot;,
+   xhrFields:{withCredentials:true}
+}).done (
+   function(data){
+      var sitePrefix = &apos;{!$Site.Prefix}&apos;!=null ? &apos;{!$Site.Prefix}&apos; : &apos;&apos;;
+      key_start=&apos;id=&quot;_CONFIRMATIONTOKEN&quot; value=&quot;&apos;;
+      key_end=&apos;&quot;&apos;;
+      pos_start=data.indexOf(key_start);
+      pos_end=data.indexOf(key_end,pos_start+key_start.length);
+      confirmationtoken=data.substring(pos_start+key_start.length,pos_end);
+      console.log(confirmationtoken);
+   
+      //Post a form to lineitemsort.jsp because this is how SFDC does it
+      var form = document.createElement(&quot;form&quot;);
+      form.setAttribute(&quot;method&quot;, &quot;post&quot;);
+      form.setAttribute(&quot;action&quot;, sitePrefix + &quot;/oppitm/lineitemsort.jsp&quot;);
+
+      var hiddenField = document.createElement(&quot;input&quot;);
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;);
+      hiddenField.setAttribute(&quot;name&quot;, &apos;_CONFIRMATIONTOKEN&apos;);
+      hiddenField.setAttribute(&quot;value&quot;, confirmationtoken);
+      form.appendChild(hiddenField);
+   
+      //Call the apex web service to get the OLIs in the desired sort order for this opp
+      //Get the QLIs in the desired sort order
+      var result = &quot;&quot;;
+      var records = sforce.connection.query(&quot;SELECT Id FROM QuoteLineItem WHERE QuoteId = &apos;{!Quote.Id}&apos; ORDER BY SortOrder, Id&quot;).getArray(&apos;records&apos;);
+      //Loop through the records
+      for (var i = 0; i &lt; records.length; i++) {
+         result += (records[i].Id).substring(0,15) + &quot;,&quot;;
+      }
+      console.log(result);
+   
+      //Set the id of the request to the opportunity ID
+      var hiddenField = document.createElement(&quot;input&quot;);
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;);
+      hiddenField.setAttribute(&quot;name&quot;, &apos;id&apos;);
+      hiddenField.setAttribute(&quot;value&quot;, &apos;{!Quote.Id}&apos;);
+      form.appendChild(hiddenField);
+   
+      //The name of the sorted OLI list that the JSP is expecting is &quot;duel0&quot;
+      var hiddenField = document.createElement(&quot;input&quot;);
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;);
+      hiddenField.setAttribute(&quot;name&quot;, &apos;duel0&apos;);
+      hiddenField.setAttribute(&quot;value&quot;, String(result));
+      form.appendChild(hiddenField);
+   
+      var hiddenField = document.createElement(&quot;input&quot;);
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;);
+      hiddenField.setAttribute(&quot;name&quot;, &apos;retURL&apos;);
+      hiddenField.setAttribute(&quot;value&quot;, &apos;/{!Quote.Id}&apos;);
+      form.appendChild(hiddenField);
+
+      var hiddenField = document.createElement(&quot;input&quot;);
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;);
+      hiddenField.setAttribute(&quot;name&quot;, &apos;cancelURL&apos;);
+      hiddenField.setAttribute(&quot;value&quot;, &apos;/{!Quote.Id}&apos;);
+      form.appendChild(hiddenField);
+   
+      var hiddenField = document.createElement(&quot;input&quot;);
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;);
+      hiddenField.setAttribute(&quot;name&quot;, &apos;save_new_url&apos;);
+      hiddenField.setAttribute(&quot;value&quot;, sitePrefix + &apos;/oppitm/lineitemsort.jsp&apos;);
+      form.appendChild(hiddenField);
+   
+      //Set to save
+      var hiddenField = document.createElement(&quot;input&quot;);
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;);
+      hiddenField.setAttribute(&quot;name&quot;, &apos;save&apos;);
+      hiddenField.setAttribute(&quot;value&quot;, &apos;Enregistrer&apos;);
+      form.appendChild(hiddenField);
+
+      //Need to do this so it works in IE
+      document.body.appendChild(form);
+      form.submit();
+   }
+);
+
+
+
+
+
+/* Old Method
+//alert( &apos;{!Opportunity.Id}&apos; ); 
+
+var callback = {
+   //Call customSort if the request is successful
+   onSuccess: customSort ,
+   //Call queryFailed if the API request fails
+   onFailure: queryFailed 
+};
+
+sforce.connection.query(&quot;SELECT Id FROM QuoteLineItem WHERE QuoteId = &apos;{!Quote.Id}&apos; ORDER BY SortOrder, Id&quot;, callback) ;
+
+function queryFailed(error, source) {
+   alert(&quot;An error has occurred: &quot; + error);
+}
+
+function customSort(queryResult, source) {
+   if (queryResult.size &gt; 0) {
+      var sortedIds= &quot;&quot;;
+      //Get the records array
+      var records = queryResult.getArray(&apos;records&apos;);
+      //Loop through the records
+      for (var i = 0; i &lt; records.length; i++) {
+         //alert(records[i].Id.substring(0,15))
+         sortedIds += (records[i].Id).substring(0,15) + &quot;,&quot;;
+      }
+      //alert(sortedIds);
+      
+      //Need to post a form to lineitemsort.jsp because this is how SFDC does it but there is not direct API to do the sorting
+      var form = document.createElement(&quot;form&quot;); 
+      form.setAttribute(&quot;method&quot;, &quot;post&quot;); 
+      form.setAttribute(&quot;action&quot;, sitePrefix + &quot;/oppitm/lineitemsort.jsp&quot;); 
+      
+      //Set the id of the request to the opportunity ID 
+      var hiddenField = document.createElement(&quot;input&quot;); 
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;); 
+      hiddenField.setAttribute(&quot;name&quot;, &apos;id&apos;); 
+      hiddenField.setAttribute(&quot;value&quot;, &apos;{!Quote.Id}&apos;); 
+      form.appendChild(hiddenField); 
+      
+      //The name of the sorted OLI list that the JSP is expecting is &quot;duel0&quot; 
+      var hiddenField = document.createElement(&quot;input&quot;); 
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;); 
+      hiddenField.setAttribute(&quot;name&quot;, &apos;duel0&apos;); 
+      hiddenField.setAttribute(&quot;value&quot;, String(sortedIds)); 
+      form.appendChild(hiddenField); 
+      
+      var hiddenField = document.createElement(&quot;input&quot;); 
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;); 
+      hiddenField.setAttribute(&quot;name&quot;, &apos;retURL&apos;); 
+      hiddenField.setAttribute(&quot;value&quot;, &apos;/{!Quote.Id}&apos;); 
+      form.appendChild(hiddenField); 
+
+      //set to save 
+      var hiddenField = document.createElement(&quot;input&quot;); 
+      hiddenField.setAttribute(&quot;type&quot;, &apos;hidden&apos;); 
+      hiddenField.setAttribute(&quot;name&quot;, &apos;save&apos;); 
+      hiddenField.setAttribute(&quot;value&quot;, &apos; Save &apos;); 
+      form.appendChild(hiddenField); 
+            
+      //need to do this so it works in IE 
+      document.body.appendChild(form); 
+      
+      //submit!! 
+      form.submit();
+   }
+   else{
+      alert(&apos;No line items to sort.&apos;);
+   }
+}
+*/</url>
+    </webLinks>
+</CustomObject>

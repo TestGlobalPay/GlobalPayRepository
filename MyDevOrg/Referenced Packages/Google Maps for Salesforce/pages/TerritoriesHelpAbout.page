@@ -1,0 +1,94 @@
+<apex:page showHeader="false" sidebar="false">
+
+	<style type="text/css">
+	.main
+	{
+		padding:20px; 
+		font-family:Arial;
+		font-size:small;
+		background:ghostwhite;
+	}
+	.sectionheader
+	{
+		color:steelblue;
+		font-size:large;
+		font-weight:bold;
+		font-family:Arial;
+		padding-top:10px;
+	}
+	.subsectionheader
+	{
+		color:steelblue;
+		font-size:small;
+		font-weight:bold;
+		font-family:Arial;
+	}
+	body 
+	{ 
+		margin: 0; 
+		padding: 0; 
+	}
+	
+	</style>
+
+
+	<div class="main">
+
+		<div class="sectionheader" style="padding-top:0px">
+			What is Google Maps for Salesforce?
+		</div>					
+
+		<p>Create and save views that show your Salesforce objects in Google Maps.</p>
+
+		<p>Plan, create and save Trips based on Map Views, and get Google Maps Directions for your trip in your local language.</p>
+
+		<p>Filter which objects are mapped based on field values and Record Types</p>
+
+		<p>Automatically see nearby accounts.</p>
+		
+		<p>Draw Outlines (polylines and polygons) and calculate distances and areas.</p>
+		
+		<p>Customize your view of the map.</p>
+
+		<div class="subsectionheader" style="padding-top:0px">
+			Google Maps
+		</div>					
+		
+		<p>Search Google Maps for nearby restaurants, hotels, airports, etc.</p>
+		
+		<p>Use the Drag-Zoom tool to zoom in on a particular area of the map.</p>
+		
+		<p>View Google Maps Traffic Information for supported cities.</p>
+		
+		<p>See Google Maps <b>Street View</b> right in the Salesforce user interface.</p>
+
+		<div class="subsectionheader" style="padding-top:0px">
+			Territory Maps
+		</div>					
+
+		<p>Click on the <b>Territory</b> Custom Button on the Account Detail Page to map all accounts belonging the Account owner.</p>
+
+		<p>Click on the <b>Google Map</b> Custom Button on List Views to create a map of the items you checked.</p>
+		
+		<div class="sectionheader">
+			Support
+		</div>					
+
+		<p>See the <b>How Do I ...?</b> section for answers to frequently asked questions.</p>
+		
+		<p>E-mail Support: <a href="mailto:support@pexys-inc.com">support@pexys-inc.com</a></p>		
+
+		<div class="sectionheader">
+			Suggestions?
+		</div>					
+
+		<p>If you have ideas about how to improve <b>Google Maps for Salesforce</b> we'd like to hear them.</p>
+		
+		<p>Ideas: <a href="mailto:ideas@pexys-inc.com">ideas@pexys-inc.com</a></p>		
+
+
+		<apex:image url="{!URLFOR($Resource.pexmaps__TerritoriesHelpImagesZip, 'pexys-logo-small.png')}" />
+
+	</div>
+
+</apex:page>

@@ -1,0 +1,89 @@
+<apex:page docType="html-5.0" showHeader="false" sidebar="false" controller="CCLoginController" >
+<apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
+<apex:includeScript value="{!$Resource.JQueryCookie}"/>
+<script>
+    if ($('#checkbox').attr('checked')) 
+        {
+            var email = $('#unamee').attr("value");
+            var password = $('#Password').attr("value");
+
+            // set cookies to expire in 14 days
+            $.cookie('email', email, { expires: 14 });
+            $.cookie('password', password, { expires: 14 });
+            $.cookie('remember', true, { expires: 14 });                
+        }
+        else
+        {
+            // reset cookies
+            $.cookie('email', null);
+            $.cookie('password', null);
+            $.cookie('remember', null);
+        }
+
+        var remember = $.cookie('remember');
+        if (remember == 'true') 
+        {
+            var email = $.cookie('email');
+            var password = $.cookie('password');
+            // autofill the fields
+            $('#email').attr("value", email);
+            $('#password').attr("value", password);
+        }
+        
+       function setCookiessss() {
+        if ($('#checkbox').attr('checked')) 
+        {
+            var email = $('#unamee').attr("value");
+            var password = $('#Password').attr("value");
+
+            // set cookies to expire in 14 days
+            $.cookie('email', email, { expires: 14 });
+            $.cookie('password', password, { expires: 14 });
+            $.cookie('remember', true, { expires: 14 });                
+        }
+        else
+        {
+            // reset cookies
+            $.cookie('email', null);
+            $.cookie('password', null);
+            $.cookie('remember', null);
+        }
+
+        var remember = $.cookie('remember');
+        if (remember == 'true') 
+        {
+            var email = $.cookie('email');
+            var password = $.cookie('password');
+            // autofill the fields
+            $('#email').attr("value", email);
+            $('#password').attr("value", password);
+        }
+        }
+</script>
+
+
+    <apex:form id="LoginForm" style="text-align:left;">
+        <h4 class="form-group">Sign In</h4>
+                  <div class="form-group">      
+                     <apex:input type="email" styleclass="form-control" value="{!username}" html-placeholder="Email Address" id="unamee" />  
+                  </div> 
+
+                  <div class="form-group">      
+                     <apex:inputSecret styleclass="form-control" value="{!password}" html-placeholder="Password" id="passwordd"/>
+                  </div>
+
+                  <div class="form-group">
+                     <apex:commandButton action="{login}" styleclass="btn btn-primary btn-lg btn-block" value="Login" onclick="return validateCredentials()"  />
+                  </div>
+                  <div class="form-group">
+                    <div class="col-md-6 col-sm-12">
+                      <label class="checkbox-inline body-text" for="checkbox" >
+                        <input type="checkbox" id="checkbox" onclick="setCookiessss();" />Remember Me
+                      </label>                      
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                     <apex:commandLink value="Forgot Password?" action="{!forwardToForgotPassword}"/> 
+                    </div>
+                   </div>
+    </apex:form> 
+</apex:page>

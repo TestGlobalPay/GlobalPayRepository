@@ -1,0 +1,210 @@
+<apex:page showHeader="false" sidebar="false">
+
+	<style type="text/css">
+	.main
+	{
+		padding:20px; 
+		font-family:Arial;
+		font-size:small;
+		background:ghostwhite;
+	}
+	.sectionheader
+	{
+		color:steelblue;
+		font-size:large;
+		font-weight:bold;
+		font-family:Arial;
+		padding-top:10px;
+	}
+	.subsectionheader
+	{
+		color:steelblue;
+		font-size:small;
+		font-weight:bold;
+		font-family:Arial;
+	}
+	body 
+	{ 
+		margin: 0; 
+		padding: 0; 
+	}
+	</style>
+
+
+	<div class="main">
+
+		<div class="sectionheader">
+			Views
+		</div>
+		
+		<p>You can create Map <b>Views</b> that map these items:
+		
+		<ul>
+			<li>Accounts</li>
+			<li>Opportunities</li>
+			<li>Contacts</li>
+			<li>Leads</li>
+			<li>Campaigns</li>
+			<li>Cases</li>
+			<li>Assets</li>
+			<li>Contracts</li>
+			<li>Custom Objects</li>
+			<li>Tasks</li>
+			<li>Events</li>
+			<li>Users</li>
+			<li>Custom Locations (favorite hotels, etc.)</li>
+		</ul>
+		
+		<p>There are five kinds of views:</p>
+		
+		<ul>
+			<li><b>Single Role View:</b> Show items belonging to multiple users in a single role</li>
+			<li><b>Multiple Role View:</b> Show items belonging to multiple users across multiple roles</li>
+			<li><b>Campaign View:</b> Show Campaign Members (Leads, Contacts and Opportunities) for a Campaign</li>
+			<li><b>Custom View:</b> Show Custom Locations that you define</li>
+			<li><b>Combination View:</b> Combines two or more views</li>
+		</ul>
+		
+		<p>Below the map on the main screen is a drop-down list that shows all saved map views in your organization. 
+			Select a view from the list to load and map it.</p>
+		
+		<p>With a view selected, a detail box appears below the map showing its Definition.</p>
+		
+		<p>Below the map Definition is Listing of all the items that belong to the view, 
+			including items that haven't been mapped.</p>
+		 
+		<p>Click on a map marker to pop up information about the mapped item. You can also click on an item's
+			name in the Listing to locate the item on the map.</p>
+		
+		<p>If there are any trips saved for a view, they will appear in the Trip drop-down box below the map. 
+		Open a trip by selecting it from the drop-down list.</p>
+
+		<p>To define a view, click the <b>Create New View</b> link next to the drop-down list of views. 
+		Defining views lets you control what markers appear on the map. After specifying the view parameters (users, roles, etc.), 
+		you can add Custom Location markers to a view, and you can filter which items are mapped based on Field and Record Type values.</p>
+		
+		<p>If you have any Single Field Filters defined, you can switch map marker color schemes between user/role colors and
+		filter colors.</p>
+		
+		<p>You can select up to five fields whose values will be displayed along with the map marker.</p>
+		
+		<p>You can set visibility on views based on User Groups and Roles, or make a view private or visible to everyone.</p>
+		
+		<p>Once a view is loaded, you can click the <b>Save View State</b> button to save the current center point,
+			zoom level and terrain type for that view</p>
+
+		<p>Click the <b>Clone</b> button to clone the current view and any associated trips.</p>
+		
+		<p>Views can be created from the Salesforce Account detail page by clicking the <b>Territory</b> button. 
+			This will create a view with the account mapped along with all other accounts owned by the account owner. You
+			can also create a view by clicking the <b>Google Map</b> button on several Salesforce List Views. Doing
+			so will create a map view with the items you checked. Your System Administrator must
+			enable these buttons for them to appear.</p>
+		
+		<p>Clicking the <b>Reset Map</b> button above the map will reset the map view to its default center point, zoom level and type.</p>
+		
+		<p>Clicking the <b>Outlines</b> button below the map will open the Outlines Editor for drawing polylines and polygones on a map view.
+		Outlines can be saved as templates to be used in other map views.</p>
+		
+		<p>Clicking the <b>Add Marker</b> button below the map to add ad-hoc markers to the view.</p>
+		
+		<div class="sectionheader">
+			Geocoding Map Objects
+		</div>
+	
+		<p><i>Geocoding</i> refers to the process of converting an address to Latitude/Longitude coordinates.</p>
+		
+		<p><b>An item will not appear on the map until it is geocoded.</b></p>
+		
+		<p>Once geocoded, an item's geocode coordinates is saved in Salesforce. The coordinates will remain associated 
+		with the item until the item’s address is changed and its coordinates cleared, and it will be necessary to geocoded 
+		the item again.</p>
+
+		<p>When a view is definded, it is possible that some of the items that should be shown for that view do not appear on 
+		the map because they haven't been geocoded. The Listing section below the map will show you which items need
+		geocoding. You can select these items and click the <b>Geocode</b> button to geocode them.</p>
+
+		<p>Accounts can be manually geocoded by clicking the <b>Geocode</b> custom button for Accounts.</p>
+
+		<p>System Administrators can do batch geocoding on the Administrator Tools page.</p>
+
+		<div class="sectionheader">
+			Trips
+		</div>
+
+		<p>Trips can be created by selecting map markers from a view as trip waypoints. Trips can be saved for later retrieval.
+		When a trip is open, multi-point trip directions are displayed below the map in your local language. The directions can be for
+		driving or walking, on highways or avoiding highways.</p>
+
+		<p>With a map view loaded, you use the buttons on the map pop ups to define the trip.</p>
+
+		<p>Click the <b>Adobe PDF</b> icon to the left of the Trip Directions to create a PDF file with the directions for
+			saving and printing.</p>
+
+		<p>Click the <b>Save As</b> button to save a copy of a trip with a different name.</p>
+
+
+		<div class="sectionheader">
+			Exporting Map Views and Trips
+		</div>
+	
+		<p>Map Views and Trips can be exported to KML format which is readable by <b>Google Earth</b> and 
+		Google <b>My Maps</b>. You can view your Map Views and Trips on your mobile phone if your phone
+		is able to show Google <b>My Maps</b>.</p>
+		
+		<p>Map Views and Trips can be exported to GPX format which is readable by GPS devices.</p>
+
+		<div class="sectionheader">
+			Map Settings
+		</div>
+	
+		<p>Use Map Settings to personalize your view of the map.</p>
+
+		<ul>
+			<li><b>Default Map Center:</b> Set the Latitude and Longitude values on which the map will be centered when the map is first shown.</li>
+			<li><b>Default Map Zoom Level:</b> Set the zoom level of the map when it is first shown.</li>
+			<li><b>Default Map Type:</b> Select the Type of the map when it is first shown (Street, Terrain, Satellite or Hybrid).</li>
+			<li><b>Default Map Size:</b> Set the size of the map (width and height in pixels).</li>
+			<li><b>Load Last View at Start Up:</b> Indicate whether to load the last active view when Google Maps for Salesforce starts.</li>
+		</ul>
+
+
+		<div class="sectionheader">
+			Google Maps Features
+		</div>
+
+		<p>Show Traffic Information for selected cities by clicking <b>Traffic</b> button on the map.</p>
+		
+		<p><b>Street View</b> is a feature of Google Maps that shows street images of addresses (if available). 
+		Use the <b>Show Street View</b> button on a map popup to open Street View for that location.</p>
+
+		<p>Use the search box on the lower left hand corner of the map to search within the area currently visible in the map. 
+		For example, to find restaurants or hotels at a particular location, zoom in to that location and type, 
+		for example, <i>restaurants</i> or <i>italian restaurants</i> or <i>panera</i> or <i>hilton hotel</i> into the search box.</p>
+		
+		<p>Use the Drag-Zoom button on the map to interactively zoom in on an area of the map.
+			First, click the button below the map zoom controls, then drag a rectangle on the map where
+			you want more detail.</p>
+			
+		<p>Use the <b>More...</b> button on the map to add map overlays for Panoramio photos, YouTube videos,
+			Wikipedia and webcams.</p>
+		
+		<div class="sectionheader">
+			Administrator Tools
+		</div>
+		
+		<p>Your System Administrator will see a <b>Tools</b> button above the map. Clicking this button will open
+			the Administrator Tools page which has these functions:</p>
+		
+		<ul>
+			<li><b>Custom Object Setup</b> - required before Custom Objects can be mapped.</li>
+			<li><b>Batch Geocoding</b> - batch geocode all your Accounts at once.</li>
+			<li><b>Map Icons</b> - enabled the use of icons for map views and custom locations.</li>
+			<li><b>Delete Views</b> - to delete views which fail to load.</li>
+			<li><b>Reset User's Page Parameters</b> - reset a user's auto-load parameters.</li>
+		</ul>
+		
+		
+	</div>
+
+</apex:page>

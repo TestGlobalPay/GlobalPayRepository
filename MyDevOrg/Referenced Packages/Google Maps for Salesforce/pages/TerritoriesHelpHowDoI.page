@@ -1,0 +1,1971 @@
+<apex:page showHeader="false" sidebar="false">
+
+	<style type="text/css">
+	.main
+	{
+		padding:20px; 
+		font-family:Arial;
+		font-size:small;
+		background:ghostwhite;
+	}
+	a.sectionheader,
+	a:hover.sectionheader,
+	a:focus.sectionheader,
+	a:active.sectionheader
+	{
+		color:steelblue;
+		font-size:large;
+		font-weight:bold;
+		font-family:Arial;
+		padding-top:10px;
+		text-decoration:none;
+	}
+	.howtotitle
+	{
+		color:white;
+		background:gray;
+		font-size:90%;
+		font-weight:bold;
+		padding:2px 5px;
+		border:1px solid black;
+	}
+	.howtoheader
+	{
+		font-size:90%;
+		font-weight:bold;
+		padding:2px 5px;
+		text-align:center;
+		border:1px solid black;
+	}
+	.howtosteps
+	{
+		font-size:90%;
+		padding:5px 10px;
+		border:1px solid black;
+	}
+	.howtolink
+	{
+		font-weight:bold;
+		color:steelblue;
+	}	
+	body 
+	{ 
+		margin: 0; 
+		padding: 0; 
+	}
+	</style>
+	
+	<div class="main">
+		<p><a href="#singleRoleBased">How Do I Create a Single Role View?</a></p>
+		<p><a href="#multipleRoleBased">How Do I Create a Multiple Role View?</a></p>
+		<p><a href="#campaign">How Do I Create a Campaign View?</a></p>
+		<p><a href="#custom">How Do I Create a Custom View?</a></p>
+		<p><a href="#combination">How Do I Create a Combination View?</a></p>
+		<p><a href="#customObjects">How Do I Map Custom Objects?</a></p>
+		<p><a href="#settingFilters">How Do I Set View Filters?</a></p>
+		<p><a href="#geocodeUnmapped">How Do I Geocode Unmapped Items?</a></p>
+		<p><a href="#userTerritory">How Do I Map a User's Territory?</a></p>
+		<p><a href="#createTrip">How Do I Create a Trip?</a></p>
+		<p><a href="#setupCustomObjects">How Do I Set Up Custom Objects to be Mapped?</a></p>
+		<p><a href="#starbucks">How Do I Get Walking Directions to the nearest Starbucks?</a></p>
+		<p><a href="#ieMixedContentWarning">How Do I Disable the Mixed Content Warning in Internet Explorer?</a></p>
+		
+		<h2>Outlines</h2>
+
+		<p><a href="#createOutlines">How Do I Create Outlines?</a></p>
+		<p><a href="#editOutline">How Do I Edit an Outline?</a></p>
+		<p><a href="#deleteOutline">How Do I Delete an Outline?</a></p>
+
+		
+		<br/>
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="singleRoleBased" class="sectionheader">How Do I Create a Single Role View?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+				
+					A Single Role View shows items for multiple Users in a single Role. 
+					
+					<p>Items in a View must be geocoded in order to appear on the map. See the topic <i>How Do I Geocode Unmapped Items</i>.</p>
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Create a Single Role View
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								On the main screen, click the <b>Create New View</b> link below the map.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								On the <b>Select View Type</b> screen, select <b>Single Role</b> for the Type of new view.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								In the <b>Item to map</b> drop-down select the type of object you want mapped.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								Click the <b>Continue</b> button to go to the <b>New View</b> screen.
+							</td>
+						</tr>
+ 						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								Enter a name for the new view in the <b>Name</b> box.
+								
+								<p>Check the box to indicate whether you want this to be a private view (visible to you and System Administrators only.)</p>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								If you selected <i>Account</i> as the <b>Item to map</b>, Account Options will be visible. 
+								Select <b>Billing</b> or <b>Shipping</b> from the <b>Address To Use</b> drop-down list
+								to indicate which Account address you want to use.
+								
+								<p>If you want Open Opportunities and Contacts related to the Account
+								to be shown on the map pop-up, check the box named <b>Show Open Opportunities and Contacts</b>.</p>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								Select the <b>Role</b> for which you want to map items. When you select a Role from the drop-down list, the section below titled <i>Select Users</i> refreshes to show all users in the selected role.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								8
+							</td>
+							<td class="howtosteps">
+								Select <b>Users</b> within the selected Role by checking the checkbox next to the user’s name.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								9
+							</td>
+							<td class="howtosteps">
+								When you select a User, a color box appears under the Marker column next to the user's name. Click on the color box, and a color picker will pop up.
+								Use the color picker to select a <b>Marker Color</b> for items owned by that user.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								10
+							</td>
+							<td class="howtosteps">
+								Indicate whether you want to show <b>Markers for Users</b> (user locations) in addition to item markers in the view. User Markers are useful when creating trips based on the view.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								11
+							</td>
+							<td class="howtosteps">
+								User markers can have a unique color to distinguish them from item markers. Click on the <b>User Marker Color</b> color box to select the User Marker Color.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								12
+							</td>
+							<td class="howtosteps">
+								In addition to the items being mapped, you can add markers for Custom Locations to the view. Custom Locations are private addresses or public locations.
+								Click the <b>Custom Location Marker Color</b> color box to set a marker color for all Custom Locations.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								13
+							</td>
+							<td class="howtosteps">
+								Click the <b>Multiple Items Marker Color</b> color box to set a marker color for items that fall at the same location on the map.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								14
+							</td>
+							<td class="howtosteps">
+								Go to <a href="#settingFilters">How Do I Set View Filters?</a> for instructions for 
+								filling out the next two sections and limiting which items will be mapped.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								15
+							</td>
+							<td class="howtosteps">
+								In the section <b>Select Fields To Display, </b>select up to five fields whose 
+								values will be displayed in the view listing.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								16
+							</td>
+							<td class="howtosteps">
+								In the section <b>Restrict Visibility, </b>select the User Groups and/ or User Roles
+								whose members will have access to this view.
+							</td>
+						</tr>
+
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								17
+							</td>
+							<td class="howtosteps">
+								Click <b>Save</b> to save the view and display it on the main screen.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								18
+							</td>
+							<td class="howtosteps">
+								If this is the first view you create, there may not be any markers appearing on the map because none of your items have been geocoded.
+								See the topic <a href="#geocodeUnmapped">How Do I Geocode Unmapped Items?</a> for instructions.
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		
+
+
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="multipleRoleBased" class="sectionheader">How Do I Create a Multiple Role View?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+				
+					A Multiple Role View shows items for multiple Users in a across multiple Roles. 
+					
+					<p>Items in a View must be geocoded in order to appear on the map. See the topic <i>How Do I Geocode Unmapped Items</i>.</p>
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Create a Multiple Role View
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								On the main screen, click the <b>Create New View</b> link below the map.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								On the <b>Select View Type</b> screen, select <b>Multiple Role</b> for the Type of new view.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								In the <b>Item to map</b> drop-down select the type of object you want mapped.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								Click the <b>Continue</b> button to go to the <b>New View</b> screen.
+							</td>
+						</tr>
+ 						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								Enter a name for the new view in the <b>Name</b> box.
+
+								<p>Check the box to indicate whether you want this to be a private view (visible to you and System Administrators only.)</p>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								If you selected <i>Account</i> as the <b>Item to map</b>, Account Options will be visible. 
+								Select <b>Billing</b> or <b>Shipping</b> from the <b>Address To Use</b> drop-down list
+								to indicate which Account address you want to use.
+								
+								<p>If you want Open Opportunities and Contacts related to the Account
+								to be shown on the map pop-up, check the box named <b>Show Open Opportunities and Contacts</b>.</p>
+								
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								For each role you want to include in the view, select the role name from the <b>Roles</b> 
+								drop-down list, and click the <b>Add</b> button to add the role to the list. 
+							</td>
+						</tr>
+						
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								8
+							</td>
+							<td class="howtosteps">
+								When a Role is selected, a color box appears under the Marker column next to the Role name in the list. 
+								Click on the color box, and a color picker will pop up.
+								Use the color picker to select a <b>Marker Color</b> for users in that role. 
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								9
+							</td>
+							<td class="howtosteps">
+								For each role that you select, select Users within that role by clicking the <b>Select Users</b> link under the Users column. When you click the <b>Select Users</b> link for a role, the roles list will be replaced with a list of all users in the role. Select the users you want to include then click the <b>OK</b> button to go back to roles list.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								10
+							</td>
+							<td class="howtosteps">
+								Indicate whether you want to show <b>Markers for Users</b> (user locations) in addition to item markers in the view. User Markers are useful when creating trips based on the view.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								11
+							</td>
+							<td class="howtosteps">
+								User markers can have a unique color to distinguish them from item markers. Click on the <b>User Marker Color</b> color box to select the User Marker Color.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								12
+							</td>
+							<td class="howtosteps">
+								In addition to the items being mapped, you can add markers for Custom Locations to the view. Custom Locations are private addresses or public locations.
+								Click the <b>Custom Location Marker Color</b> color box to set a marker color for all Custom Locations.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								13
+							</td>
+							<td class="howtosteps">
+								Click the <b>Multiple Items Marker Color</b> color box to set a marker color for items that fall at the same location on the map.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								14
+							</td>
+							<td class="howtosteps">
+								Go to <a href="#settingFilters">How Do I Set View Filters?</a> for instructions for 
+								filling out the next two sections and limiting which items will be mapped.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								15
+							</td>
+							<td class="howtosteps">
+								In the section <b>Select Fields To Display, </b>select up to five fields whose 
+								values will be displayed in the view listing.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								16
+							</td>
+							<td class="howtosteps">
+								In the section <b>Restrict Visibility, </b>select the User Groups and/ or User Roles
+								whose members will have access to this view.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								17
+							</td>
+							<td class="howtosteps">
+								Click <b>Save</b> to save the view and display it on the main screen.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								18
+							</td>
+							<td class="howtosteps">
+								If this is the first view you create, there may not be any markers appearing on the map because none of your Accounts, Contacts or Leads have been geocoded.
+								See the topic <a href="#geocodeUnmapped">How Do I Geocode Unmapped Items?</a> for instructions.
+							</td>
+						</tr>
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="campaign" class="sectionheader">How Do I Create a Campaign View?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+				
+					A Campaign View shows Campaign Members (Leads, Contacts and Opportunities) for a particular Campaign. 
+					
+					<p>Items in a View must be geocoded in order to appear on the map. See the topic <i>How Do I Geocode Unmapped Items</i>.</p>
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Create a Campaign View
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								On the main screen, click the <b>Create New View</b> link below the map.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								On the <b>Select View Type</b> screen, select <b>Campaign</b> for the Type of new view.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click the <b>Continue</b> button to go to the <b>New View</b> screen.
+							</td>
+						</tr>
+ 						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								Enter a name for the new view in the <b>Name</b> box.
+
+								<p>Check the box to indicate whether you want this to be a private view (visible to you and System Administrators only.)</p>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								In the <b>Select Campaign</b> section, lookup an existing Campaign whose members you want mapped.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								Select Marker Colors for each type of Campaign Member (Lead, Contact and Opportunity). 
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								In addition to Campaign Members, you can add markers for Custom Locations to the view. Custom Locations are private addresses or public locations.
+								Click the <b>Custom Location Marker Color</b> color box to set a marker color for all Custom Locations.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								8
+							</td>
+							<td class="howtosteps">
+								Click the <b>Multiple Items Marker Color</b> color box to set a marker color for items that fall at the same location on the map.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								9
+							</td>
+							<td class="howtosteps">
+								Go to <a href="#settingFilters">How Do I Set View Filters?</a> for instructions for 
+								filling out the next two sections and limiting which items will be mapped.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								10
+							</td>
+							<td class="howtosteps">
+								In the section <b>Restrict Visibility, </b>select the User Groups and/ or User Roles
+								whose members will have access to this view.
+							</td>
+						</tr>
+
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								11
+							</td>
+							<td class="howtosteps">
+								Click <b>Save</b> to save the view and display it on the main screen.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								12
+							</td>
+							<td class="howtosteps">
+								If this is the first view you create, there may not be any markers appearing on the map because none of your Campaign Members have been geocoded.
+								See the topic <a href="#geocodeUnmapped">How Do I Geocode Unmapped Items?</a> for instructions.
+							</td>
+						</tr>
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="custom" class="sectionheader">How Do I Create a Custom View?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+				
+					A Custom View maps maps custom locations that you define. 
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Create a Custom View
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								On the main screen, click the <b>Create New View</b> link below the map.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								On the <b>Select View Type</b> screen, select <b>Custom</b> for the type of view.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click the <b>Continue</b> button to go to the <b>New View</b> screen.
+							</td>
+						</tr>
+ 						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								Enter a name for the new view in the <b>Name</b> box.
+
+								<p>Check the box to indicate whether you want this to be a private view (visible to you and System Administrators only.)</p>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								Click on the <b>Custom Location Marker Color</b> color box to select the Custom Location Marker Color using the Color Picker.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								Click <b>Save</b> to save the view and display it on the main screen.
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="combination" class="sectionheader">How Do I Create a Combination View?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+				
+					A Combination View allows you to combine two or more existing views into one. 
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Create a Combination View
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								On the main screen, click the <b>Create New View</b> link below the map.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								On the <b>Select View Type</b> screen, select <b>Combination</b> for the type of view.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click the <b>Continue</b> button to go to the <b>New View</b> screen.
+							</td>
+						</tr>
+ 						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								Enter a name for the new view in the <b>Name</b> box.
+
+								<p>Check the box to indicate whether you want this to be a private view (visible to you and System Administrators only.)</p>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								Select two or more views from the <b>View</b> drop-down list and click <b>Add</b> to add them to the Combination View.
+								Each view in the combination will have it's own unique marker color. Under the <b>Marker</b> column,
+								click the color box to set marker colors for each view. 
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								In the section <b>Other Marker Colors</b> set the color for User, Custom Location and Multiple Object markers
+								combined from all the selected views.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								Click <b>Save</b> to save the view and display it on the main screen.
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="customObjects" class="sectionheader">How Do I Map Custom Objects?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+				
+					Before you can map a Custom Object, it must be set up by your System Administrator.
+					See the topic <a href="#setupCustomObjects">How Do I Set Up Custom Objects to be Mapped?</a>
+					for setting up Custom Objects.
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Mapping Custom Objects 
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								To map Custom Objects, create either a <a href="#singleRoleBased">Single Role</a> or
+								a <a href="#multipleRoleBased">Multiple Role</a> view. In the step where you are
+								asked for <b>Item to map</b>, select the Custom Object.
+							</td>
+						</tr>
+						
+						
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="settingFilters" class="sectionheader">How Do I Set View Filters?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+				
+					When creating a new View you can limit which items (Accounts, Opportunities, Contacts, Leads or Campaign Members) 
+					are mapped by selecting filters based on field and record type values.
+					<p>There are two kinds of filters:</p>
+					<ul>
+						<li><b>Single Field Filters</b> allow you to select a range of values for a field or record type,
+						and assign marker colors to each range.</li>
+						<li><b>Multiple Field Filters</b> allow you to select a range of values for several different
+						fields or record types.</li>
+					</ul>
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Selecting View Filters
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								In the <b>Field or Record Type </b> drop-down list in the <b>Define Single Field Filters</b> section, 
+								select which Field you want to use to define Single Field Filters, or select <b>Record Type</b> to 
+								filter on Record Types. 
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								Select a value for the Filter Field or Record Type.
+							
+								<p>When a Field name or 'Record Type' is selected, a value selection input area appears below the 
+								drop-down list. The appearance of the value selection input depends on the type of 
+								field being used as the filter:</p>
+	
+								<ul>							
+									<li>
+										<b>Picklist Field</b> 
+										<p>A drop-down list showing possible picklist values is shown. Select the
+										values you want to be mapped. For example, if the selected field is Account Rating,
+										select <b>Hot</b> from the drop-down list to map only accounts with that Rating.</p>
+									</li>
+									
+									<li>
+										<b>Number Field</b>
+									
+										<p>If you want to filter on a specific number value, select <b>equals</b> from the drop-down list,
+										and type the value in the input box to the right.</p>
+										
+										<p>If you want to filter on a value that is greater than or equal to a specific value, select
+										<b>greater than or equal</b> from the drop-drown list, and type in the value in the 
+										input box to the right.</p>
+										
+										<p>If you want to filter on a range of values, select
+										<b>greater than or equal</b> from the drop-down list, and
+										type in the lower value in the input box to the right, and the upper value in the 
+										input box on the far right.</p>
+										
+										<p>If you want to filter on a value that is less than a specific value, select
+										<b>less than</b> from the drop-drown list, and type in the value in the input box to the right.</p>
+									</li>
+									
+									<li>
+										<b>Date Fields</b>
+										
+										<p>Select the date or range of dates from the drop-down list.</p>
+										
+										<p>If the date range you select from the drop-down list contains an 'N' (for
+										example <i>Last N Months</i>, enter the value of N in the input box that appears to the 
+										right. For example to select a date range that covers the last two months, 
+										select <b>Last N Months</b> from the drop-down list and	enter <b>2</b> in the input box.</p>
+									</li>									
+									
+									<li>
+										<b>Checkbox Fields</b>
+										
+										<p>In the drop-down box, select <b>checked</b> or <b>unchecked</b>. For example, if the
+										selected field is Opportunity Closed, select <b>unchecked</b> to map only 
+										open Opportunities.</p>
+									</li>
+									
+									<li>
+										<b>Address Fields</b>
+										
+										<p>If the selected field is <b>City, State, Country</b> or <b>Postal Code</b>, enter
+										a <u>comma-separated</u> list of the geographic locations you want mapped.</p>
+										
+										<p>Type in all possible variations for city and state names so that all are included. 
+										For example for cities:</p>
+		
+		  								<p>&nbsp;&nbsp;&nbsp;St Louis, St. Louis, München, Munich</p>
+		
+										<p>or for states:</p>
+		
+		   				 				<p>&nbsp;&nbsp;&nbsp;Indiana, IN, New York, NY, Bayern, Bavaria</p>
+									</li>
+
+									<li>
+										<b>Lookup Fields</b>
+										
+										<p>Use the search box to search for Lookup field values.</p>
+									</li>
+									
+									<li>
+										<b>Record Types</b>
+										
+										<p>From the drop-down list, select the Record Type of the records you want mapped.
+										For example, if you have <b>Customer</b> record type defined for Accounts,
+										select <b>Customer</b> to map only Customer Accounts.</p>
+									</li>
+									
+								</ul>
+								 
+								
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click the <b>Add</b> button to add the filter to the list of defined Single
+								Field Filters.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								For the filter just added, select a color for the markers that represent that range
+								of values on the map by clicking on the color box in the Marker Color column.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								Repeat <i>Steps 2, 3 and 4</i> to add as many Single Field Filter ranges as you wish.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								Below the list of Single Field Filters, check the check box to indicate whether you want
+								to color map markers with the color scheme defined for Single Field Filters instead
+								of the color scheme defined for users/roles.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								In the section titled <b>Define Multiple Field Filters</b>, select Multiple Field Filters.
+								
+								<p>From the drop-down list, select the name of the field to filter on or 'Record Type' to filter on record Types.
+								A value selection area appears below the drop-down list.</p>See the guidelines in <i>Step 2</i> above
+								for setting field values.
+								
+								Note that if a field is defined as a Single Field Filter, it will not be available as
+								a Multiple Field Filter. 
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								8
+							</td>
+							<td class="howtosteps">
+								Repeat <i>Step 7</i> to add as many Multiple Field Filters as you wish.
+							</td>
+						</tr>
+						
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+		
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="geocodeUnmapped" class="sectionheader">How Do I Geocode Unmapped Items?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+					Objects must be geocoded for them to appear on the map. 
+					Geocoding is the process of converting a Street Address into Latitude/Longitude coordinates.				
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Geocoding Objects
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								After creating a view, a Listing of items belonging to view is shown below the map.
+								The <b>Geocode Status</b> column lists the current geocode status of each item.
+								Check the items that have not been geocoded and click the <b>Geocode</b> button.  								
+							</td>
+						</tr>
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+		
+		
+		
+		
+		
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="userTerritory" class="sectionheader">How Do I Map a User's Territory?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+					If your System Administrator enabled the <b>Territory</b> Custom Button for Account Page Layouts, you will see it on the Account Detail page.				
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Mapping a User's Territory
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								Go to the Detail page for an Account owned by the User. 								
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								Click the <b>Territory</b> button to go to the <i>Account Maps</i> tab and show markers for all Accounts belonging to the user.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click the <b>Save This View</b> button to save the view.
+							</td>
+						</tr>
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+		
+
+
+
+		
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="starbucks" class="sectionheader">How Do I Get Walking Directions to the nearest Starbucks?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Walking Directions to the Nearest Starbucks
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								Create a <a href="#custom">Custom View</a>, and add your starting location as a Custom Location.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								On the map on the main screen, zoom in to the map marker for your starting location.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click on the marker for your starting location and then click the <b>Start Trip</b> button on the info popup.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								In the search box on the lower left of the map, type in <i>starbucks</i> and click <b>Search</b>.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								Locate the nearest Starbucks and click it's lettered marker to show its address.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								Now add a map marker for this Starbucks. Click the <b>Add Map Marker</b> button in the Details box
+								below the map, and for <b>Custom Location Name</b> enter <b>Nearest Starbucks.</b> Copy 
+								and paste the address of the Starbucks from the map into the <b>Custom Location Address</b> box.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								Click <b>Add</b> to add a marker on the map for the Starbucks.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								Click the <b>Clear Results</b> link in the Search Results to clear the Search Results.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								Click the map marker for the Starbucks you just added and then click the <b>Add To Trip
+								(at end)</b> button.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								8
+							</td>
+							<td class="howtosteps">
+								When Directions appear below the map, select <b>Walking</b> from the <b>Travel Mode</b>
+								drop-down list to the left of the Directions to switch from Driving Directions
+								to Walking Directions.
+								
+								<p>Select <b>Avoid highways</b> from the <b>Highways</b> drop-down list.</p>
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								9
+							</td>
+							<td class="howtosteps">
+								Optionally save the trip and directions for future reference by entering a name
+								in the <b>Name</b> input box and clicking the <b>Save This Trip</b> button.
+							</td>
+						</tr>
+
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+		
+		
+		
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="createTrip" class="sectionheader">How Do I Create a Trip?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+					A trip is a series of waypoints taken from an existing view. Once a trip is defined, 
+					it can be saved for later retrieval.									
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Creating a Trip
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								From the drop-down list below the map, select the View on which you want the trip to be based. 								
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								Start the trip by clicking on the map marker for the start of the trip. 
+								On the popup info window, click the <b>Start Trip</b> button.
+
+								<p>Below the map, the view details box will be replaced by a Trip 
+								Definition box which shows the waypoints of the trip as you define them.</p>
+
+								<p>The marker for the first waypoint that you add to your trip will change from a balloon to a circle
+								to indicate that you are currently defining a trip.</p>
+
+								<p>As you define your trip, <b>Driving Directions</b> will be displayed under 
+								the Trip Definition box.</p>
+
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Define the rest of the trip by clicking first on the marker for each succeeding 
+								waypoint. On the popup info window, indicate where you want to insert the waypoint
+								(<b>at end</b> or <b>before</b> an existing waypoint), and click the <b>Add To Trip</b> button.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								You can add a Custom Location to a trip as you define it, by clicking the 
+								<b>Add Map Marker</b> button in the trip definition box to show the <b>Name</b>
+								and <b>Address</b> input boxes for a Custom Location.
+								
+								<p>Enter the <b>Name</b> and optional <b>Address</b> for each Custom Location you want 
+								to insert into the trip and click the <b>Add</b> button. 
+								For example enter <b>Name: <i>My House</i></b> and <b>Address: <i>123 Main St, Columbus OH 43085</i></b>. 
+								If it is a public location, you can omit the Address. 
+								For example enter <b>Name: <i>Orlando Airport</i></b>.</p>
+								
+								<p>When you enter new Custom Locations in a trip, they become part of the View on
+								which the trip is bases. So, to remove a Custom Location form a trip, you must close 
+								the trip and edit the View on which it is based.</p>					
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								You can remove a waypoint from the trip as you are defining it by clicking the 
+								<b>Remove</b> link next to the waypoint in the trip definition box below the map.							
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+								You can save a trip by entering a name for the trip in the <b>Name</b> input box 
+								at the top of the Trip Definition box and clicking the <b>Save This Trip</b> button.							
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+								Click <b>Close</b> to close the trip and return to the View Details box.
+							</td>
+						</tr>
+
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="setupCustomObjects" class="sectionheader">How Do I Set Up Custom Objects to be Mapped?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+				Custom Objects must be set up by your System Administrator before they can be mapped.
+
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Setting up Custom Objects
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								Click the <b>Tools</b> button above the map. This button will be visible only to
+									users with the <i>System Administrator</i> profile.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								On the <b>Administrator Tools</b> page, in the <b>Custom Object Setup</b> section,
+									follow the detailed instructions for setting up Custom Objects.
+							</td>
+						</tr>
+
+						
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="ieMixedContentWarning" class="sectionheader">How Do I Disable the Mixed Content Warning in Internet Explorer?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+				This is a problem only for Internet Explorer users, so if you use any other browser besides 
+				Internet Explorer (e.g. Firefox or Google Chrome), you can ignore this topic.
+
+				<p>If you use Internet Explorer with <b>Google Maps for Salesforce</b>, you may encounter a <i>mixed content</i>
+				warning which reads: <b>Do you want to view only the webpage content that was delivered securely?</b>
+				To enable <b>Google Maps for Salesforce</b> you must answer <b>No</b> to this question.</p>
+				
+				<p>You can avoid having this popup repeatedly appear by following these steps.</p>
+
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Removing the Internet Explorer Mixed Content popup Warning
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								In Internet Explorer, go to Tools->Internet Options->Security.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								Select the <b>Security</b> tab.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click <b>Trusted Sites</b>.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								Click the <b>Sites</b> button.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+								In the <b>Add this website to the zone:</b> box enter <b>http://maps.google.com</b> and
+								click the <b>Add</b> button.
+								
+								<p>It may be necessary to uncheck the box <b>Require server verification (https:)
+								for all sites in this zone</b> in order to add the Google Maps URL.</p>
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+  								Click the <b>Close</b> button.
+							</td>
+						</tr>
+
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+  								Make sure that <b>Trusted Sites</b> is still selected and click the <b>Custom level...</b> button.
+							</td>
+						</tr>
+
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								8
+							</td>
+							<td class="howtosteps">
+								In the <b>Miscellaneous</b> section change <b>Display mixed content</b> to <b>Enable</b>.
+							</td>
+						</tr>
+
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								9
+							</td>
+							<td class="howtosteps">
+								Restart Internet Explorer.
+							</td>
+						</tr>
+
+						
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+					
+					
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="createOutlines" class="sectionheader">How Do I Create Outlines?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+				<b>Outlines</b> allow you to draw polylines and polygons on a map view.
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Creating Outlines
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								Load the view onto which you want to draw outlines.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								Click the <b>Outlines</b> button below the map to open the Outlines Editor.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Select either the Polyline drawing tool or the Polygon drawing tool by clicking
+								on the appropriate button.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								4
+							</td>
+							<td class="howtosteps">
+								Click on the map to start drawing. Click multiple times to add vertices to your drawing.
+								
+								<ul>
+									<li>When you are finished drawing, click on the end vertex to end drawing</li>
+									<li>Click and drag an existing vertex to move it.</li>
+									<li>When you move a vertex, new ghost vertices will appear, allowing you to add more vertices to the drawing.</li>
+									<li>Click on a vertex to remove it.</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								5
+							</td>
+							<td class="howtosteps">
+  								Click on an outline to show Distance and Area information.  
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								6
+							</td>
+							<td class="howtosteps">
+  								Click <b>Quick Save</b> to save your work without exiting the Outlines Editor. 
+							</td>
+						</tr>
+
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								7
+							</td>
+							<td class="howtosteps">
+  								Click <b>Save</b> to save your work and exit the Outlines Editor.
+							</td>
+						</tr>
+
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="editOutline" class="sectionheader">How Do I Edit an Outline?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+				
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Editing an Outline
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								You must be in the Outlines Editor to edit an outline. Click the <b>Outlines</b> button
+								below the map to start the Outlines Editor.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								Vertices will now appear on all the outlines in the view. Manipulate the vertices
+								to edit the outline.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click <b>Save</b> or <b>Quick Save</b> to save your changes.
+							</td>
+						</tr>
+
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+		<br/>
+		<br/>
+		<hr/>
+
+		<a name="deleteOutline" class="sectionheader">How Do I Delete an Outline?</a>
+		<br/><br/>
+		
+		<table width="100%" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="40%" style="padding-right:20px">
+
+				
+					
+				</td>
+				<td width="60%">		
+					<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; border:1px solid black">
+						<tr>
+							<td colspan="2" class="howtotitle">
+								Deleting an Outline
+							</td>
+						</tr>
+						<tr>
+							<td class="howtoheader" style="width:40px">
+								Step
+							</td>
+							<td class="howtoheader">
+								Action
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								1
+							</td>
+							<td class="howtosteps">
+								You must be in the Outlines Editor to edit an outline. Click the <b>Outlines</b> button
+								below the map to start the Outlines Editor.
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								2
+							</td>
+							<td class="howtosteps">
+								Once in the Outlines Editor, click on an outline and then click the <b>Delete</b>
+								button to delete the outline.
+							</td>
+						</tr>
+
+						<tr>
+							<td class="howtosteps" style="text-align:center; vertical-align:middle">
+								3
+							</td>
+							<td class="howtosteps">
+								Click <b>Save</b> or <b>Quick Save</b> to save your changes.
+							</td>
+						</tr>
+						
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+
+		
+		
+	</div>
+	
+</apex:page>

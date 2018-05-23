@@ -1,0 +1,807 @@
+<apex:page controller="pexmaps.TerritoriesController" action="{!init}"
+	showHeader="false" sidebar="false" id="page_Territories" title="Google Maps for Salesforce">
+
+<style type="text/css">
+	.viewDetailLabel
+	{ 
+		font-weight:bold; 
+		font-size:97%; 
+		vertical-align:middle;
+		white-space:nowrap;
+		padding-right: 4px;	
+	}
+	.viewDetailLabelCustomLocation
+	{ 
+		font-weight:bold; 
+		font-size:97%; 
+		text-align:right; 
+		vertical-align:middle;	
+		white-space:nowrap;
+	}
+	.saveTripLabel
+	{ 
+		font-weight:bold; 
+		font-size:97%; 
+		text-align:right; 
+		vertical-align:middle;	
+		width:100px;
+	}
+	.viewDetailField
+	{
+		font-size:97%;
+		text-align:left;
+		vertical-align:middle;
+	}
+	.viewDetailCaption
+	{
+		font-size:150%;
+		font-weight:bold;
+	}
+	.viewLabel
+	{ 
+		font-weight:bold; 
+		text-align:right; 
+		vertical-align:middle;	
+	}
+	.viewField
+	{
+		font-size:97%;
+		text-align:left;
+		vertical-align:middle;
+	}
+	
+/* styles for the More... button - vf doesn't recognize an external css */
+
+	#more_inner 
+	{
+		text-align:center;
+		font-size:12px;
+		background-color: #fff;
+		color: #000;
+		border: 1px solid #fff;
+		border-right-color: #b0b0b0;
+		border-bottom-color: #c0c0c0;
+		width:7em;
+		cursor: pointer;
+	}
+	
+	#more_inner.highlight 
+	{
+		font-weight: bold;
+		border: 1px solid #483D8B;
+		border-right-color: #6495ed;
+		border-bottom-color: #6495ed;
+	}
+	
+	#box 
+	{  
+		position:absolute;
+		top:20px; left:0px;
+		margin-top:-1px;
+		font-size:12px;
+		padding: 6px 4px;
+		width:120px;
+		background-color: #fff;
+		color: #000;
+		border: 1px solid gray;
+		border-top:1px solid #e2e2e2;
+		display: none;
+		cursor:default;
+	}
+	
+	#box.highlight 
+	{
+		width:119px;
+		border-width:2px;
+	}
+	
+	#boxlink 
+	{ 
+		color: #a5a5a5;
+		text-decoration: none;
+		cursor: default;
+		margin-left: 20px;
+	}
+	
+	#boxlink.highlight 
+	{ 
+		color: #0000cd;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+	
+/* end More... button styles */
+	
+	
+	#traffic_inner 
+	{
+		text-align:center;
+		font-size:12px;
+		background-color: #fff;
+		color: #000;
+		border: 1px solid #fff;
+		border-right-color: #b0b0b0;
+		border-bottom-color: #c0c0c0;
+		width:7em;
+		cursor: pointer;
+	}
+	
+	#traffic_inner.highlight 
+	{
+		font-weight: bold;
+		border: 1px solid #483D8B;
+		border-right-color: #6495ed;
+		border-bottom-color: #6495ed;
+	}
+	
+.trip-directions-row
+{
+	vertical-align: top;
+}
+
+.trip-directions-cell
+{
+	padding: 4px;
+	border-top: 1px solid black;
+}
+
+.trip-directions-summary
+{
+	padding: 4px;
+}
+
+.trip-directions-placemark
+{
+	margin-top: 20px;
+	/*border: 1px solid black;*/
+	background-color: rgb(238, 238, 238);
+}
+
+.trip-directions-copyright
+{
+	font-size: 80%;
+	vertical-align: top;
+	margin-top: 10px;
+	margin-right: 15px;
+	padding: 4px;
+};	
+	
+</style>
+
+
+	<apex:image id="image_Loader" url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'ajax-loader.gif')}" style="position:fixed; top:50%; left:50%; margin-top:-24px; margin-left:-24px; z-index:1000; visibility:hidden"/>	
+
+    <apex:includeScript value="https://maps.googleapis.com/maps/api/js?key=AIzaSyD77NJEyY75GCCcHsXQZX0CSlpKvxWY0Tg&sensor=false&libraries=places,drawing,geometry,weather"/>
+	
+	<script type="text/javascript" src="{!$Resource.JQueryJS}"></script>
+	
+	<apex:includeScript value="/soap/ajax/16.0/connection.js" />
+	<apex:includeScript value="/soap/ajax/16.0/apex.js" />
+	
+	<!-- Note: leave these out here to avoid nested forms -->	
+	<div id="outer_traffic" />
+	
+	<div id="outer_more">
+		<form action="">
+			<div id="box">
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[0].obj)" />{!locale.photos}<br/>
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[1].obj)" />{!locale.videos}<br/>
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[2].obj)" />{!locale.wikipedia}<br/>
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[3].obj)" />{!locale.webcams}
+				<hr style="width:92%;height:1px;border:1px;color:#e2e2e2;background-color:#e2e2e2;" />
+				<a id="boxlink" href="javascript:void(0)" onclick="hideAll()">{!locale.hideAll}</a>
+			</div>
+		</form>
+	</div>
+
+
+	<!-- -->
+	
+	<apex:form id="form_Territories">
+		<apex:actionFunction name="insertTripWaypoint" action="{!insertTripWaypoint}" oncomplete="trip.afterInsertTripWaypoint()" reRender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages" >
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="removeTripWaypoint" action="{!removeTripWaypoint}" oncomplete="trip.afterRemoveTripWaypoint()" rerender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_SelectTrip">
+			<apex:param name="removeTripWaypointIndex" assignTo="{!removeTripWaypointIndex}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="loadTripWaypoints" action="{!trip.createWaypoints}" oncomplete="trip.afterLoadTripWaypoints()" reRender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages" >
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="moveTripWaypoint" action="{!trip.moveWaypoint}" oncomplete="trip.afterMoveTripWaypoint()" reRender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages" >
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="insertGeocodeCustomLocation" action="{!insertGeocodeCustomLocation}" oncomplete="addMapMarker.afterInsertGeocodeCustomLocation()" reRender="panel_AddMarker, panel_ViewListing, panel_Messages" >
+			<apex:param name="geocodeCustomLocationName" assignTo="{!view.geocodeCustomLocation.name}" value="" />
+			<apex:param name="geocodeCustomLocationGeocodeStatus" assignTo="{!view.geocodeCustomLocation.pexmaps__Geocode_Status__c}" value="" />
+			<apex:param name="geocodeCustomLocationLatitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Latitude__c}" value="" />
+			<apex:param name="geocodeCustomLocationLongitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Longitude__c}" value="" />
+			<apex:param name="geocodeCustomLocationStreet" assignTo="{!view.geocodeCustomLocation.pexmaps__Street__c}" value="" />
+			<apex:param name="geocodeCustomLocationCity" assignTo="{!view.geocodeCustomLocation.pexmaps__City__c}" value="" />
+			<apex:param name="geocodeCustomLocationState" assignTo="{!view.geocodeCustomLocation.pexmaps__State__c}" value="" />
+			<apex:param name="geocodeCustomLocationPostalCode" assignTo="{!view.geocodeCustomLocation.pexmaps__Postal_Code__c}" value="" />
+			<apex:param name="geocodeCustomLocationCountry" assignTo="{!view.geocodeCustomLocation.pexmaps__Country__c}" value="" />
+			<apex:param name="geocodeCustomLocationAddress" assignTo="{!view.geocodeCustomLocation.pexmaps__Geocode_Address__c}" value="" />
+			<apex:param name="geocodeCustomLocationAccuracy" assignTo="{!view.geocodeCustomLocation.pexmaps__Geocode_Accuracy__c}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="insertDraggableCustomLocation" action="{!insertDraggableCustomLocation}" oncomplete="addMapMarker.afterInsertDraggableCustomLocation()" reRender="panel_AddMarker, panel_ViewListing, panel_Messages" >
+			<apex:param name="insertCustomLocationLatitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Latitude__c}" value="" />
+			<apex:param name="insertCustomLocationLongitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Longitude__c}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="updateDraggableCustomLocationCoordinates" action="{!view.updateDraggableCustomLocationCoordinates}" reRender="panel_Messages" >
+			<apex:param name="updateCustomLocationId" assignTo="{!view.insertCustomLocationId}" value="" />
+			<apex:param name="updateCustomLocationLatitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Latitude__c}" value="" />
+			<apex:param name="updateCustomLocationLongitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Longitude__c}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="removeCustomLocation" action="{!removeCustomLocation}" oncomplete="territories.view.afterRemoveCustomLocation()" reRender="panel_ViewListing, panel_Messages" >
+			<apex:param name="removeCustomLocationId" assignTo="{!removeCustomLocationId}" value="" />
+		</apex:actionFunction>
+		
+		
+       	<apex:actionFunction name="loadTrip" action="{!loadTrip}" oncomplete="trip.afterLoadTrip()" rerender="panel_HiddenVars, panel_TripPlanner, panel_SelectTrip, panel_ViewDetails, panel_Outlines, panel_Messages, panel_AddMarker, panel_Export, panel_ViewListing" />
+       	<apex:actionFunction name="closeTrip" action="{!closeTrip}" oncomplete="util.hideLoadingImage()" rerender="panel_TripPlanner, panel_SelectTrip, panel_ViewDetails, panel_ViewListing, panel_AddMarker, panel_HiddenVars, panel_Messages, panel_Export" />
+		<apex:actionFunction name="saveThisTrip" action="{!saveTrip}" oncomplete="util.hideLoadingImage();" rerender="panel_TripPlanner, panel_SelectTrip, panel_Messages">
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>		
+		<apex:actionFunction name="saveTripAs" action="{!saveTripAs}" oncomplete="util.hideLoadingImage();" rerender="panel_TripPlanner, panel_SelectTrip, panel_Messages">
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>		
+		<apex:actionFunction name="saveTrip" action="{!saveTrip}" oncomplete="util.hideLoadingImage();" rerender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages">
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>		
+
+       	
+       	<apex:actionFunction name="loadSelectedView" action="{!loadSelectedView}" oncomplete="territories.afterLoadView()" rerender="panel_EditCreate, panel_HiddenVars, panel_HiddenViewState, panel_ViewDetails, panel_ViewListing, panel_TripPlanner, panel_SelectTrip, panel_Outlines, panel_AddMarker, panel_Messages" />
+       	<apex:actionFunction name="reloadView" action="{!reloadView}" oncomplete="territories.afterLoadView()" rerender="panel_EditCreate, panel_HiddenVars, panel_HiddenViewState, panel_Messages" />
+       	<apex:actionFunction name="loadNextView" action="{!loadNextView}" oncomplete="territories.afterLoadNextView()" rerender="panel_HiddenVars, panel_Messages" >
+			<apex:param name="nextViewId" assignTo="{!nextViewId}" value="" />
+       	</apex:actionFunction>
+       	<apex:actionFunction name="endLoadingViews" action="{!endLoadingViews}" oncomplete="territories.onEndLoadingViews()" rerender="panel_EditCreate, panel_HiddenVars, panel_HiddenViewState, panel_ViewDetails, panel_ViewListing, panel_SelectTrip, panel_Messages" />
+
+		
+       	<apex:actionFunction name="saveLastSelectedObject" action="{!saveLastSelectedObject}" rerender="panel_LastSelectedObject" >
+			<apex:param name="lastSelectedObjectId" assignTo="{!lastSelectedObjectId}" value="" />
+       	</apex:actionFunction>
+		
+		<apex:actionFunction name="processGeocodedItems" action="{!listing.processGeocodedItems}" oncomplete="geocoding.afterProcessGeocodedItems()" reRender="panel_ViewListing, panel_Messages" />
+		
+		<apex:actionFunction name="letterFilterChanged" action="{!listing.letterFilterChanged}" oncomplete="viewListing.afterChangeLetterFilter()" reRender="panel_ViewListing, panel_Messages" >
+			<apex:param name="letterFilter" assignTo="{!listing.letterFilter}" value="" />
+		</apex:actionFunction>
+
+		<apex:actionFunction name="saveCustomLocationIcon" action="{!saveCustomLocationIcon}" oncomplete="util.hideLoadingImage()" reRender="panel_Messages" >
+			<apex:param name="saveCustomLocationId" assignTo="{!saveCustomLocationId}" value="" />
+			<apex:param name="saveCustomLocationIconInfo" assignTo="{!saveCustomLocationIconInfo}" value="" />
+		</apex:actionFunction>
+
+		<apex:actionFunction name="saveCustomLocationInfo" action="{!saveCustomLocationInfo}" oncomplete="util.hideLoadingImage()" reRender="panel_ViewListing, panel_Messages" >
+			<apex:param name="saveCustomLocationId" assignTo="{!saveCustomLocationId}" value="" />
+			<apex:param name="saveCustomLocationName" assignTo="{!saveCustomLocationName}" value="" />
+			<apex:param name="saveCustomLocationInfo" assignTo="{!saveCustomLocationInfo}" value="" />
+		</apex:actionFunction>
+
+		<apex:actionFunction name="saveOutlineTemplate" action="{!view.outlines.saveTemplate}" oncomplete="outlines.afterSaveTemplate()" reRender="panel_OutlineTemplates, panel_Messages" >
+			<apex:param name="outlineTemplate" assignTo="{!view.outlines.outlineTemplate}" value="" />
+		</apex:actionFunction>
+
+
+		<!-- Map -->
+	    <div style="padding:20px">
+
+
+			<apex:inputHidden id="hidden_CurrentMapCenterAndZoom" value="{!currentMapCenterAndZoom}" />
+
+			<apex:outputPanel id="panel_Messages">
+				<font color="red">
+			    	<apex:messages />
+				</font>
+			</apex:outputPanel>
+			
+			<div style="padding:5px 0px;">
+				<div id="map_canvas" style="width: {!settings.mapWidth}px; height: {!settings.mapHeight}px;">
+					<div id="browser_security_alert" />
+				</div>		
+			</div>
+
+		</div>
+
+
+		<!-- Select View --> 
+		<apex:outputPanel id="panel_HiddenTripDirections">
+			<apex:inputHidden id="hidden_TripDirectionsViewName" value="{!trip.directionsViewName}" />
+			<apex:inputHidden id="hidden_TripDirections1" value="{!trip.directionsHtml1}" />
+			<apex:inputHidden id="hidden_TripDirections2" value="{!trip.directionsHtml2}" />
+			<apex:inputHidden id="hidden_TripDirections3" value="{!trip.directionsHtml3}" />
+			<apex:inputHidden id="hidden_TripDirections4" value="{!trip.directionsHtml4}" />
+			<apex:inputHidden id="hidden_TripDirections5" value="{!trip.directionsHtml5}" />
+			<apex:inputHidden id="hidden_TripDirections6" value="{!trip.directionsHtml6}" />
+			<apex:inputHidden id="hidden_TripDirections7" value="{!trip.directionsHtml7}" />
+			<apex:inputHidden id="hidden_TripDirections8" value="{!trip.directionsHtml8}" />
+			<apex:inputHidden id="hidden_TripDirections9" value="{!trip.directionsHtml9}" />
+			<apex:inputHidden id="hidden_TripDirections10" value="{!trip.directionsHtml10}" />
+			<apex:inputHidden id="hidden_TripDirections11" value="{!trip.directionsHtml11}" />
+			<apex:inputHidden id="hidden_TripDirections12" value="{!trip.directionsHtml12}" />
+			<apex:inputHidden id="hidden_TripDirections13" value="{!trip.directionsHtml13}" />
+			<apex:inputHidden id="hidden_TripDirections14" value="{!trip.directionsHtml14}" />
+			<apex:inputHidden id="hidden_TripDirections15" value="{!trip.directionsHtml15}" />
+			<apex:inputHidden id="hidden_TripDirections16" value="{!trip.directionsHtml16}" />
+			<apex:inputHidden id="hidden_TripDirections17" value="{!trip.directionsHtml17}" />
+			<apex:inputHidden id="hidden_TripDirections18" value="{!trip.directionsHtml18}" />
+			<apex:inputHidden id="hidden_TripDirections19" value="{!trip.directionsHtml19}" />
+			<apex:inputHidden id="hidden_TripDirections20" value="{!trip.directionsHtml20}" />
+			<apex:inputHidden id="hidden_TripDirections21" value="{!trip.directionsHtml21}" />
+			<apex:inputHidden id="hidden_TripDirections22" value="{!trip.directionsHtml22}" />
+			<apex:inputHidden id="hidden_TripDirections23" value="{!trip.directionsHtml23}" />
+			<apex:inputHidden id="hidden_TripDirections24" value="{!trip.directionsHtml24}" />
+			<apex:inputHidden id="hidden_TripDirections25" value="{!trip.directionsHtml25}" />
+		</apex:outputPanel>
+
+		<apex:outputPanel id="panel_HiddenVars">		
+			<apex:inputHidden id="hidden_ViewOwnerId" value="{!view.ownerId}" />
+			<apex:inputHidden id="hidden_ViewDefinition" value="{!view.definition}" />
+			<apex:inputHidden id="hidden_ViewId" value="{!view.id}" />
+			<apex:inputHidden id="hidden_ViewName" value="{!view.name}" />
+			<apex:inputHidden id="hidden_ViewType" value="{!view.type}" />
+			<apex:inputHidden id="hidden_ViewObject" value="{!view.viewObject}" />
+			<apex:inputHidden id="hidden_ViewObjectLabel" value="{!view.viewObjectLabel}" />
+			<apex:inputHidden id="hidden_ViewObjectPlural" value="{!view.viewObjectPlural}" />
+			<apex:inputHidden id="hidden_MapAddressType" value="{!view.addressType}" />
+			<apex:inputHidden id="hidden_MultiFieldFilterWhereClause" value="{!view.filter.multiFieldFilters.filterWhereClause}" />
+			<apex:inputHidden id="hidden_SingleFieldFilterWhereClause" value="{!view.filter.singleFieldFilters.filterWhereClauseWithColors}" />
+			<apex:inputHidden id="hidden_UseFilterColorScheme" value="{!view.useFilterColorScheme}" />
+			<apex:inputHidden id="hidden_SelectedAccountId" value="{!selectedAccountId}" />
+			<apex:inputHidden id="hidden_SelectedAccountName" value="{!selectedAccountName}" />
+			<apex:inputHidden id="hidden_SelectedViewId" value="{!selectedViewId}" />
+			<apex:inputHidden id="hidden_SelectedTripId" value="{!selectedTripId}" />
+			<apex:inputHidden id="hidden_SelectedTripName" value="{!trip.name}" />
+			<apex:inputHidden id="hidden_ShowUserMarkers" value="{!view.showUserMarkers}" />
+			<apex:inputHidden id="hidden_ShowOwnerMarker" value="{!view.showOwnerMarker}" />
+			<apex:inputHidden id="hidden_UserMarkerColor" value="{!view.userMarkerColor}" />
+			<apex:inputHidden id="hidden_UserMapIcon" value="{!view.userMapIcon.mapIconInfo}" />
+			<apex:inputHidden id="hidden_CustomLocationMarkerColor" value="{!view.customLocationMarkerColor}" />
+			<apex:inputHidden id="hidden_CustomLocationMapIcon" value="{!view.customLocationMapIcon.mapIconInfo}" />
+			<apex:inputHidden id="hidden_MultiObjectMarkerColor" value="{!view.multiObjectMarkerColor}" />
+			<apex:inputHidden id="hidden_MultiObjectMapIcon" value="{!view.multiObjectMapIcon.mapIconInfo}" />
+			<apex:inputHidden id="hidden_ShowAccountRelatedObjects" value="{!view.showAccountRelatedObjects}" />
+			<apex:inputHidden id="hidden_ShowOpenOpportunities" value="{!view.showOpenOpportunities}" />
+			<apex:inputHidden id="hidden_ShowContacts" value="{!view.showContacts}" />
+			<apex:inputHidden id="hidden_UseContactAddress" value="{!view.useContactAddress}" />
+			<apex:inputHidden id="hidden_UseShortLegend" value="{!view.useShortLegend}" />
+			<apex:inputHidden id="hidden_LimitMarkersToShapes" value="{!view.limitMarkersToShapes}" />
+			<apex:inputHidden id="hidden_RetainViewColors" value="{!view.retainViewColors}" />
+			<apex:inputHidden id="hidden_MasterDetailRelationshipName" value="{!view.masterDetailRelationshipName}" />
+			
+			<apex:inputHidden id="hidden_IsCustomObjectView" value="{!view.isCustomObjectView}" />
+			<apex:inputHidden id="hidden_CustomObjectUseLookupField" value="{!view.customObject.useLookupField}" />
+			<apex:inputHidden id="hidden_CustomObjectLookupField" value="{!view.customObject.lookupField}" />
+			<apex:inputHidden id="hidden_CustomObjectLookupFieldType" value="{!view.customObject.lookupFieldType}" />
+			<apex:inputHidden id="hidden_CustomObjectLookupRelationshipName" value="{!view.customObject.lookupRelationshipName}" />
+			<apex:inputHidden id="hidden_CustomObjectName" value="{!view.customObject.name}" />
+			<apex:inputHidden id="hidden_CustomObjectLabel" value="{!view.customObject.label}" />
+			<apex:inputHidden id="hidden_CustomObjectNameField" value="{!view.customObject.nameField}" />
+			<apex:inputHidden id="hidden_CustomObjectStreetField" value="{!view.customObject.streetField}" />
+			<apex:inputHidden id="hidden_CustomObjectCityField" value="{!view.customObject.cityField}" />
+			<apex:inputHidden id="hidden_CustomObjectStateField" value="{!view.customObject.stateField}" />
+			<apex:inputHidden id="hidden_CustomObjectPostalCodeField" value="{!view.customObject.postalCodeField}" />
+			<apex:inputHidden id="hidden_CustomObjectCountryField" value="{!view.customObject.countryField}" />
+			<apex:inputHidden id="hidden_CustomObjectGeocodeStatusField" value="{!view.customObject.geocodeStatusField}" />
+			<apex:inputHidden id="hidden_CustomObjectGeocodeAddressField" value="{!view.customObject.geocodeAddressField}" />
+			<apex:inputHidden id="hidden_CustomObjectGeocodeAccuracyField" value="{!view.customObject.geocodeAccuracyField}" />
+			<apex:inputHidden id="hidden_CustomObjectLatitudeField" value="{!view.customObject.latitudeField}" />
+			<apex:inputHidden id="hidden_CustomObjectLongitudeField" value="{!view.customObject.longitudeField}" />
+			
+			<apex:inputHidden id="hidden_ParentRelationship" value="{!view.parentRelationship}" />
+			
+			<apex:inputHidden id="hidden_DisplayField1Name" value="{!view.displayField1Name}" />
+			<apex:inputHidden id="hidden_DisplayField2Name" value="{!view.displayField2Name}" />
+			<apex:inputHidden id="hidden_DisplayField3Name" value="{!view.displayField3Name}" />
+			<apex:inputHidden id="hidden_DisplayField4Name" value="{!view.displayField4Name}" />
+			<apex:inputHidden id="hidden_DisplayField5Name" value="{!view.displayField5Name}" />
+			<apex:inputHidden id="hidden_DisplayField1Label" value="{!view.displayField1Label}" />
+			<apex:inputHidden id="hidden_DisplayField2Label" value="{!view.displayField2Label}" />
+			<apex:inputHidden id="hidden_DisplayField3Label" value="{!view.displayField3Label}" />
+			<apex:inputHidden id="hidden_DisplayField4Label" value="{!view.displayField4Label}" />
+			<apex:inputHidden id="hidden_DisplayField5Label" value="{!view.displayField5Label}" />
+			<apex:inputHidden id="hidden_DisplayField1Type" value="{!view.displayField1Type}" />
+			<apex:inputHidden id="hidden_DisplayField2Type" value="{!view.displayField2Type}" />
+			<apex:inputHidden id="hidden_DisplayField3Type" value="{!view.displayField3Type}" />
+			<apex:inputHidden id="hidden_DisplayField4Type" value="{!view.displayField4Type}" />
+			<apex:inputHidden id="hidden_DisplayField5Type" value="{!view.displayField5Type}" />
+			
+			<apex:inputHIdden id="hidden_OverLimit" value="{!view.overLimit}" />
+			
+
+			<apex:outputPanel id="panel_OutlineTemplate">
+				<apex:inputHidden id="hidden_OutlineTemplate" value="{!view.outlines.outlineTemplate}" />
+			</apex:outputPanel>
+
+
+			<apex:outputPanel id="panel_OutlineGeocodes">
+
+				<apex:inputHidden id="hidden_Outline1" value="{!view.outlines.outline1}" />
+				<apex:inputHidden id="hidden_Outline2" value="{!view.outlines.outline2}" />
+				<apex:inputHidden id="hidden_Outline3" value="{!view.outlines.outline3}" />
+				<apex:inputHidden id="hidden_Outline4" value="{!view.outlines.outline4}" />
+				<apex:inputHidden id="hidden_Outline5" value="{!view.outlines.outline5}" />
+				<apex:inputHidden id="hidden_Outline6" value="{!view.outlines.outline6}" />
+				<apex:inputHidden id="hidden_Outline7" value="{!view.outlines.outline7}" />
+				<apex:inputHidden id="hidden_Outline8" value="{!view.outlines.outline8}" />
+				<apex:inputHidden id="hidden_Outline9" value="{!view.outlines.outline9}" />
+				<apex:inputHidden id="hidden_Outline10" value="{!view.outlines.outline10}" />
+				<apex:inputHidden id="hidden_Outline11" value="{!view.outlines.outline11}" />
+				<apex:inputHidden id="hidden_Outline12" value="{!view.outlines.outline12}" />
+				<apex:inputHidden id="hidden_Outline13" value="{!view.outlines.outline13}" />
+				<apex:inputHidden id="hidden_Outline14" value="{!view.outlines.outline14}" />
+				<apex:inputHidden id="hidden_Outline15" value="{!view.outlines.outline15}" />
+				<apex:inputHidden id="hidden_Outline16" value="{!view.outlines.outline16}" />
+				<apex:inputHidden id="hidden_Outline17" value="{!view.outlines.outline17}" />
+				<apex:inputHidden id="hidden_Outline18" value="{!view.outlines.outline18}" />
+				<apex:inputHidden id="hidden_Outline19" value="{!view.outlines.outline19}" />
+				<apex:inputHidden id="hidden_Outline20" value="{!view.outlines.outline20}" />
+				<apex:inputHidden id="hidden_Outline21" value="{!view.outlines.outline21}" />
+				<apex:inputHidden id="hidden_Outline22" value="{!view.outlines.outline22}" />
+				<apex:inputHidden id="hidden_Outline23" value="{!view.outlines.outline23}" />
+				<apex:inputHidden id="hidden_Outline24" value="{!view.outlines.outline24}" />
+				<apex:inputHidden id="hidden_Outline25" value="{!view.outlines.outline25}" />
+				<apex:inputHidden id="hidden_Outline26" value="{!view.outlines.outline26}" />
+				<apex:inputHidden id="hidden_Outline27" value="{!view.outlines.outline27}" />
+				<apex:inputHidden id="hidden_Outline28" value="{!view.outlines.outline28}" />
+				<apex:inputHidden id="hidden_Outline29" value="{!view.outlines.outline29}" />
+				<apex:inputHidden id="hidden_Outline30" value="{!view.outlines.outline30}" />
+				<apex:inputHidden id="hidden_Outline31" value="{!view.outlines.outline31}" />
+				<apex:inputHidden id="hidden_Outline32" value="{!view.outlines.outline32}" />
+				<apex:inputHidden id="hidden_Outline33" value="{!view.outlines.outline33}" />
+				<apex:inputHidden id="hidden_Outline34" value="{!view.outlines.outline34}" />
+				<apex:inputHidden id="hidden_Outline35" value="{!view.outlines.outline35}" />
+				<apex:inputHidden id="hidden_Outline36" value="{!view.outlines.outline36}" />
+				<apex:inputHidden id="hidden_Outline37" value="{!view.outlines.outline37}" />
+				<apex:inputHidden id="hidden_Outline38" value="{!view.outlines.outline38}" />
+				<apex:inputHidden id="hidden_Outline39" value="{!view.outlines.outline39}" />
+				<apex:inputHidden id="hidden_Outline40" value="{!view.outlines.outline40}" />
+				<apex:inputHidden id="hidden_Outline41" value="{!view.outlines.outline41}" />
+				<apex:inputHidden id="hidden_Outline42" value="{!view.outlines.outline42}" />
+				<apex:inputHidden id="hidden_Outline43" value="{!view.outlines.outline43}" />
+				<apex:inputHidden id="hidden_Outline44" value="{!view.outlines.outline44}" />
+				<apex:inputHidden id="hidden_Outline45" value="{!view.outlines.outline45}" />
+				<apex:inputHidden id="hidden_Outline46" value="{!view.outlines.outline46}" />
+				<apex:inputHidden id="hidden_Outline47" value="{!view.outlines.outline47}" />
+				<apex:inputHidden id="hidden_Outline48" value="{!view.outlines.outline49}" />
+				<apex:inputHidden id="hidden_Outline49" value="{!view.outlines.outline49}" />
+				<apex:inputHidden id="hidden_Outline50" value="{!view.outlines.outline50}" />
+			</apex:outputPanel>
+		
+			<apex:inputHidden id="hidden_AbortCombinationViewLoad" value="{!abortCombinationViewLoad}" />	
+		</apex:outputPanel>
+
+		<apex:outputPanel id="panel_HiddenViewState">
+			<apex:inputHidden id="hidden_ViewMapType" value="{!view.mapType}" />
+			<apex:inputHidden id="hidden_ViewMapCenterLatitude" value="{!view.mapCenterLatitude}" />
+			<apex:inputHidden id="hidden_ViewMapCenterLongitude" value="{!view.mapCenterLongitude}" />
+			<apex:inputHidden id="hidden_ViewMapZoom" value="{!view.mapZoom}" />
+		</apex:outputPanel>
+		
+		<apex:outputPanel id="panel_LastSelectedObject">
+			<apex:inputHidden id="hidden_LastSelectedObjectId" value="{!lastSelectedObjectId}" />
+		</apex:outputPanel>
+		
+
+
+
+
+
+
+
+		<apex:outputPanel id="panel_View">
+			<apex:outputPanel id="panel_SelectTrip" >
+				<apex:outputPanel rendered="{!NOT(selectedViewId=null)}" > 
+					<apex:inputHidden id="hidden_TripName" value="{!trip.name}" />
+					<apex:inputHidden id="hidden_TripWaypoints" value="{!trip.waypointString}" />
+				</apex:outputPanel>
+			</apex:outputPanel>						
+		</apex:outputPanel>
+
+
+
+
+
+
+
+
+		
+		
+
+
+
+
+		<!-- Trip -->
+
+
+		<table cellspacing="0" cellpadding="0" width="{!settings.mapWidth}px" style="font-family:arial,sans-serif;font-size:85%; margin-left:20px">
+			<tr id="panel_Directions" style="display:none">
+				<td>
+					<apex:outputPanel >
+						<table cellspacing="0" cellpadding="0" width="100%">
+							<tr>
+								<td>
+								
+								
+									<table cellpadding="0px" cellspacing="0px" width="100%" height="69px">
+										<tr>
+											<td width="10px" style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_left.png')}');background-repeat:no-repeat;" />
+														
+											<td style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_middle.png')}');background-repeat:repeat-x;">
+											</td>
+										</tr>
+									</table>
+								
+								
+								
+								
+								
+								</td>
+								<td>
+								
+								
+								
+									<table cellpadding="0px" cellspacing="0px" width="100%" height="69px">
+										<tr>
+														
+											<td style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_middle.png')}');background-repeat:repeat-x;text-align:center; font-weight:bold; font-size:150%;">
+												<div id="div_DirectionsTitle" style="padding-top:35px">{!locale.drivingDirections}</div>
+											</td>
+									
+											<td width="10px" style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_right.png')}');background-repeat:no-repeat;" />
+										</tr>
+									</table>
+								
+									
+								</td>
+							</tr>
+							<tr>
+							
+								<td width="20%" style="padding:0px 10px; vertical-align:top">
+<!--								
+									<table cellspacing="0px" cellpadding="2px" style="background:rgb(238, 238, 238); border: 1px solid silver;padding: 10px;margin-top:14px">
+										<tr>
+											<td style="text-align: right; white-space:nowrap">
+												<b>{!locale.directions}:</b>
+											</td>
+											<td>
+												<select id="select_TravelMode" onchange="trip.changeTravelMode()">
+													<option value="Driving">{!locale.byCar}</option>
+													<option value="Walking">{!locale.walking}</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td style="text-align: right">
+												<b>{!locale.highways}:</b>
+											</td>
+											<td>
+												<select id="select_HighwaysUsage" onchange="trip.changeHighwaysUsage()">
+													<option value="Use">{!locale.useHighways}</option>
+													<option value="Avoid">{!locale.avoidHighways}</option>
+												</select>
+											</td>
+										</tr>
+									</table>
+-->									
+									<br/>
+									<br/>
+									
+									
+								</td>
+								
+								<td width="100%" style="padding-right:15px">
+							   		<div id="route" style="width: 100%; "></div>
+							   	</td>
+					   		</tr>
+						</table>				
+					</apex:outputPanel>
+				</td>		
+			</tr>		
+		</table>
+
+
+
+		
+		
+	</apex:form>
+
+
+
+<script type="text/javascript">
+
+
+/****** migration *****/
+
+var InfoWindow = new google.maps.InfoWindow();
+
+var mapTypeIds = {};
+mapTypeIds["G_HYBRID_MAP"] = google.maps.MapTypeId.HYBRID;
+mapTypeIds["G_NORMAL_MAP"] = google.maps.MapTypeId.ROADMAP;
+mapTypeIds["G_STATELLITE_MAP"] = google.maps.MapTypeId.SATELLITE;
+mapTypeIds["G_PHYSICAL_MAP"] = google.maps.MapTypeId.TERRAIN;
+/****** migration *****/
+
+
+var printView = true;//{!printableView};
+var markerSize = {!settings.markerSize};
+var mapType = mapTypeIds["{!JSENCODE(settings.mapType)}"];
+var mapWidth = {!settings.mapWidth};
+var mapHeight = {!settings.mapHeight};
+var centerLatitude = {!settings.initialCenterLatitude};
+var centerLongitude = {!settings.initialCenterLongitude};
+var initialZoom = {!settings.initialZoom};
+var userRoleId = "{!userRoleId}";
+var userLocale = "{!userLocale}";
+var userLanguage = "{!userLanguage}";
+var userIsSysAdmin = {!userIsSysAdmin};
+var allowIcons = {!allowIcons};
+var allowCustomLocationIcons = {!allowCustomLocationIcons};
+var iconsPath = "https://www.pexmaps.com:8443/img/icons/";
+var logosPath = "https://www.pexmaps.com:8443/img/logos/";
+var imagesPath = "https://www.pexmaps.com:8443/img/";
+var territoriesImagePath = "..{!URLFOR($Resource.TerritoryImagesZip, '')}/";
+var colorPickerImagePath = "..{!URLFOR($Resource.ColorPickerImagesZip, '')}/";
+var mapIconImagePath = "{!view.iconImagePath}";
+
+var locale = {};
+locale.viewStateSaved = "{!locale.viewStateSaved}";
+locale.outlines = "{!locale.outlines}";
+locale.startTrip = "{!locale.startTrip}";
+locale.streetView = "{!locale.streetView}";
+locale.trip = "{!locale.trip}";
+locale.start = "{!locale.start}";
+locale.add = "{!locale.add}";
+locale.toEnd = "{!locale.toEnd}";
+locale.before = "{!locale.before}";
+locale.addToEnd = "{!locale.addToEnd}";
+locale.moveTo = "{!locale.moveTo}";
+locale.edit = "{!locale.edit}";
+locale.remove = "{!locale.remove}";
+locale.name = "{!locale.name}";
+locale.drivingDirections = "{!locale.drivingDirections}";
+locale.walkingDirections = "{!locale.walkingDirections}";
+locale.avoidHighways = "{!locale.avoidHighways}";
+locale.tripTotals = "{!locale.tripTotals}";
+locale.traffic = "{!locale.traffic}";
+locale.more = "{!locale.more}";
+locale.showHideTraffic = "{!locale.showHideTraffic}";
+locale.showHideLayers = "{!locale.showHideLayers}";
+locale.none = "{!locale.none}";
+locale.unableToLoadTrip = "{!locale.unableToLoadTrip}";
+locale.eitherTheStart = "{!locale.eitherTheStart}";
+locale.pleaseEnterAName = "{!locale.pleaseEnterAName}";
+locale.couldNotResolveName = "{!locale.couldNotResolveName}";
+locale.errorParsingGeocode = "{!locale.errorParsingGeocode}";
+locale.noAssignedRole = "{!locale.noAssignedRole}";
+locale.accountNotOnMap = "{!locale.accountNotOnMap}";
+locale.noStreetView = "{!locale.noStreetView}";
+locale.dragZoom = "{!locale.dragZoom}";
+locale.title = "{!locale.title}";
+locale.untitled = "{!locale.untitled}";
+locale.lineColor = "{!locale.lineColor}";
+locale.lineOpacity = "{!locale.lineOpacity}";
+locale.lineSize = "{!locale.lineSize}";
+locale.fillColor = "{!locale.fillColor}";
+locale.fillOpacity = "{!locale.fillOpacity}";
+locale.area = "{!locale.area}";
+locale.radius = "{!locale.radius}";
+locale.saveAsTemplate = "{!locale.saveAsTemplate}";
+locale.ok = "{!locale.ok}";
+locale.cancel = "{!locale.cancel}";
+locale.enterNameForTemplate = "{!locale.enterNameForTemplate}";
+locale.saveOutlineTemplate = "{!locale.saveOutlineTemplate}";
+locale.save = "{!locale.save}";
+locale.outlineLimitReached = "{!locale.outlineLimitReached}";
+locale.jan = "{!locale.jan}";
+locale.feb = "{!locale.feb}";
+locale.mar = "{!locale.mar}";
+locale.apr = "{!locale.apr}";
+locale.may = "{!locale.may}";
+locale.jun = "{!locale.jun}";
+locale.jul = "{!locale.jul}";
+locale.aug = "{!locale.aug}";
+locale.sep = "{!locale.sep}";
+locale.oct = "{!locale.oct}";
+locale.nov = "{!locale.nov}";
+locale.dec = "{!locale.dec}";
+locale.dateFormat = "{!locale.dateFormat}";
+locale.dateTimeFormat = "{!locale.dateTimeFormat}";
+
+</script>
+
+<script type="text/javascript" src="{!$Resource.UtilityJS}"></script>
+
+<script type="text/javascript" src="{!$Resource.DragZoomJS}"></script>
+<script type="text/javascript" src="{!$Resource.MapIconMakerJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesJS}"></script>
+<script type="text/javascript" src="{!$Resource.OutlinesJS}"></script>
+<script type="text/javascript" src="{!$Resource.MapButtonsJS}"></script>
+<script type="text/javascript">
+
+
+var userId = util.fixId("{!$User.Id}");
+
+try
+{
+    sforce.connection.init("{!$Api.Session_ID}", "{!$Api.Partner_Server_URL_160}");
+}
+catch (error)
+{
+    alert("{!locale.connectionFailed}" + " " + error);
+}
+
+if (browserInfo.isMSIE())
+{
+	var securityAlertDiv = document.getElementById("browser_security_alert");
+	
+	securityAlertDiv.style.fontSize = "90%";
+	securityAlertDiv.style.width = "300px";
+	securityAlertDiv.style.border = "thin solid black";
+	securityAlertDiv.style.padding = "10px";
+	securityAlertDiv.style.backgroundColor = "white";
+	
+	securityAlertDiv.innerHTML = "<b>{!locale.wheresTheMap}</b><br/><br/> \
+		{!locale.ifAMixedContent} <b><font style=\'color:blue\'>{!locale.doYouWantToView}</font></b> {!locale.youMustClickNo} \
+		&nbsp;{!locale.reloadThisPage}<br/><br/>{!locale.followTheseSteps} \
+		<br/> \
+		<br/> \
+		<table cellspacing=\'0px\' cellpadding=\'0px\'> \
+		<tr><td>1.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep1}</div></td></tr> \
+		<tr><td>2.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep2}</div></td></tr> \
+		<tr><td>3.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep3}</div></td></tr> \
+		<tr><td>4.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep4}</div></td></tr> \
+		<tr><td>5.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep5}</div></td></tr> \
+		<tr><td></td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep5a}</div></td></tr> \
+		<tr><td>6.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep6}</div></td></tr> \
+		<tr><td>7.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep7}</div></td></tr> \
+		<tr><td>8.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep8}</div></td></tr> \
+		<tr><td>9.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep9}</div></td></tr> \
+		<tr><td>10.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep10}</div></td></tr> \
+		</table>";
+}
+
+var previousOnload = window.onload;        
+window.onload = function()
+{ 
+	if (previousOnload)
+	{ 
+    	previousOnload();
+    }
+
+	territories.init();
+	territories.loadExistingView();
+	territories.loadExistingTrip();
+}
+
+var previousOnunload = window.onunload;        
+window.onunload = function()
+{ 
+	if (previousOnunload)
+	{ 
+    	previousOnunload();
+    }
+/*
+	if (util.isDefined(streetView))
+	{
+		streetView.closeStreetView();
+	}
+	
+	GUnload();
+*/	
+}
+
+
+function getMapCanvas()
+{
+	return document.getElementById("map_canvas");
+}
+
+</script>
+
+<script type="text/javascript" src="{!$Resource.TerritoriesGisJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesHeatMapsJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesBoundariesJS}"></script>
+
+</apex:page>

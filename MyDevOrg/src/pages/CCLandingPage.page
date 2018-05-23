@@ -1,0 +1,382 @@
+<!--Home page of CC project, Customer logs in and views Cases, 
+Contacts and district information related to the account, user belongs to-->
+
+<apex:page docType="html-5.0" sidebar="false" showHeader="false" controller="CCLandingController" action="{!forwardToCustomAuthPage}" standardStylesheets="false">
+<!--Latest compiled and minified j query-->
+<!--<apex:includeScript value="{!$Resource.CC_JQuery}"/>-->
+
+<!--Style sheet for CC Project-->
+<!--<apex:stylesheet value="{!$Resource.CC_Style}" />-->
+
+<!-- Latest compiled and minified CSS Bootstrap-->
+<!--<apex:includeScript value="{!URLFOR($Resource.CC_Bootstrap,'bootstrap-3.3.5-dist/js/bootstrap.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.CC_Bootstrap,'bootstrap-3.3.5-dist/css/bootstrap.min.css')}"/>-->
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <title>Customer Connect: Home</title>    
+</head>
+
+<!--<style type="text/css">  
+@font-face{
+            font-family:lato_light;
+            src: url("{!URLFOR($Resource.CC_font,'Lato-Light.ttf')}");
+        }
+@font-face{
+            font-family:lato_bold;
+            src: url("{!URLFOR($Resource.CC_font,'Lato-Bold.ttf')}");
+        }
+
+@font-face{
+            font-family:lato_regular;
+            src: url("{!URLFOR($Resource.CC_font,'Lato-Regular.ttf')}");
+        }
+
+</style>-->
+
+
+<apex:form >
+<div class="container-fluid">
+    <div class="CC_home_content">
+        <div class="CC_home_header">
+           
+    <nav role="navigation" class="navbar navbar-default">
+        <div class="navbar-header">
+            <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+
+            </button>
+            <a href="#" class="navbar-brand">
+              <!--<img src="{!URLFOR($Resource.CC_StyleResources,'img/Heartland-Connect.png')}" class="img-responsive logo"  />-->
+            
+            </a>
+        </div>
+        <!-- Collection of nav links, forms, and other content for toggling -->
+        <div id="navbarCollapse" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">HOME</a></li>
+                <li><a href="#">MY ACCOUNT</a></li>
+                <li class="dropdown">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">SUPPORT</a>
+                    <ul role="menu" class="dropdown-menu">
+                        <li><a href="#">Inbox</a></li>
+                        <li><a href="#">Drafts</a></li>
+                        <li><a href="#">Sent Items</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Trash</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">NEWS&amp;EVENTS</a></li>
+                <li><a href="#">HELP</a></li>
+            </ul>
+            <div role="search" class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" placeholder="Search" id="search" class="form-control" />
+                </div>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                
+                 <li id="CC_home_nav_logout">
+                  <div style="height:50%;position:relative;">Hi, {!myProfile[0].Name}</div>
+                  <div style="height:50%;position:relative;">
+                  <apex:commandLink style="color:white;" value="SIGN OUT" action="{!logout}" /></div>
+                  </li>
+            </ul>
+        </div>
+    </nav>
+
+
+        </div>
+
+     
+        
+        <div class="hidden-md hidden-lg">
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingOne">
+      <h4 class="panel-title">
+        <a class="collapsed sub-heading" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+          General Information
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+      <div class="panel-body">
+           <ul class="Account-content">
+            <li>{!accountInfo[0].Account.Name}</li>
+            <li>{!accountInfo[0].Account.AccountNumber}</li>            
+          </ul>     
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingTwo">
+      <h4 class="panel-title">
+        <a class="collapsed sub-heading" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Billing Information
+        </a>
+      </h4>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+      <div class="panel-body">
+              <ul class="Account-content">
+           <li>{!accountInfo[0].Account.BillingStreet}</li> 
+           <li>{!accountInfo[0].Account.BillingCity}</li>
+           <li>{!accountInfo[0].Account.BillingState}</li>
+           <li>{!accountInfo[0].Account.BillingCountry}</li>
+           <li>{!accountInfo[0].Account.BillingPostalCode}</li>            
+          </ul>    
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingThree">
+      <h4 class="panel-title">
+        <a class="collapsed sub-heading" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+         Shipping Information
+        </a>
+      </h4>
+    </div>
+    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+      <div class="panel-body">
+       <ul class="Account-content">
+             <li>{!accountInfo[0].Account.ShippingStreet}</li> 
+             <li>{!accountInfo[0].Account.ShippingCity}</li>
+             <li>{!accountInfo[0].Account.ShippingState}</li>
+             <li>{!accountInfo[0].Account.ShippingCountry}</li>
+             <li>{!accountInfo[0].Account.ShippingPostalCode}</li>              
+       </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+        <div class="CC_home_accountHeader" style="display:none;">
+        <div class="hidden-xs hidden-sm">
+          <h4 >Account Details</h4>
+         <div class="row">
+         <div class="col-md-4">
+          <p class="sub-heading">General Information</p>
+          <ul class="Account-content">
+            <li>{!accountInfo[0].Account.Name}</li>
+            <li>{!accountInfo[0].Account.AccountNumber}</li>            
+          </ul>         
+         </div>
+         
+         <div class="col-md-4">
+          <p class="sub-heading">Billing Information</p>
+          <ul class="Account-content">
+           <li>{!accountInfo[0].Account.BillingStreet}</li> 
+           <li>{!accountInfo[0].Account.BillingCity}</li>
+           <li>{!accountInfo[0].Account.BillingState}</li>
+           <li>{!accountInfo[0].Account.BillingCountry}</li>
+           <li>{!accountInfo[0].Account.BillingPostalCode}</li>            
+          </ul>          
+         </div>
+          
+         <div class="col-md-4">
+            <p class="sub-heading">Shipping Information</p>
+            <ul class="Account-content">
+             <li>{!accountInfo[0].Account.ShippingStreet}</li> 
+             <li>{!accountInfo[0].Account.ShippingCity}</li>
+             <li>{!accountInfo[0].Account.ShippingState}</li>
+             <li>{!accountInfo[0].Account.ShippingCountry}</li>
+             <li>{!accountInfo[0].Account.ShippingPostalCode}</li>              
+            </ul>
+           
+          </div>
+          </div>
+          </div>
+    
+         </div>
+      
+        
+        <div class="CC_home_body" style="display:none;">
+        <div class="CC_home_alertSection">
+         <div class="alert alert-dismissible fade in" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+
+           
+          
+              <p class="body-font white"><span class="glyphicon glyphicon-warning-sign" style="padding-right:10px;"></span>Change this and that and try again. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum.</p>
+        
+       
+          
+         </div>          
+        </div>
+  
+            <div class="CC_home_section" >
+
+              <div class="table-responsive">
+                <table class="table">
+                <h4 >Recent Cases</h4>
+   
+                    <thead>
+                        <tr>
+                            <th class="sub-heading">Case Number</th>
+                            <th class="sub-heading">Contact</th>
+                            <th class="sub-heading">Support Agent</th>
+                            <th class="sub-heading">Status</th>
+                            <th class="sub-heading">Date/Time Opened</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!accountRelatedLists[0].Cases}" var="x">
+                    
+                        <tr class="table-content">
+                            <td><apex:Commandlink value="{!x.CaseNumber}" action="{!goToCaseDetail}"/></td>
+                            <td>{!x.contact.Name}</td>
+                            <td> {!x.Owner.Name}</td>
+                            <td>{!x.Status}</td>
+                            <td>{!x.CreatedDate}</td>
+                        </tr>
+                    
+                        </apex:repeat>
+                    </tbody>
+                    
+                </table>
+                </div>
+                <div style="text-align:right; padding-right:11%; padding-bottom:1%;">
+                 <a  class="btn btn-default responsive-width" href="#" role="button">VIEW ALL</a>
+                   <apex:commandLink styleclass="btn btn-default responsive-width" action="{!goToNewCase}" value="Open new case" />
+                </div>
+            </div>
+           
+              
+           
+            <div class="CC_home_section" >
+           
+               <table class="table">
+                  <h4 >District Contacts</h4>
+                    <thead>
+                        <tr>
+                            <th class="sub-heading">Name</th>
+                            <th class="sub-heading">Phone</th>
+                            <th class="sub-heading">Email</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!accountRelatedLists[0].Contacts}" var="con">
+                
+                        <tr class="table-content">
+                            <td><apex:commandlink value="{!con.Name}" /></td>
+                            <td>{!con.Phone}</td>
+                            <td>{!con.Email}</td>
+                        
+                        </tr>
+                      
+                        </apex:repeat>
+                    </tbody>
+                    
+                </table>
+            </div>
+
+              <div class="CC_home_section" style="">
+           
+              
+                  <h4>Products/Services</h4>
+                    
+                    <ul style="column-count:2;">
+                        <apex:repeat value="{!productsAndServices}" var="products">
+                          <li class="body-text"><apex:commandlink value="{!products}" /></li>
+                        </apex:repeat>
+                    </ul>
+            </div>
+        </div>
+        <div class="row">
+        <div class="CC_home_footer">
+       
+         <div class="col-sm-3" style="border-right:2px solid #F3F3F3;">
+           <div class="body-text form-group">
+             <!--<div><img src="{!URLFOR($Resource.CC_StyleResources,'img/Heartland-Logo-Footer.png')}" class="img-responsive" /><sup>Payment Systems</sup></div>-->
+             <div><small>&copy; 2015 Heartland school Solutions,</small></div>
+             <div class="form-group"><small>a division of heartland Payment Systems, Inc.</small></div>   
+             <p class="form-group"><small>All Rights Reserved.</small></p>  
+           </div>
+         </div>
+         <div class="col-sm-8">
+           <div class="row">
+             <div class="col-sm-3">
+              <ul class="footer_links h5">
+              QUICK LINKS
+               <li>
+                <small >
+                 <apex:commandLink value="HOME" />
+                </small>
+               </li>
+
+               <li>
+                <small>
+                 <apex:commandLink value="MY ACCOUNT" />
+                </small>
+               </li>
+
+               <li>
+                <small>
+                 <apex:commandLink value="SUPPORT" />
+                </small>
+               </li>
+
+               <li>
+                <small>
+                 <apex:commandLink value="EVENTS" />
+                </small>
+               </li>
+
+              
+              
+             </ul>              
+             
+             </div>
+             <div class="col-sm-9">
+              <ul class="footer_links h5">
+              FROM THE CONNECTION BLOG
+               <li>
+                <small >
+                 <apex:commandLink value="The Essential Point of Sale Checklist for the Start of School" />
+                </small>
+               </li>
+
+               <li>
+                <small>
+                 <apex:commandLink value="School Lunch Recipe:Quinoa Enchilada Bake" />
+                </small>
+               </li>
+
+               <li>
+                <small>
+                 <apex:commandLink value="FitFuture Parent Newsletter: Turn Your Diet Green in 4 Easy Steps" />
+                </small>
+               </li>
+
+               <li>
+                <small>
+                 <apex:commandLink value="How Cloud-Based Solutions Simplify School Nutrition Programs" />
+                </small>
+               </li>
+
+               <li>
+                <small>
+                 <apex:commandLink value="6 Tips to Promote Your Online Payments Program" />
+                </small>
+               </li>
+                
+              
+             </ul>
+             </div>
+           
+           </div>
+         </div>
+        
+        
+        </div>
+        </div>
+    </div>
+     
+</div>
+ </apex:form>
+</apex:page>

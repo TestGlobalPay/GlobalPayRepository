@@ -1,0 +1,298 @@
+<apex:page tabStyle="Case" standardController="Case" extensions="Case_FlowExtension">
+    <style>
+        .FlowContainer {
+            width: 620px; // 640px;
+            float: left;
+        }
+        .FlowDropdown {
+            width: 138px;
+            padding-right: 2px;
+            padding-left: 8px;
+            float: left;
+        }
+        .FlowDate {
+            width: 138px;
+            padding-right: 2px;
+            padding-left: 8px;
+            float: left;
+        }
+        .FlowText {
+            width: 138px;
+            padding-right: 2px;
+            padding-left: 8px;
+            float: left;
+        }
+        .interviewFormChoicesWithHelp {
+            width: 600px; // 550px;
+            margin: -12px 0 18px -40px;
+            white-space: nowrap;
+        }
+        .interviewFormChoicesWithHelp input {
+            float: left;
+            clear: left;
+            margin-top: 32px;
+        }
+        
+        .interviewFormChoicesWithHelp > .requiredBlock {
+         visibility: hidden;
+         }
+        .FlowRadio {
+            visibility: hidden;
+        }
+        .formPageTitle {
+            font-size: 18px;
+            font-weight: bold;
+            padding-left: 15px;
+        }
+        .multiSelectPicklistRow td select {
+            max-width: 195px !important;
+        }
+        img.choiceImg {
+            padding: 10px 0 10px 15px;
+            vertical-align: middle;
+            float: left;            
+        }
+        .choiceText {
+            font-size: 16px;
+            float: left;
+            margin-top: 17px;
+            padding-left: 15px;
+        }
+        .choiceTitle {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .choiceSubtext {
+            font-style: italic;
+            font-size: 12px;   
+        }
+        .sourceDetailsNote {
+            margin: 10px 0 0 15px;
+        }
+        hr {
+            width: 85%;
+            margin-left: 18px;
+        }
+        .footnote {
+            padding-left: 30px;
+            font-size: 12px;
+        }
+        .footnoteHeader {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .footnoteItem {
+        
+        }      
+        .FlowPageBlockBtns .btn {
+            font-size: 18px;
+            width: 120px;
+        }        
+        .vAlignMiddle {
+            vertical-align: middle;
+        }
+        .congratsAll {
+            padding-left: 20px;
+            margin-top: -20px;
+        }
+        .congratsTitleImg {
+            float: left;
+            padding-right: 15px;
+            margin-left: -10px;
+        }
+        .congratsTitle {
+            font-weight: bold;
+            font-size: 20px;
+            float: left;
+            margin-top: -18px;
+        }
+        .congratsSubtitle {
+            font-style: italic;
+            float: left;
+            margin-top: -10px;
+        }
+        .congratsCaseBlock {
+            padding-left: 20px;
+            margin-top: -10px;
+        }
+        .congratsCaseLabel {
+            font-weight: bold;
+            width: 65px;
+            float: left;
+            clear: left;
+            text-align: right;
+            padding: 0 10px 3px 0;
+        }
+        .congratsCaseText {
+            float: left;
+            width: 445px;
+            word-wrap: break-word;
+            padding: 0 0 3px 0;
+        }        
+        .congratsHeader {
+            float: left;
+            clear: left;
+        }          
+        .congratsSfdc {
+            font-size: 14px;
+            font-style: italic;
+            padding: 0 0 0 15px;
+            clear: left;
+        }     
+        .congratsLink {
+            font-size: 20px;    
+            font-weight: bold;   
+            padding-bottom: 60px;    
+        }
+        .congratsLink a:hover {
+            color: #007ee5;
+        }
+        .congratsLinkImg {
+            float: left;
+            clear: left;
+            padding-left: 20px;
+        }
+        .congratsLinkText {
+            float: left;
+            padding: 20px 0 0 15px;            
+        }   
+        .congratsLinkText:hover {
+            color: #007ee5;
+        }  
+        .viewSourceDetail {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 25px;
+        }
+        .createSourceDetail {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .congratsTitleImgSourceDetail {
+            margin-top: -10px;
+        }
+        .viewSourceDetailIcon {
+            width: 60px;
+            float: none;
+        }
+        .createSourceDetailIcon {
+            margin-left: 60px;
+        }
+        .easterEgg {
+            padding: 0 0 0 30px;
+            float: left;
+            text-align: center;
+        }
+        .eggTitle {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .eggText {
+            font-size: 16px;
+        }
+        .congratsLeftColumn {
+            float: right;
+            font-weight: bold;
+            margin-right: 10px;
+            width: 160px;
+            text-align: right;
+        }
+        .congratsRightColumn {
+            float: left;
+            width: 350px;
+        }
+        .pbTitle {
+            white-space: nowrap;
+        }
+        .stepText {
+            padding: 10px 0 0 15px;
+            float: left;
+        }
+        .stepTextFirst {
+            padding: 0 0 0 15px;
+            float: left;
+        }
+        .stepImg {
+            margin: 10px 0 0 15px;
+            clear: left;
+        }
+        .errorMsgText {
+            font-weight: bold;
+            color: red;
+            padding: 8px 0 0 15px;
+        }
+    </style>
+    <apex:sectionHeader title="Case Edit" subtitle="New Case" />
+    <!--<flow:interview id="flow" buttonLocation="bottom" interview="{!caseFlow}" finishLocation="{!finishUrl}" name="Case_CaseCreatorFlow"></flow:interview>-->
+    <!-- Show this easter egg every 50th case -->
+    <apex:outputPanel styleClass="easterEgg" rendered="{!MOD(caseNumber, 50) = 0}">
+        <div class="eggTitle">Congratulations!</div>
+        <apex:outputText styleClass="eggText" value="You've created the " />
+        <apex:outputText styleClass="eggText" value="{0, number, ###,###}th case!" >
+            <apex:param value="{!caseNumber}"/>
+        </apex:outputText><br />
+        <apex:image value="http://www.mariowiki.com/images/d/d1/Fireworks.gif" />
+    </apex:outputPanel>    
+    <!-- Attachment -->
+    <apex:form >
+        <apex:actionFunction action="{!reattach}" name="reattach" reRender="none" />
+        <apex:outputPanel style="float: left; margin: 0 0 0 20px; width: 400px;" rendered="{!allowAttachments}" >
+            <apex:pageBlock mode="edit" title="Upload an Attachment">
+        
+              <!-- Upload Button -->
+              <apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!upload}" value="Upload"/>
+              </apex:pageBlockButtons>
+              
+              <!-- Main Content -->
+              <apex:pageBlockSection showHeader="false" columns="1" id="block1">
+                <!-- Status Messages -->
+                <apex:pageBlockSectionItem >
+                  <apex:pageMessages />      
+                </apex:pageBlockSectionItem>
+                <!-- File Picker -->
+                <apex:pageBlockSectionItem >
+                  <apex:inputFile value="{!attachment.body}" filename="{!attachment.name}" id="file" />
+                </apex:pageBlockSectionItem>
+              </apex:pageBlockSection>
+              
+            </apex:pageBlock>
+        </apex:outputPanel>
+    </apex:form>    
+    <script> 
+        var previousOnload = window.onload;          
+        
+        window.onload = function() {
+            if (previousOnload) { 
+                previousOnload(); 
+            }
+            
+            // This changes the "Next" button to a "Submit" button on the final page
+            pageName = document.getElementsByClassName("formPageTitle")[0].innerHTML;
+            if ((pageName === "Case Details")||(pageName === "Inbound Details")||(pageName === "Case Upload and Finish")) {
+                document.querySelectorAll("input[value='Next']")[0].value = 'Submit';
+            }
+            
+            // Fixes focused fields
+            document.getElementById("focus").focus();
+            
+            // This prevents submission without attachments
+            if ({!allowAttachments}) {
+                if ({!NOT(hasAttachment)}) {
+                    var submitButton = document.querySelectorAll("input[value='Submit']")[0];
+                    submitButton.disabled = true;
+                    submitButton.style.opacity = '0.3';
+                    submitButton.style.cursor = 'default';
+                    submitButton.style.backgroundPosition = '0 0';
+                }
+            }
+        }; 
+        
+        // Attaches a case post submit
+        submitted = document.getElementsByClassName("congratsAll")[0];
+        if (submitted != null) {
+            reattach();
+        }
+        
+    </script>
+</apex:page>

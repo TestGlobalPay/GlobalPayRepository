@@ -1,0 +1,8 @@
+<apex:page standardController="Opportunity">
+    <script>        
+        if('{!Opportunity.Pricebook2Id}'=='')
+            window.top.location='/oppitm/choosepricebook.jsp?id={!Opportunity.Id}&retURL=/apex/sfcloud__ProductBundle_Add?id={!Opportunity.Id}&retURL={!Opportunity.Id}';
+        else
+            window.top.location='/apex/ProductBundle_Add?id={!Opportunity.Id}&retURL=/{!Opportunity.Id}';
+    </script>
+</apex:page>

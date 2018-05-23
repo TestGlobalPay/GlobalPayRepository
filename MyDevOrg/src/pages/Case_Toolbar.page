@@ -1,0 +1,273 @@
+<apex:page >
+  <apex:includeScript value="/support/console/33.0/integration.js"/>
+    <script type="text/javascript">
+        var isdtp = '';
+        if (sforce.console.isInConsole()) {
+          isdtp = 'vw';
+        }
+    </script>
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" />
+    <style>
+        .wrapper {
+            width: 1100px;
+        }
+        .buttonBox {
+            height: 124px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+        }
+        .createBox {
+            width: 150px;
+            background-color: #A9D0F5; 
+        }
+        .docsBox {
+            margin-left: 10px;
+            width: 250px;
+            background-color: #FACDD7; 
+        }
+        .shortcutsBox {
+            margin-left: 10px;
+            width: 470px;
+            background-color: #A9F5A9; 
+        }
+        .adminBox {
+            margin-left: 10px;
+            width: 472px;
+            background-color: #A9F5A9; 
+        }
+        .boxTitle {
+            margin-left: 5px;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            font-family: Arial;
+            letter-spacing: 10px;
+            text-align: center;
+        }
+        .bigButtonWrapper {
+            height: 82px;
+            width: 82px;
+            margin: 2px 0 0 28px;
+        }
+        .bigButtonWrapper:hover {
+            cursor: pointer;
+        }
+        .bigButton {
+            height: 80px;
+            width: 80px;
+            border: 1px solid #888;
+            box-shadow: 1px 1px 2px #888;
+            text-align: center;
+            background-color: white;
+            border-radius: 15px;
+        }
+        .bigButton:active {
+            margin: 1px 0 0 1px;
+        }
+        .bigButtonImg {
+            opacity: 0;
+            height: 65px;
+            width: 65px;
+        }
+        .bigButtonText {
+            position: absolute;
+            font-weight: 700;
+            color: black;           
+            font-family: Arial;
+            font-size: 20px;
+            width: 80px;
+            margin-top: -8px;
+            line-height: 90%;
+        }
+        .createButton:hover {
+            box-shadow: 1px 1px 3px #045FB4;
+        }
+        .docsButton:hover {
+            box-shadow: 1px 1px 3px #8A0829;
+            cursor: pointer;
+        }
+        .shortcutsButton:hover {
+            box-shadow: 1px 1px 4px #088A29;
+        }
+        .hRule {
+            opacity: 0;
+            margin: 0 0 8px 92px;
+            width: 775px;
+            height: 1px;
+            background-color: #ECECEC;
+        }
+        .left {
+            float: left;
+        }        
+        .clear-left {
+            clear: left;
+        }
+        .clear-right {
+            clear: right;
+        }
+    </style>
+    <div class="hRule left clear-left" />
+    <div class="wrapper">
+        <!-- Create Box -->
+        <div class="buttonBox createBox left clear-left">        
+            <div class="boxTitle">Create</div>
+            <!-- Case -->
+            <div class="bigButtonWrapper left">            
+                <div class="bigButton createButton clear-left left">                
+                    <a href="/apex/Business_Line_Page" onclick="this.href=this.href+ isdtp;return true;"> 
+                        <img class="bigButtonImg" src="{!$Resource.Case_Case}" style="padding-bottom: 2px;" />
+                        <div class="bigButtonText" style="color: #4F9BE1; font-size: 22px;">Case</div>
+                    </a>
+                </div>
+            </div>
+            <!-- Feature Request -->
+            <!--<div class="bigButtonWrapper left">
+                <div class="bigButton createButton left">
+                    <a href="/500/e?RecordType=012800000003sul&ent=Case&retURL=%2Fapex%2FCase_Home">
+                        <img class="bigButtonImg" src="{!$Resource.Case_FeatureRequest}" style="height: 50px; width: 50px; padding: 4px 0 15px 0;" />
+                        <div class="bigButtonText" style="color: #4F9BE1; font-size: 15px; margin-top: -17px;">Feature Request</div>
+                    </a>
+                </div>
+            </div>
+            <!-- Source Details -->
+            <!--<div class="bigButtonWrapper left">
+                <div class="bigButton createButton left">
+                    <a target="_blank" href="http://go/etophonenumber">
+                        <img class="bigButtonImg" src="{!$Resource.Case_Sourcedetails2}" style="height: 50px; width: 50px; padding: 4px 0 15px 0;" />
+                        <div class="bigButtonText" style="color: #4F9BE1; font-size: 15px; margin-top: -17px;">Source Detail</div>
+                    </a>
+                </div>
+            </div>-->
+        </div>
+                  
+        <!-- Docs Box -->
+        <!--<div class="buttonBox docsBox left">        
+            <div class="boxTitle">Docs</div>
+                    
+            <div id="watchButton" class="bigButtonWrapper left">
+                <div class="bigButton docsButton clear-left left">
+                    <a>
+                        <img id="watchImg" class="bigButtonImg" src="{!$Resource.Case_Watch}" style="height: 35px; width: 50px; padding: 15px 0 15px 0;" />
+                        <div id="watchTxt" class="bigButtonText" style="color: #FE5682; font-size: 22px;">Watch</div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bigButtonWrapper left">
+                <div class="bigButton docsButton left">
+                    <a target="_blank" href="https://docs.google.com/a/google.com/presentation/d/1gDblSi40Xvl9iCts7YTDRqvdzf9Ajyy3Vuy50KtYChM/edit?usp=sharing">
+                        <img class="bigButtonImg" src="{!$Resource.Case_FAQ}" style="height: 55px; width: 55px; padding: 3px 0 7px 0;" />
+                        <div class="bigButtonText" style="color: #FE5682; font-size: 22px;">FAQ</div>
+                    </a>
+                </div>
+            </div>
+        </div>-->
+        <!-- Shortcuts Box -->
+        <!--<apex:outputPanel rendered="{!$Profile.Name != 'System Administrator'}">
+        <div class="buttonBox shortcutsBox left">
+            <div class="boxTitle">Quick Create</div>       
+            <!-- Source Details ->  
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton clear-left left">
+                    <a href="/apex/Case_Flow?Variable_Priority=Medium&Variable_Type=Other&Variable_Subtype=Other%20Source%20Details&Variable_Return_URL=/apex/Case_Home&isdtp=" onclick="this.href=this.href+ isdtp;return true;">
+                        <img class="bigButtonImg" src="{!$Resource.Case_SourceDetails}" style="width: 110px; height: 50px; margin-left: -6px; padding: 3px 0 6px 0;" />
+                        <div class="bigButtonText" style="font-size: 15px; color: #4B8A08;">Source Details</div>
+                    </a>
+                </div>        
+            </div>
+            <!-- Delete Records ->
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton left">
+                    <a href="/apex/Case_Flow?Variable_Priority=Medium&Variable_Type=Leads&Variable_Subtype=Delete%20Records&Variable_Return_URL=/apex/Case_Home&isdtp=" onclick="this.href=this.href+ isdtp;return true;">
+                        <img class="bigButtonImg" src="{!$Resource.Case_DeleteRecords}" style="height: 40px; width: 40px; padding: 7px 0 12px 0;" />
+                        <div class="bigButtonText" style="font-size: 15px; color: #4B8A08;">Delete Records</div>
+                    </a>
+                </div>
+            </div>
+            <!-- Manager Change ->
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton left">
+                    <a href="/apex/Case_Flow?Variable_Priority=Medium&Variable_Type=Users&Variable_Subtype=Manager%20Change&Variable_Return_URL=/apex/Case_Home&isdtp=" onclick="this.href=this.href+ isdtp;return true;">
+                        <img class="bigButtonImg" src="{!$Resource.Case_CreateUsers}" style="height: 42px; width: 42px; padding: 5px 0 13px 0;" />
+                        <div class="bigButtonText" style="font-size: 15px; color: #4B8A08;">Manager Change</div>
+                    </a>
+                </div>
+            </div>
+            <!-- Transfer Users ->
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton left">
+                    <a href="/apex/Case_Flow?Variable_Priority=Medium&Variable_Type=Users&Variable_Subtype=Transfers&Variable_Return_URL=/apex/Case_Home&isdtp=" onclick="this.href=this.href+ isdtp;return true;">
+                        <img class="bigButtonImg" src="{!$Resource.Case_Transfers}" style="height: 58px; width: 58px; padding: 0 0 8px 0;" />
+                        <div class="bigButtonText" style="font-size: 16px; color: #4B8A08;">Transfers</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        </apex:outputPanel>
+        <!-- Premier Support Box ->
+        <apex:outputPanel rendered="{!$Profile.Name == 'System Administrator'}">
+        <div class="buttonBox adminBox left">
+            <div class="boxTitle">Premier Success</div>
+            <!-- Courses ->  
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton clear-left left">
+                    <a href="https://help.salesforce.com/htsctrainingcatalog">
+                        <img class="bigButtonImg" src="{!$Resource.Case_Courses}" style="width: 60px; height: 60px; margin-top: -5px; padding: 0 0 13px 0;" />
+                        <div class="bigButtonText" style="font-size: 17px; color: #4B8A08;">Courses</div>
+                    </a>
+                </div>        
+            </div>       
+            <!-- Admin+ Case ->  
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton clear-left left">
+                    <a href="https://help.salesforce.com/HTPortalLogCase?subject=">
+                        <img class="bigButtonImg" src="{!$Resource.Case_AdminPlus}" style="width: 60px; height: 50px; padding: 6px 0 12px 0;" />
+                        <div class="bigButtonText" style="font-size: 17px; color: #4B8A08;">Admin+</div>
+                    </a>
+                </div>        
+            </div>
+            <!-- Templates ->  
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton clear-left left">
+                    <a href="https://salesforce.adobeconnect.com/_a13852757/pttoolkit/default/resource/assets/PremierPlus_Success_Plan_Admin_Case_Templates_051712.pdf">
+                        <img class="bigButtonImg" src="{!$Resource.Case_Templates}" style="width: 70px; height: 70px; margin-top: -3px; padding: 0 0 1px 0;" />
+                        <div class="bigButtonText" style="font-size: 15px; color: #4B8A08;">Templates</div>
+                    </a>
+                </div>        
+            </div>
+            <!-- Help ->  
+            <div class="bigButtonWrapper left">
+                <div class="bigButton shortcutsButton clear-left left">
+                    <a href="https://salesforce.adobeconnect.com/_a13852757/pspwelcome/">
+                        <img class="bigButtonImg" src="{!$Resource.Case_Overview}" style="width: 50px; height: 50px; padding: 6px 0 12px 0;" />
+                        <div class="bigButtonText" style="font-size: 15px; color: #4B8A08;">Overview</div>
+                    </a>
+                </div>        
+            </div>
+        </div>
+        </apex:outputPanel>-->
+    </div>
+    <div class="hRule left clear-left" />
+    <!-- Javascript -->
+    <script>
+        var $j = jQuery.noConflict();
+        var previousOnload = window.onload;          
+
+        // This fades in the buttons on page load        
+        window.onload = function() {
+            if (previousOnload) { 
+                previousOnload(); 
+            }
+            $j(".bigButtonImg").delay(200).animate({opacity: "1"}, 250);
+            $j(".hRule").animate({opacity: "1"}, 600);
+            
+            $j("#watchButton").on('mouseenter', function() {
+                $j("#watchImg").fadeOut(75);
+                $j("#watchTxt").fadeOut(75,'linear', function() {
+                    $j("#watchButton").html('<div class="bigButton docsButton"><img id="comingSoonImg" height="75" width="75" style="padding-top: 3px; opacity: 0;" src="http://alienpowersystem.com/wp-content/uploads/2013/09/coming-soon.png" /></div>');
+                    $j("#comingSoonImg").animate({opacity: ".75"}, 75);
+                });
+            });
+        }; 
+    </script>
+</apex:page>

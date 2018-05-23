@@ -1,0 +1,14 @@
+<apex:page standardController="Account" extensions="pexmaps.TerritoriesTerritoryAccountsController" action="{!init}"
+	tabStyle="Account_Maps__tab" id="page_TerritoriesTerritoryAccounts" title="Google Maps for Salesforce: Territory Accounts">
+
+	<apex:form >
+	
+		<apex:outputPanel id="panel_Messages">
+			<font color="red">
+		    	<apex:messages />
+			</font>
+		</apex:outputPanel>
+	
+	</apex:form>
+
+</apex:page>

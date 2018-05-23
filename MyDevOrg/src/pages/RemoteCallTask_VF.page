@@ -1,0 +1,77 @@
+<apex:page controller="RemoteCallAssignment">
+  
+  <script type="text/javascript">
+  function getRemoteCase()
+  {
+      var caseNum = document.getElementById('casesearchtext').value;
+      
+      Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.RemoteCallAssignment.getCase}',
+      caseNum,
+      function(result,event){
+                  if(event.status) {
+                      alert('result====>'+result);
+                    document.getElementById('remoteCaseId').innerHTML = result.CaseNumber
+                    alert('Id----->'+result.id);
+                    document.getElementById('subject').innerHTML = result.id;}
+                    else if(event.type==='exception')
+                    {
+                    document.getElementById('errors').innerHTML = 
+                        event.message + "<br/>\n<pre>" + event.where + "</pre>";
+                    }
+                    else {      document.getElementById('errors').innerHTML = event.message;
+                    }
+                    
+      },{escape:true});
+      
+     
+      /*
+      Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.RemoteCallAssignment.getCase}',
+            caseNum, 
+            function(result, event){
+                if (event.status) {
+                alert(result.subject);
+                    // Get DOM IDs for HTML and Visualforce elements like this
+                    alert('result====>'+result);
+                    document.getElementById('remoteCaseId').innerHTML = result.CaseNumber;
+                    document.getElementById('subject').innerHTML = result.id;
+                } else if (event.type === 'exception') {
+                    document.getElementById("errors").innerHTML = 
+                        event.message + "<br/>\n<pre>" + event.where + "</pre>";
+                } else {
+                    document.getElementById("errors").innerHTML = event.message;
+                }
+            }, 
+            {escape: true}
+        );
+      
+       */
+    }
+  
+  
+  
+  
+  
+  
+  </script>
+  
+  
+  <input id="casesearchtext" type="text"/>
+  <button onclick="getRemoteCase()">Get Case</button>
+  <div id="errors"></div>
+  
+  <apex:pageBlock id="block">
+        <apex:pageBlockSection id="blockSection" columns="2">
+            <apex:pageBlockSectionItem id="firstItem">
+                <span id="remoteCaseId"/>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem id="secondItem">
+                <span id="subject"/>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+  
+  
+  
+</apex:page>

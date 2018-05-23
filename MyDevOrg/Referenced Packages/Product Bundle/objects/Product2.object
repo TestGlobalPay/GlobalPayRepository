@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldSets>
+        <fullName>FieldsToDisplay</fullName>
+        <availableFields>
+            <field>Product_Cost__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <description>Use same field set on PricebookEntry object instead</description>
+        <label>x-Deprecated -- FieldsToDisplay</label>
+    </fieldSets>
+    <fieldSets>
+        <fullName>FieldsToFilter</fullName>
+        <description>Use same field set on PricebookEntry object instead</description>
+        <label>x-Deprecated -- FieldsToFilter</label>
+    </fieldSets>
+    <fieldSets>
+        <fullName>FieldsToSort</fullName>
+        <description>Use same field set on PricebookEntry object instead</description>
+        <label>x-Deprecated -- FieldsToSort</label>
+    </fieldSets>
+    <fields>
+        <fullName>Bundle_Items__c</fullName>
+        <deprecated>false</deprecated>
+        <description>If this is a Bundle Product, this field will have all the Products Name along with Qty.</description>
+        <externalId>false</externalId>
+        <label>Bundle Items</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Copied_from_Bundle__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Reference to Bundle from which the Product was generated</description>
+        <externalId>false</externalId>
+        <label>Generated from Bundle</label>
+        <referenceTo>Product_Bundle__c</referenceTo>
+        <relationshipLabel>Generated Products</relationshipLabel>
+        <relationshipName>Products</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Image_URL__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Image</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>Image__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(
+  Image_URL__c==&apos;&apos;,
+  &apos;Image Unavailable&apos;,
+  IMAGE(Image_URL__c , &quot;Image Unavailable&quot;, 75, 75)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Image</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Cost__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Please use Product cost at PricebookEntry level</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please use Product cost at PricebookEntry level</inlineHelpText>
+        <label>x-Deprecated -- Product Cost</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Volume_Pricing_Model__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Bulk - defines price for ALL units within the range
+Tiered - defines price PER unit within the range</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Bulk - defines price for ALL units within the range
+Tiered - defines price PER unit within the range</inlineHelpText>
+        <label>Volume Pricing Model</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+        <valueSet>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Bulk</fullName>
+                    <default>true</default>
+                </value>
+                <value>
+                    <fullName>Tiered</fullName>
+                    <default>false</default>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+</CustomObject>

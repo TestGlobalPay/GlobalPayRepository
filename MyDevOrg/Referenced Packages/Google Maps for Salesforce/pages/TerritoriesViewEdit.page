@@ -1,0 +1,1903 @@
+<apex:page controller="pexmaps.TerritoriesViewEditController" action="{!init}"
+	tabStyle="Account_Maps__tab" id="page_TerritoriesViewEdit" 
+	title="Google Maps for Salesforce: {!IF(mode='new',locale.createNewView,locale.editView)}">
+
+	<apex:variable var="leftColumnWidth" value="150" />
+	<apex:variable var="leftColumnIndent" value="160" />
+
+
+	<style type="text/css">
+	.paramLabel
+		{ 
+		font-weight:bold; 
+		font-size:97%; 
+		text-align:right; 
+		vertical-align:middle;
+		width:{!leftColumnWidth}px;	
+		}
+	.paramLabelWide
+		{ 
+		font-weight:bold; 
+		font-size:97%; 
+		text-align:right; 
+		vertical-align:middle;
+		width:260px;	
+		}
+	.paramField
+		{
+		text-align:left;
+		}
+	</style>
+
+	<script type="text/javascript">
+		var iconsPath = "https://www.pexmaps.com:8443/img/icons/";
+		var colorPickerImagePath = "..{!URLFOR($Resource.ColorPickerImagesZip, '')}/";
+		var territoriesImagePath = "..{!URLFOR($Resource.TerritoryImagesZip, '')}/";
+		var mapIconImagePath = "{!view.iconImagePath}";
+	</script>
+
+	<apex:image id="image_Loader" url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'ajax-loader.gif')}" style="position:fixed; top:50%; left:50%; margin-top:-24px; margin-left:-24px; z-index:1000; visibility:hidden"/>
+    <apex:includeScript value="https://maps.googleapis.com/maps/api/js?key=AIzaSyD77NJEyY75GCCcHsXQZX0CSlpKvxWY0Tg&sensor=false"/>
+	
+	<apex:includeScript value="/soap/ajax/16.0/connection.js" />
+	<apex:includeScript value="/soap/ajax/16.0/apex.js" />
+
+	<apex:sectionHeader title="{!IF(mode='new',locale.createNewView,locale.editView)}" subtitle="{!IF(mode='new','',view.Name)}"/>
+	
+	<apex:form id="form_TerritoriesViewEdit">
+       	<apex:actionFunction name="singleFieldFilterFieldChanged" action="{!view.filter.singleFieldFilters.filterFieldChanged}" oncomplete="afterSingleFieldFilterFieldChanged()" rerender="panel_StepFive, panel_MultiFieldFilterInput, panel_Messages" />
+       	<apex:actionFunction name="multiFieldFilterFieldChanged" action="{!view.filter.multiFieldFilters.filterFieldChanged}" oncomplete="afterMultiFieldFilterFieldChanged()" rerender="panel_StepSix, panel_Messages" />
+       	<apex:actionFunction name="userSelectionStateChanged" action="{!userSelectionStateChanged}" oncomplete="afterUserSelectionStateChanged()" rerender="panel_StepThree, panel_Messages" />
+       	<apex:actionFunction name="allUsersSelectionStateChanged" action="{!allUsersSelectionStateChanged}" oncomplete="afterAllUsersSelectionStateChanged()" rerender="panel_StepThree, panel_Messages" />
+
+	    <apex:pageBlock title="" id="block_TerritoriesViewEdit">
+
+			<apex:pageBlockButtons location="{!IF(view.type='Custom','top','both')}">
+				<apex:commandButton action="{!saveView}" value="{!locale.save}" onclick="beforeSave()"/>
+	        	<apex:commandButton action="{!deleteView}" value="{!locale.delete}" rendered="{!NOT(view.id=null)}" onclick="if(!confirm('{!locale.deleteThisView}'))return false;" />
+				<apex:commandButton action="{!cancel}" value="{!locale.cancel}" />
+			</apex:pageBlockButtons>
+			
+			<apex:outputPanel id="panel_Messages">
+				<font color="red">
+			    	<apex:messages />
+				</font>
+			</apex:outputPanel>
+
+			<br/>
+
+			<apex:outputPanel >			
+				<apex:outputText escape="false" rendered="{!view.type='Single Role'}" value="{!locale.singleRoleInfo} {!locale.optionalTitle}">
+					<apex:param value="{!view.viewObjectPlural}"/>
+				</apex:outputText>
+				<apex:outputText escape="false" rendered="{!view.type='Multiple Role'}" value="{!locale.multiRoleInfo}">
+					<apex:param value="{!view.viewObjectPlural}"/>
+				</apex:outputText>
+				<apex:outputText escape="false" rendered="{!view.type='Custom'}" value="{!locale.customInfo}" />
+				<apex:outputText escape="false" rendered="{!view.type='Campaign'}" value="{!locale.campaignInfo}" />
+				<apex:outputText escape="false" rendered="{!view.type='List Based'}" value="{!locale.listBasedInfo}" />
+				<apex:outputText escape="false" rendered="{!view.type='Combination'}" value="{!locale.combinationInfo}" />
+				<apex:outputText escape="false" rendered="{!view.type='User'}" value="{!locale.userInfo}" />
+				<br/>
+				<br/>
+				
+				<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabel,paramField">
+				
+					<apex:outputLabel value="{!locale.viewName}" for="input_Name" style="position:relative; top:2px;left:-2px"/>
+					<apex:panelGroup >
+						<apex:outputPanel layout="block" styleClass="requiredInput" >
+							<apex:outputPanel layout="block" styleClass="requiredBlock" />
+							<apex:inputText id="input_Name" value="{!view.name}" size="50" maxLength="255"/>
+						</apex:outputPanel>
+					</apex:panelGroup>
+
+					<apex:outputPanel > </apex:outputPanel>
+					<apex:outputPanel > </apex:outputPanel>
+					<apex:outputPanel > </apex:outputPanel>
+					<apex:outputPanel > </apex:outputPanel>
+					
+				
+				
+				
+					<apex:outputText value="{!locale.viewType}" />
+					<apex:outputText value="{!view.typeName}" />
+					
+					<apex:outputText rendered="{!OR(view.type='Single Role', view.type='Multiple Role')}" value="{!locale.mappedObjects}" />
+					<apex:outputText rendered="{!OR(view.type='Single Role', view.type='Multiple Role')}" value="{!view.viewObjectPlural}" />
+
+					<apex:outputLabel value="{!locale.title}" for="input_Title" style="position:relative; top:2px;left:-2px"/>
+					<apex:inputText id="input_Title" value="{!view.title}" size="50" maxLength="255"/>
+
+
+
+				</apex:panelGrid>
+			</apex:outputPanel>
+			<br/>
+	
+			<apex:outputPanel id="panel_StepTwo" >	
+				<apex:pageBlockSection rendered="{!OR(view.viewObject='Account',isAccountRelated)}" columns="1" collapsible="false" title="{!locale.accountOptions}">
+					<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabelWide,paramField">
+						
+						<apex:outputLabel value="{!locale.addressTypeToUse}" for="select_AddressType"/>
+						<apex:selectList value="{!view.addressType}" id="select_AddressType" size="1">
+				        	<apex:selectOptions value="{!view.mapAddressTypeOptions}" />
+				        </apex:selectList>
+<!-- 				        
+						<apex:outputLabel rendered="{!view.viewObject='Account'}" value="{!locale.showOpenOppsAndContacts}" for="checkbox_AccountRelatedObjects"/>
+						<apex:inputCheckbox rendered="{!view.viewObject='Account'}" value="{!view.showAccountRelatedObjects}" id="checkbox_AccountRelatedObjects"/>
+ -->
+ 
+ 						<apex:outputLabel rendered="{!view.viewObject='Account'}" value="{!locale.showOpenOpps}" for="checkbox_ShowOpenOpps"/>
+						<apex:inputCheckbox rendered="{!view.viewObject='Account'}" value="{!view.showOpenOpportunities}" id="checkbox_ShowOpenOpps"/>
+ 
+ 						<apex:outputLabel rendered="{!view.viewObject='Account'}" value="{!locale.showContacts}" for="checkbox_ShowContacts"/>
+						<apex:inputCheckbox rendered="{!view.viewObject='Account'}" value="{!view.showContacts}" id="checkbox_ShowContacts"/>
+ 										        
+				    </apex:panelGrid>
+				</apex:pageBlockSection>
+
+				<apex:pageBlockSection rendered="{!OR(view.viewObject='Contact',view.type='Campaign')}" columns="1" collapsible="false" title="{!locale.contactOptions}">
+					<apex:outputPanel >
+						{!locale.selectUseContactAddress}
+						<br/>
+						<br/>
+						
+						<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabelWide,paramField">
+							<apex:outputLabel value="{!locale.useContactAddresses}" for="checkbox_UseContactAddress"/>
+							<apex:inputCheckbox value="{!view.useContactAddress}" id="checkbox_UseContactAddress"/>
+						</apex:panelGrid>
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+			<apex:outputPanel rendered="{!view.type='Campaign'}">
+				<apex:pageBlockSection id="section_SelectCampaign" columns="1" collapsible="false" title="{!locale.selectCampaign}">
+					<apex:outputPanel id="panel_StepTwoA">
+
+						<apex:outputPanel >
+							<input name="aro_lkid" id="aro_lkid" value="000000000000000" type="hidden"/>
+							<input name="aro_lkold" id="aro_lkold" value="null" type="hidden"/>
+							<input name="aro_lktp" id="aro_lktp" value="701" type="hidden"/>
+							<input name="aro_lspf" id="aro_lspf" value="0" type="hidden"/>
+							<input name="aro_mod" id="aro_mod" value="0" type="hidden"/>
+
+							<div class="lookupInput">
+								<apex:inputHidden id="hidden_CampaignName" value="{!view.campaignName}" />
+								<apex:inputHidden id="hidden_CampaignId" value="{!view.campaignId}" />
+								
+								
+								<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabelWide,paramField">
+									<apex:outputLabel value="{!locale.campaign}" />
+			
+									<input id="aro" maxlength="255" name="aro" value="{!view.campaignName}" size="50" title="Campaign" type="text"/>
+			
+									<a href="JavaScript: util.launchLookup();" id="button_Lookup" onclick="setLastMousePosition(event)" title="Campaign Lookup (New Window)">
+										<img src="/s.gif" alt="Campaign Lookup (New Window)" class="lookupIcon" onblur="this.className = 'lookupIcon';" onfocus="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon';this.className = 'lookupIcon';" onmouseover="this.className = 'lookupIconOn';this.className = 'lookupIconOn';" title="Campaign Lookup (New Window)"/>
+									</a>
+								</apex:panelGrid>
+								
+								<apex:panelGrid columns="3" cellspacing="4" columnClasses="paramLabelWide,paramField,paramField">
+
+									<apex:outputLabel value="{!locale.leadMarkerColor}" />
+									<apex:panelGroup >
+								   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_LeadColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_LeadColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(view.campaignLeadMarkerColor)}; cursor:pointer; " >
+								   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+								   		</apex:outputPanel>
+								   		<apex:inputHidden id="hidden_LeadColorValue" value="{!view.campaignLeadMarkerColor}" />
+								   	</apex:panelGroup>
+									<apex:panelGroup rendered="{!allowIcons}">							
+										<apex:inputHidden id="hidden_CampaignLeadMarkerInfo" value="{!view.campaignLeadMapIcon.mapIconInfo}" />
+										<apex:inputCheckbox value="{!view.campaignLeadMapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignLeadMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:image_CampaignLeadIcon'),this);" />
+										<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+										<apex:image id="image_CampaignLeadIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignLeadMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:image_CampaignLeadIcon'))" url="{!view.campaignLeadMapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(view.campaignLeadMapIcon.mapIconSelected,'visible','hidden')}"/>
+									</apex:panelGroup>
+									<apex:outputText escape="false" rendered="{!NOT(allowIcons)}">&nbsp;</apex:outputText>
+
+									<apex:outputLabel value="{!locale.contactMarkerColor}" />
+									<apex:panelGroup >
+								   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_ContactColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_ContactColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(view.campaignContactMarkerColor)}; cursor:pointer; " >
+								   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+								   		</apex:outputPanel>
+								   		<apex:inputHidden id="hidden_ContactColorValue" value="{!view.campaignContactMarkerColor}" />
+								   	</apex:panelGroup>
+									<apex:panelGroup rendered="{!allowIcons}">							
+										<apex:inputHidden id="hidden_CampaignContactMarkerInfo" value="{!view.campaignContactMapIcon.mapIconInfo}" />
+										<apex:inputCheckbox value="{!view.campaignContactMapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignContactMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:image_CampaignContactIcon'),this);" />
+										<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+										<apex:image id="image_CampaignContactIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignContactMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:image_CampaignContactIcon'))" url="{!view.campaignContactMapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(view.campaignContactMapIcon.mapIconSelected,'visible','hidden')}"/>
+									</apex:panelGroup>
+									<apex:outputText escape="false" rendered="{!NOT(allowIcons)}">&nbsp;</apex:outputText>
+
+									<apex:outputLabel value="{!locale.opportunityMarkerColor}" />
+									<apex:panelGroup >
+								   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_OpportunityColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_OpportunityColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(view.campaignOpportunityMarkerColor)}; cursor:pointer; " >
+								   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+								   		</apex:outputPanel>
+								   		<apex:inputHidden id="hidden_OpportunityColorValue" value="{!view.campaignOpportunityMarkerColor}" />
+								   	</apex:panelGroup>
+									<apex:panelGroup rendered="{!allowIcons}">							
+										<apex:inputHidden id="hidden_CampaignOpportunityMarkerInfo" value="{!view.campaignOpportunityMapIcon.mapIconInfo}" />
+										<apex:inputCheckbox value="{!view.campaignOpportunityMapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignOpportunityMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:image_CampaignOpportunityIcon'),this);" />
+										<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+										<apex:image id="image_CampaignOpportunityIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignOpportunityMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:image_CampaignOpportunityIcon'))" url="{!view.campaignOpportunityMapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(view.campaignOpportunityMapIcon.mapIconSelected,'visible','hidden')}"/>
+									</apex:panelGroup>
+									<apex:outputText escape="false" rendered="{!NOT(allowIcons)}">&nbsp;</apex:outputText>
+								</apex:panelGrid>
+								
+							</div>
+						</apex:outputPanel>
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+			<apex:outputPanel rendered="{!view.type='Combination'}">
+				<apex:pageBlockSection id="section_CombinationViews" columns="1" collapsible="false" title="{!locale.selectViewsToCombine}">
+					<apex:outputPanel id="panel_StepTwoB" >
+<!--  
+						{!locale.combinationViewInfo}
+						<br/>
+-->
+						<br/>
+						<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabel,paramField">
+							
+							<apex:outputLabel value="{!locale.view}" for="select_View"/>
+							<apex:outputPanel id="panel_CombinationViewList">
+								<apex:selectList value="{!view.selectedCombinationView}" id="select_View" size="1">
+						        	<apex:selectOptions value="{!view.combinationViewListOptions}" />
+						        </apex:selectList>
+							</apex:outputPanel>
+							
+							&nbsp;
+							<apex:outputPanel >
+								<apex:commandButton action="{!view.addCombinationView}" value="{!locale.add} »" onclick="beforeAddCombinationView()" oncomplete="afterAddCombinationView()" rerender="panel_CombinationViewList, panel_CombinationViews, panel_Permissions, panel_Messages"/>
+							</apex:outputPanel>
+					        
+					    </apex:panelGrid>
+					
+						<br/>
+						<apex:outputPanel id="panel_CombinationViews" >
+							<apex:outputPanel rendered="{!NOT(view.combinationViews.size=0)}">
+								<apex:pageBlockTable id="table_CombinationViews" value="{!view.combinationViews}" var="combinationView" cellpadding="2">
+							
+									<apex:column >
+										<b>
+											<apex:commandLink value="{!locale.withdraw}" action="{!view.removeCombinationView}" onclick="if(!confirm('{!locale.removeTheView}'))return false;util.showViewLoadingImage()" oncomplete="afterRemoveCombinationView()" rerender="panel_CombinationViews, panel_CombinationViewList, panel_Permissions, panel_Messages">
+												<apex:param name="combinationViewId" value="{!combinationView.viewId}" />
+											</apex:commandLink>
+										</b>
+									</apex:column>
+							
+									<apex:column width="30%">
+										<apex:facet name="header">{!locale.view}</apex:facet>
+										<apex:outputPanel style="position:relative; top:2px;">
+											<apex:outputText value="{!combinationView.viewName}" />
+										</apex:outputPanel>
+									</apex:column>
+
+									<apex:column style="padding-right:10px;{!IF(NOT(allowIcons),'width:100%','')}">
+										<apex:facet name="header">{!locale.marker}</apex:facet>
+										<apex:outputPanel style="padding-right:10px">
+									   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_CombinationViews:table_CombinationViews:{!combinationView.index}:hidden_ColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_CombinationViews:table_CombinationViews:{!combinationView.index}:hidden_ColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(combinationView.viewColor)}; cursor:pointer; " >
+									   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+									   		</apex:outputPanel>
+									   		<apex:inputHidden id="hidden_ColorValue" value="{!combinationView.viewColor}" />
+									   	</apex:outputPanel>
+									</apex:column>
+									
+									<apex:column width="100%" rendered="{!allowIcons}">
+										<apex:facet name="header">{!locale.icon}</apex:facet>
+										<apex:outputPanel >
+											<apex:inputHidden id="hidden_ComboMarkerInfo" value="{!combinationView.viewMapIconInfo}" />
+											<apex:inputCheckbox value="{!combinationView.viewMapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_CombinationViews:table_CombinationViews:{!combinationView.index}:hidden_ComboMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_CombinationViews:table_CombinationViews:{!combinationView.index}:image_ComboViewIcon'),this);" />
+											<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+											<apex:image id="image_ComboViewIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_CombinationViews:table_CombinationViews:{!combinationView.index}:hidden_ComboMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_CombinationViews:table_CombinationViews:{!combinationView.index}:image_ComboViewIcon'))" url="{!combinationView.viewIconImageUrl}" style="cursor:pointer;visibility:{!IF(combinationView.viewMapIconSelected,'visible','hidden')}"/>
+									   	</apex:outputPanel>
+									</apex:column>
+									
+								</apex:pageBlockTable>
+								
+								
+								<apex:outputPanel layout="block"> 
+									<br/>
+									<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramField,paramField">
+										<apex:inputCheckbox value="{!view.retainViewColors}" />
+										<apex:outputText value="{!locale.useViewOriginalColors}" style="position:relative; top:2px;"/>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+								
+							</apex:outputPanel>
+							
+							<apex:outputPanel rendered="{!view.combinationViews.size=0}">
+								<br/>
+								<apex:outputText value="{!locale.noViewsAdded}" />
+								<br/><br/>
+							</apex:outputPanel>
+						</apex:outputPanel>
+					
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+				
+				
+			</apex:outputPanel>
+
+
+<!-- Step Three -->
+	
+			<apex:outputPanel rendered="{!view.type='Single Role'}">
+				<apex:pageBlockSection id="section_SelectRoleAndUsers" columns="1" collapsible="false" title="{!locale.selectRoleAndUsers}">
+					<apex:outputPanel id="panel_StepThree" >
+					
+						<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabel,paramField">
+							<apex:outputLabel value="{!locale.role}" for="select_Role"/>
+							<apex:selectList value="{!view.role.id}" id="select_Roles" size="1">
+								<apex:selectOptions value="{!view.roleOptions}" />
+					        	<apex:actionSupport event="onchange" action="{!roleChanged}" onsubmit="beforeRoleChanged()" oncomplete="afterRoleChanged()" rerender="panel_SingleRoleUsers, panel_Messages" />
+							</apex:selectList>
+						</apex:panelGrid>
+	
+						<apex:outputPanel id="panel_SingleRoleUsers">
+							<br/>
+							<br/>
+							
+							<apex:outputPanel rendered="{!AND(NOT(view.role.id='000000000000000000'), NOT(view.role.users.size=0))}" >
+								<apex:pageBlockTable id="table_Users" value="{!view.role.users}" var="user" cellpadding="2">
+								
+									<apex:column >
+										<apex:facet name="header">
+											<apex:inputCheckbox id="check_SelectAll" onclick="beforeAllUsersSelectionStateChanged(this);"/>
+										</apex:facet>
+										<apex:inputCheckbox id="check_SelectedUser"	onclick="beforeUserSelectionStateChanged(this);" value="{!user.selected}" />
+									</apex:column>
+		
+									<apex:column width="25%">
+										<apex:facet name="header">{!locale.user}</apex:facet>
+										<apex:outputPanel style="position:relative; top:2px; white-space:nowrap;">
+											<apex:outputText value="{!user.name}" />
+										</apex:outputPanel>
+									</apex:column>
+									
+									<apex:column width="10%">
+										<apex:facet name="header">{!locale.alias}</apex:facet>
+										<apex:outputPanel style="position:relative; top:2px; white-space:nowrap;">
+											<apex:outputText value="{!user.alias}" />
+										</apex:outputPanel>
+									</apex:column>
+		
+									<apex:column style="padding-right:10px;{!IF(NOT(allowIcons),'width:100%','')}">
+										<apex:facet name="header" >{!locale.marker}</apex:facet>
+										<apex:outputPanel rendered="{!user.selected}" style="padding-right:10px">
+									   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:{!user.index}:hidden_ColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:{!user.index}:hidden_ColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(user.color)}; cursor:pointer; " >
+									   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+									   		</apex:outputPanel>
+									   		<apex:inputHidden id="hidden_ColorValue" value="{!user.color}" />
+									   	</apex:outputPanel>
+									</apex:column>
+
+
+									<apex:column width="100%" rendered="{!allowIcons}">
+										<apex:facet name="header">{!locale.icon}</apex:facet>
+										<apex:outputPanel rendered="{!user.selected}">
+											<apex:inputHidden id="hidden_MarkerInfo" value="{!user.mapIcon.mapIconInfo}" />
+											<apex:inputCheckbox value="{!user.mapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:{!user.index}:hidden_MarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:{!user.index}:image_Icon'),this);" />
+											<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+											<apex:image id="image_Icon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:{!user.index}:hidden_MarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:{!user.index}:image_Icon'))" url="{!user.mapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(user.mapIcon.mapIconSelected,'visible','hidden')}"/>
+									   	</apex:outputPanel>
+									</apex:column>
+		
+								</apex:pageBlockTable>
+								
+								
+								
+								
+							</apex:outputPanel>
+						
+							<apex:outputPanel rendered="{!view.role.id='000000000000000000'}" >
+								<apex:outputText value="{!locale.noRoleSelected}" />
+							</apex:outputPanel>
+		
+							<apex:outputPanel rendered="{!AND(NOT(view.role.id='000000000000000000'), view.role.users.size=0)}" >
+								<apex:outputText value="{!locale.noUsersInRole}" />
+							</apex:outputPanel>
+						</apex:outputPanel>						
+
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+			
+			
+
+
+			<apex:outputPanel rendered="{!view.type='Multiple Role'}">
+				<apex:pageBlockSection id="section_SelectRolesAndUsers" columns="1" collapsible="false" title="{!locale.selectRolesAndUsers}">
+					<apex:outputPanel id="panel_StepThree" >
+  					
+						<apex:outputPanel rendered="{!showRoleList}">
+							<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabelWide,paramField">
+								<apex:outputLabel value="{!locale.selectAllUsersInAllRoles}"/>
+								<apex:inputCheckbox value="{!view.useAllUsersAndRoles}" onclick="hideShowMultiRoleSelect(this);" />
+							</apex:panelGrid>
+						</apex:outputPanel>
+
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+							<tr id="row_AllUsersAndRolesColor" style="display:{!IF(view.useAllUsersAndRoles,'block','none')}; visibility:{!IF(view.useAllUsersAndRoles,'visible','collapse')}">
+								<td>
+									<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabelWide,paramField,paramField">
+										<apex:outputLabel value="{!locale.marker}" />
+										<apex:panelGroup >
+									   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:hidden_AllUsersMarkerColor'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectUsers:hidden_AllUsersMarkerColor'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(view.allUsersMarkerColor)}; cursor:pointer; " >
+									   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+									   		</apex:outputPanel>
+									   		<apex:inputHidden id="hidden_AllUsersMarkerColor" value="{!view.allUsersMarkerColor}" />
+									   	</apex:panelGroup>
+										<apex:panelGroup rendered="{!allowIcons}">							
+											<apex:inputHidden id="hidden_AllUsersMapIconInfo" value="{!view.allUsersMapIcon.mapIconInfo}" />
+											<apex:inputCheckbox value="{!view.allUsersMapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:hidden_AllUsersMapIconInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:image_AllUsersMapIcon'),this);" />
+											<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+											<apex:image id="image_AllUsersMapIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:hidden_AllUsersMapIconInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:image_AllUsersMapIcon'))" url="{!view.allUsersMapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(view.allUsersMapIcon.mapIconSelected,'visible','hidden')}"/>
+										</apex:panelGroup>
+									   	
+									</apex:panelGrid>
+								</td>
+							</tr>
+						</table>
+
+
+
+
+					
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+						<tr id="row_MultiRoleSelect" style="visibility:{!IF(view.useAllUsersAndRoles,'collapse','visible')}">
+						<td>
+
+						<br/>
+						<apex:outputPanel rendered="{!showRoleList}">
+							<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabelWide,paramFieldWide">
+								<apex:outputLabel value="{!locale.role}" for="select_Role"/>
+								<apex:selectList value="{!view.role.id}" id="select_Roles" size="1">
+									<apex:selectOptions value="{!view.roleOptions}" />
+								</apex:selectList>
+								
+								&nbsp;
+								<apex:outputPanel >
+									<apex:commandButton action="{!view.addCurrentRole}" value="{!locale.add} »" onclick="beforeAddRole()" oncomplete="afterAddRole()" rerender="panel_StepThree, panel_Messages"/>
+								</apex:outputPanel>
+							</apex:panelGrid>
+
+							<apex:outputPanel id="panel_MultipleRoles" rendered="{!view.type='Multiple Role'}">
+								<br/>
+	
+								<apex:pageBlockTable width="100%" rendered="{!NOT(view.roles.size=0)}" id="table_Roles" value="{!view.roles}" var="role" cellpadding="2">
+
+									<apex:column >
+										<b>
+											<apex:commandLink value="{!locale.remove}" action="{!removeRole}" onclick="if(!confirm('{!locale.removeTheRole}'))return false;util.showViewLoadingImage();" oncomplete="util.hideViewLoadingImage()" rerender="panel_StepThree, panel_Messages">
+												<apex:param name="removeRoleId" value="{!role.id}" />
+											</apex:commandLink>
+										</b>
+									</apex:column>
+
+									<apex:column width="25%">
+										<apex:facet name="header">{!locale.role}</apex:facet>
+										<apex:outputPanel style="position:relative; top:2px;">
+											<apex:outputText value="{!role.name}" />
+										</apex:outputPanel>
+									</apex:column>
+									
+									<apex:column width="50px" style="padding-right:10px">
+										<apex:facet name="header">{!locale.marker}</apex:facet>
+										<apex:outputPanel style="padding-right:10px">
+									   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_Roles:{!role.index}:hidden_ColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectUsers:table_Users:{!role.index}:hidden_ColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(role.color)}; cursor:pointer; " >
+									   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+									   		</apex:outputPanel>
+									   		<apex:inputHidden id="hidden_ColorValue" value="{!role.color}" />
+									   	</apex:outputPanel>
+									</apex:column>
+
+									<apex:column style="padding-right:15px" rendered="{!allowIcons}">
+										<apex:facet name="header">{!locale.icon}</apex:facet>
+										<apex:outputPanel style="padding-right:15px; white-space:nowrap">
+											<apex:inputHidden id="hidden_MarkerInfo" value="{!role.mapIcon.mapIconInfo}" />
+											<apex:inputCheckbox value="{!role.mapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_Roles:{!role.index}:hidden_MarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_Roles:{!role.index}:image_Icon'),this);" />
+											<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+											<apex:image id="image_Icon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_Roles:{!role.index}:hidden_MarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_Roles:{!role.index}:image_Icon'))" url="{!role.mapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(role.mapIcon.mapIconSelected,'visible','hidden')}"/>
+									   	</apex:outputPanel>
+									</apex:column>
+
+
+									
+									<apex:column width="120px">
+										<apex:facet name="header">&nbsp;</apex:facet>
+										<apex:outputPanel style="position:relative; top:2px; white-space:nowrap; width:100%">
+											<apex:image url="/s.gif" width="5" height="1" />
+											<b>
+											<apex:commandLink action="{!showUserList}" value="{!locale.selectUsers}" onmouseup="beforeShowUserList()" oncomplete="afterShowUserList()" rerender="panel_StepThree, panel_Messages">
+												<apex:param name="selectedRoleId" value="{!role.id}" />
+											</apex:commandLink>
+											</b>
+										</apex:outputPanel>
+									</apex:column>
+									
+									<apex:column width="100%">
+										<apex:facet name="header">{!locale.users}</apex:facet>
+										<apex:outputPanel style="position:relative; top:2px">
+											<apex:repeat rendered="{!AND(NOT(role.users.size=0),NOT(role.selectedUsers.size=0))}" value="{!role.selectedUsers}" var="user">
+												<apex:outputPanel >
+													<apex:outputText value="[{!user.name}] " />
+												</apex:outputPanel>
+											</apex:repeat>
+											<apex:outputText rendered="{!role.selectedUsers.size=0}" value="{!locale.noneSelected}" />
+										</apex:outputPanel>
+									</apex:column>
+								</apex:pageBlockTable>
+								
+							
+								<apex:outputPanel rendered="{!view.roles.size=0}" >
+									<apex:outputText value="{!locale.noRolesSelected}" />
+								</apex:outputPanel>
+								
+							</apex:outputPanel>
+							
+						</apex:outputPanel>	
+						</td>
+						</tr>
+						</table>
+						
+						
+							
+						<apex:outputPanel rendered="{!showUserList}">
+							<font color="blue">					
+								<apex:outputText escape="false" value="{!locale.selectUsersFromRole}">
+									<apex:param value="{!view.selectedRole.name}" />
+								</apex:outputText>	
+								<br/><br/>
+							</font>
+							<apex:commandButton action="{!selectRoleUsers}" value="{!locale.done}" rerender="panel_StepThree, panel_Messages"/>
+							<br/>
+							<br/>
+							<apex:pageBlockTable bgcolor="#e5e5e5" id="table_RoleUsers" rendered="{!NOT(view.selectedRole.users.size=0)}" value="{!view.selectedRole.users}" var="user" cellpadding="2">
+								<apex:column >
+									<apex:facet name="header">
+										<apex:inputCheckbox id="check_SelectAll" onclick="selectAllRoleUsers(this)"/>
+									</apex:facet>
+									<apex:inputCheckbox id="check_SelectedUser"	onclick="roleUserSelected(this)" value="{!user.selected}"/>
+								</apex:column>
+								<apex:column width="25%">
+									<apex:facet name="header">{!locale.user}</apex:facet>
+									<apex:outputPanel style="position:relative; top:2px;">
+										<apex:outputText value="{!user.name}" />
+									</apex:outputPanel>
+								</apex:column>
+								<apex:column width="100%">
+									<apex:facet name="header">{!locale.alias}</apex:facet>
+									<apex:outputPanel style="position:relative; top:2px;">
+										<apex:outputText value="{!user.alias}" />
+									</apex:outputPanel>
+								</apex:column>
+							</apex:pageBlockTable>
+							<apex:outputText rendered="{!view.selectedRole.users.size=0}">
+								{!locale.noUsersInRole}<br/>
+							</apex:outputText>
+
+							<br/>
+						</apex:outputPanel>
+							
+							
+						
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+<!-- Step Three A -->
+
+			<apex:outputPanel rendered="{!NOT(view.masterDetailRelationshipName=null)}">
+				<apex:pageBlockSection id="section_MasterDetailRelationships" columns="1" collapsible="false" title="{!locale.masterDetailRelationship}">
+					<apex:outputPanel id="panel_StepThreeA" >
+
+						{!locale.selectMasterDetailOwnership}
+						<br/>
+						<br/> 
+
+						<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabelWide,paramFieldWide">
+							<apex:outputLabel value="{!locale.masterDetailRelationship}" for="select_MasterDetailRelationship"/>
+							<apex:selectList value="{!view.masterDetailRelationshipName}" id="select_MasterDetailRelationship" size="1">
+								<apex:selectOptions value="{!view.masterDetailRelationshipOptions}" />
+							</apex:selectList>
+						</apex:panelGrid>
+
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+<!-- Step Four -->
+
+			<apex:outputPanel >
+				<apex:pageBlockSection id="section_OtherMarkers" columns="1" collapsible="false" title="{!IF(view.type='User',locale.markers,locale.otherMarkers)}">
+					<apex:outputPanel >
+					
+						<apex:outputPanel layout="block" rendered="{!AND(NOT(view.type='User'),NOT(view.type='Combination'))}">
+							<apex:outputText escape="false" value="{!locale.otherMarkersInfo}" />
+							<br/>
+							<br/>
+						</apex:outputPanel>
+					
+						<apex:outputPanel layout="block" rendered="{!view.type='Combination'}">
+							<apex:outputText value="{!locale.setUserAndCustom}" />
+							<br/>
+							<br/>
+						</apex:outputPanel>
+						
+						<apex:panelGrid columns="3" cellspacing="7" columnClasses="paramLabelWide,paramField,paramField">
+							<apex:outputPanel id="panel_ShowUserMarkers" rendered="{!OR(view.type='Single Role',view.type='Multiple Role')}" style="color:{!IF(view.useAllUsersAndRoles,'dimgray','black')}">						
+								<apex:outputLabel value="{!locale.showUserMarkers}" for="select_ShowUserMarkers"/>
+							</apex:outputPanel>							
+							<apex:inputCheckBox disabled="{!IF(view.useAllUsersAndRoles,'true','false')}" id="check_ShowUserMarkers" rendered="{!OR(view.type='Single Role',view.type='Multiple Role')}" value="{!view.showUserMarkers}" />
+							<apex:outputText rendered="{!OR(view.type='Single Role',view.type='Multiple Role')}" ></apex:outputText>
+							
+							<apex:outputLabel rendered="{!NOT(view.type='Combination')}" value="{!locale.showMyMarker}" for="select_ShowOwnerMarker"/>
+							<apex:inputCheckBox rendered="{!NOT(view.type='Combination')}" value="{!view.showOwnerMarker}" />
+							<apex:outputText rendered="{!NOT(view.type='Combination')}"  ></apex:outputText>
+							
+							<apex:outputLabel value="{!locale.userMarker}" />
+							<apex:panelGroup >
+						   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_UserColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_UserColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(view.userMarkerColor)}; cursor:pointer; " >
+						   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+						   		</apex:outputPanel>
+						   		<apex:inputHidden id="hidden_UserColorValue" value="{!view.userMarkerColor}" />
+						   	</apex:panelGroup>
+							<apex:panelGroup rendered="{!allowIcons}">							
+								<apex:inputHidden id="hidden_UserMarkerInfo" value="{!view.userMapIcon.mapIconInfo}" />
+								<apex:inputCheckbox value="{!view.userMapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_UserMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:image_UserIcon'),this);" />
+								<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+								<apex:image id="image_UserIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_UserMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:image_UserIcon'))" url="{!view.userMapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(view.userMapIcon.mapIconSelected,'visible','hidden')}"/>
+							</apex:panelGroup>
+							<apex:outputText escape="false" rendered="{!NOT(allowIcons)}">&nbsp;</apex:outputText>
+						   	
+						   	
+							<apex:outputLabel value="{!locale.customLocationMarker}" />
+							<apex:panelGroup >
+						   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_CustomLocationColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_CustomLocationColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(view.customLocationMarkerColor)}; cursor:pointer; " >
+						   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+						   		</apex:outputPanel>
+						   		<apex:inputHidden id="hidden_CustomLocationColorValue" value="{!view.customLocationMarkerColor}" />
+						   	</apex:panelGroup>
+							<apex:panelGroup rendered="{!allowIcons}">							
+								<apex:inputHidden id="hidden_CustomLocationMarkerInfo" value="{!view.customLocationMapIcon.mapIconInfo}" />
+								<apex:inputCheckbox value="{!view.customLocationMapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_CustomLocationMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:image_CustomLocationIcon'),this);" />
+								<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+								<apex:image id="image_CustomLocationIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_CustomLocationMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:image_CustomLocationIcon'))" url="{!view.customLocationMapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(view.customLocationMapIcon.mapIconSelected,'visible','hidden')}"/>
+							</apex:panelGroup>
+							<apex:outputText escape="false" rendered="{!NOT(allowIcons)}">&nbsp;</apex:outputText>
+
+							<apex:outputLabel rendered="{!AND(NOT(view.type='Custom'),NOT(view.type='User'))}" value="{!locale.multipleObjectMarker}" />
+							<apex:panelGroup rendered="{!AND(NOT(view.type='Custom'),NOT(view.type='User'))}">
+						   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_MultiObjectColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_MultiObjectColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(view.multiObjectMarkerColor)}; cursor:pointer; " >
+						   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+						   		</apex:outputPanel>
+						   		<apex:inputHidden id="hidden_MultiObjectColorValue" value="{!view.multiObjectMarkerColor}" />
+						   	</apex:panelGroup>
+							<apex:panelGroup rendered="{!AND(allowIcons,NOT(view.type='Custom'),NOT(view.type='User'))}">							
+								<apex:inputHidden id="hidden_MultiObjectMarkerInfo" value="{!view.multiObjectMapIcon.mapIconInfo}" />
+								<apex:inputCheckbox value="{!view.multiObjectMapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_MultiObjectMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:image_MultiObjectIcon'),this);" />
+								<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+								<apex:image id="image_MultiObjectIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:hidden_MultiObjectMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:image_MultiObjectIcon'))" url="{!view.multiObjectMapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(view.multiObjectMapIcon.mapIconSelected,'visible','hidden')}"/>
+							</apex:panelGroup>
+							<apex:outputText escape="false" rendered="{!OR(NOT(allowIcons),view.type='Custom')}">&nbsp;</apex:outputText>
+						   	
+
+						   	
+						</apex:panelGrid>
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+
+<!-- Step Five --> 
+
+			<apex:outputPanel rendered="{!NOT(OR(view.type='Custom',view.type='Combination'))}">
+				<apex:pageBlockSection id="section_SingleFieldFilter" columns="1" collapsible="false" title="{!IF(view.filter.singleFieldFilters.usingAllOthersFilter, locale.mapMarkerColors, locale.defineSingleFieldFilters)}">
+					<apex:outputPanel id="panel_StepFive" >
+
+						<apex:outputPanel rendered="{!view.filter.singleFieldFilters.usingAllOthersFilter}">
+							{!locale.setOneColor} 
+						</apex:outputPanel>
+						
+						<apex:outputPanel rendered="{!NOT(view.filter.singleFieldFilters.usingAllOthersFilter)}">
+							<apex:outputPanel rendered="{!NOT(view.viewObject='CampaignMember')}">
+								<apex:outputText escape="false" value="{!locale.singleFieldFiltersInfo}" >
+									<apex:param value="{!view.viewObjectPlural}" />									
+								</apex:outputText>
+							</apex:outputPanel>							
+							<apex:outputPanel rendered="{!view.viewObject='CampaignMember'}">
+								<apex:outputText escape="false" value="{!locale.campaignSingleFieldFiltersInfo}" />
+							</apex:outputPanel>
+						</apex:outputPanel>
+						
+						<br/><br/>
+						
+						<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+							<apex:outputText value="{!locale.fieldOrRecordType}" />
+
+							<apex:panelGroup >
+								<apex:selectList rendered="{!view.filter.singleFieldFilters.currentFilterValue='NONE'}" value="{!view.filter.singleFieldFilters.currentFilterValue}" id="select_SingleFieldFilterField" size="1" onchange="onSingleFieldFilterFieldChanged()">
+									<apex:selectOptions value="{!view.filter.singleFieldFilters.filterOptions}" />
+								</apex:selectList>
+								<apex:panelGroup rendered="{!NOT(view.filter.singleFieldFilters.currentFilterValue='NONE')}" >
+									<apex:outputText value="{!view.filter.singleFieldFilters.currentFilter.prefixedFieldLabel}"/>
+									&nbsp;&nbsp;
+									<apex:commandLink action="{!view.filter.singleFieldFilters.changeFilterField}" value="[{!locale.change}]" onclick="util.showViewLoadingImage()" oncomplete="util.hideViewLoadingImage()" rerender="panel_StepFive, panel_MultiFieldFilterInput, panel_Messages"/>
+								</apex:panelGroup>
+							</apex:panelGroup>
+						</apex:panelGrid>
+
+						<apex:outputPanel rendered="{!NOT(view.filter.singleFieldFilters.currentFilterValue='NONE')}">
+							<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+								<apex:outputText value="{!locale.filterType}" />
+								<apex:panelGroup >
+									<apex:outputText value="{!view.filter.singleFieldFilters.currentFilter.filterTypeLabel}"/>
+									<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='Lookup'}" >
+										:&nbsp;
+										<apex:outputText value="{!view.filter.singleFieldFilters.currentFilter.fieldReferenceToLabel}"/>
+									</apex:outputPanel>
+								</apex:panelGroup>
+							</apex:panelGrid>
+						</apex:outputPanel>
+
+
+						<apex:outputPanel id="panel_SingleFieldFilterValue">						
+						
+							<!-- Picklist -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='Picklist'}" >
+								<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.operator}" id="select_SingleFieldFilterPicklistOperator" size="1" >
+										<apex:selectOptions value="{!view.filter.singleFieldFilters.picklistOperatorOptions}" />
+									</apex:selectList>
+									<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" id="select_SingleFieldFilterPicklistValue" size="1" >
+										<apex:selectOptions value="{!view.filter.singleFieldFilters.picklistValueOptions}" />
+									</apex:selectList>
+									
+									
+								</apex:panelGrid>
+							</apex:outputPanel>
+
+							<!-- MultiPicklist -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='MultiPicklist'}" >
+								<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+									<apex:outputText value="{!locale.values}" />
+									<apex:selectList style="min-width:200px" multiselect="true" value="{!view.filter.singleFieldFilters.currentFilter.multiFieldValues}" id="select_SingleFieldFilterMultiPicklistValue" size="5" >
+										<apex:selectOptions value="{!view.filter.singleFieldFilters.picklistValueOptions}" />
+									</apex:selectList>
+									<apex:outputText value="{!locale.ctrlMultiSelect}" escape="false" />
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+							<!-- TeamMemberRole -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='TeamMemberRole'}" >
+								<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" id="select_SingleFieldFilterTeamMemberRoleValue" size="1" >
+										<apex:selectOptions value="{!view.filter.singleFieldFilters.picklistValueOptions}" />
+									</apex:selectList>
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+							<!-- Checkbox -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='Checkbox'}" >
+								<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" id="select_SingleFieldFilterBooleanValue" size="1" >
+			                            <apex:selectOptions value="{!view.filter.singleFieldFilters.checkboxValueOptions}" />
+									</apex:selectList>
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+							<!-- Number -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='Number'}" >
+								<apex:panelGrid columns="4" cellspacing="5" columnClasses="paramLabel,paramField,paramField,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.operator}" id="select_SingleFieldFilterNumberOperator" onchange="onSingleFieldFilterOperatorChanged(this)" size="1" >
+										<apex:selectOption itemValue="equals" itemLabel="{!locale.equalTo}"/>
+										<apex:selectOption itemValue="greaterThanOrEqual" itemLabel="{!locale.greaterThanOrEqualTo}"/>
+										<apex:selectOption itemValue="lessThan" itemLabel="{!locale.lessThan}"/>
+									</apex:selectList>
+									<apex:inputText value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" id="input_SingleFieldFilterNumberFieldValue" style="text-align:center" size="10" maxLength="32"/>
+									<apex:panelGroup >
+										<apex:outputPanel id="panel_RightValues" style="visibility:collapse">
+											<apex:outputText id="text_AndLessThan" value=" {!locale.and} {!locale.lessThan} " style="white-space:nowrap"/>
+											&nbsp;
+											<apex:inputText value="{!view.filter.singleFieldFilters.currentFilter.rightFieldValue}" id="input_SingleFieldFilterNumberFieldRightValue" style="text-align:center; " size="10" maxLength="32"/>
+										</apex:outputPanel>
+									</apex:panelGroup>						
+								</apex:panelGrid>
+							</apex:outputPanel>
+	
+							<!-- Date -->
+							<apex:outputPanel rendered="{!OR(view.filter.singleFieldFilters.currentFilter.filterType='Date',view.filter.singleFieldFilters.currentFilter.filterType='DateTime')}" >
+								<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+									<apex:outputText value="{!locale.value}" />
+									
+									<apex:panelGroup >
+										<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.operator}" id="select_SingleFieldFilterDateOperator" onchange="onSingleFieldFilterDateOperatorChanged(this)" size="1" >
+											<apex:selectOption itemValue="equals" itemLabel="{!locale.equalTo}"/>
+											<apex:selectOption itemValue="greaterThanOrEqual" itemLabel="{!locale.greaterThanOrEqualTo}"/>
+											<apex:selectOption itemValue="lessThanOrEqual" itemLabel="{!locale.lessThanOrEqualTo}"/>
+										</apex:selectList>
+										&nbsp;
+										<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" id="select_SingleFieldFilterDateValue" onchange="onSingleFieldFilterDateValueChanged(this)" size="1" >
+											<apex:selectOptions value="{!view.filter.singleFieldFilters.dateValueOptions}" />
+										</apex:selectList>
+									</apex:panelGroup>
+										
+									<apex:panelGroup >
+										<apex:outputPanel id="panel_DateNValue" style="visibility:collapse">
+											<apex:outputText value=" N = " style="white-space:nowrap; "/>
+											<apex:inputText value="{!view.filter.singleFieldFilters.currentFilter.nValue}" style="text-align:center; " size="10" maxLength="32"/>
+										</apex:outputPanel>
+									</apex:panelGroup>
+								</apex:panelGrid>
+							</apex:outputPanel>
+	
+							<!-- Record Type -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='RecordType'}" >
+								<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" id="select_SingleFieldFilterRecordTypeValue" size="1" >
+										<apex:selectOptions value="{!view.filter.singleFieldFilters.recordTypeOptions}" />
+									</apex:selectList>
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+							<!-- Address -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='Address'}" >
+								<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:inputText value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" size="50" maxLength="255"/>
+									<apex:panelGroup >
+										<apex:outputText rendered="{!view.filter.singleFieldFilters.currentFilter.fieldName='Country'}" escape="false" value="{!locale.enterACountry}" />
+										<apex:outputText rendered="{!view.filter.singleFieldFilters.currentFilter.fieldName='City'}" escape="false" value="{!locale.enterACity}" />
+										<apex:outputText rendered="{!view.filter.singleFieldFilters.currentFilter.fieldName='State'}" escape="false" value="{!locale.enterAState}" />
+										<apex:outputText rendered="{!view.filter.singleFieldFilters.currentFilter.fieldName='PostalCode'}" escape="false" value="{!locale.enterAPostalCode}" />
+									</apex:panelGroup>
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+							<!-- Lookup -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='Lookup'}" >
+								<apex:inputHidden id="hidden_SingleFieldLookupFieldValueName" value="{!view.filter.singleFieldFilters.currentFilter.lookupFieldValueName}" />
+								<apex:inputHidden id="hidden_SingleFieldLookupFieldValueId" value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" />
+							
+							
+								<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:outputPanel >
+										<input name="s_aro_lkid" id="s_aro_lkid" value="000000000000000" type="hidden"/>
+										<input name="s_aro_lkold" id="s_aro_lkold" value="null" type="hidden"/>
+										<input name="s_aro_lktp" id="s_aro_lktp" value="{!view.filter.singleFieldFilters.currentFilter.fieldReferenceKeyPrefix}" type="hidden"/>
+										<input name="s_aro_lspf" id="s_aro_lspf" value="0" type="hidden"/>
+										<input name="s_aro_mod" id="s_aro_mod" value="0" type="hidden"/>
+										
+										<input id="s_aro" maxlength="255" name="s_aro" value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" size="50" type="text"/>
+				
+										<a href="JavaScript: util.launchSingleFieldFilterLookup();" id="button_Lookup" onclick="setLastMousePosition(event)" title="{!view.filter.singleFieldFilters.currentFilter.fieldReferenceTo} Lookup (New Window)">
+											<img src="/s.gif" alt="{!view.filter.singleFieldFilters.currentFilter.fieldReferenceTo} Lookup (New Window)" class="lookupIcon" onblur="this.className = 'lookupIcon';" onfocus="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon';this.className = 'lookupIcon';" onmouseover="this.className = 'lookupIconOn';this.className = 'lookupIconOn';" title="{!view.filter.singleFieldFilters.currentFilter.fieldReferenceTo} Lookup (New Window)"/>
+										</a>
+									</apex:outputPanel>
+								</apex:panelGrid>
+							</apex:outputPanel>
+						
+							<!-- Text -->
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.currentFilter.filterType='Text'}" >
+								<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+									<apex:outputText value="{!locale.value}" />
+									<apex:selectList value="{!view.filter.singleFieldFilters.currentFilter.operator}" id="select_SingleFieldFilterTextOperator" size="1" onchange="onSingleFieldTextFilterOperatorChanged(this)">
+										<apex:selectOption itemValue="equals" itemLabel="{!locale.equalTo}"/>
+										<apex:selectOption itemValue="contains" itemLabel="{!locale.contains}"/>
+										<apex:selectOption itemValue="doesNotContain" itemLabel="{!locale.doesNotContain}"/>
+										<apex:selectOption itemValue="startsWith" itemLabel="{!locale.startsWith}"/>
+										<apex:selectOption itemValue="endsWith" itemLabel="{!locale.endsWith}"/>
+										<apex:selectOption itemValue="isBlank" itemLabel="{!locale.isBlank}"/>
+										<apex:selectOption itemValue="isNotBlank" itemLabel="{!locale.isNotBlank}"/>
+									</apex:selectList>
+									<apex:inputText id="input_SingleFieldTextFilterValue" value="{!view.filter.singleFieldFilters.currentFilter.fieldValue}" size="50" maxLength="255"/>
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+						</apex:outputPanel>
+
+						<apex:outputPanel rendered="{!NOT(view.filter.singleFieldFilters.currentFilterValue='NONE')}">
+							<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+								<apex:outputText value=""/>
+								<apex:commandButton action="{!view.filter.singleFieldFilters.addCurrentFilter}" value="{!locale.add} »" onclick="util.showViewLoadingImage();beforeAddSingleFieldFilter();" oncomplete="afterAddNewSingleFieldFilter()" rerender="panel_SingleFieldFilterValue, panel_SingleFieldFilters, panel_MultiFieldFilters, panel_Messages"/>
+							</apex:panelGrid>
+						</apex:outputPanel>
+
+						<br/>
+						<apex:outputPanel id="panel_SingleFieldFilters" >
+							<apex:outputPanel rendered="{!NOT(view.filter.singleFieldFilters.fieldFilterCount=0)}" >
+
+								<apex:pageBlockTable id="table_SingleFieldFilters" value="{!view.filter.singleFieldFilters.fieldFilters}" var="singleFieldFilter" cellpadding="2">
+										
+									<apex:column >
+										<apex:outputPanel rendered="{!NOT(singleFieldFilter.filterType='All others')}">
+											<b>
+												<apex:commandLink value="{!locale.remove}" action="{!view.filter.singleFieldFilters.removeFilter}" onclick="util.showViewLoadingImage()" oncomplete="util.hideViewLoadingImage()" rerender="panel_StepFive, panel_Messages">
+													<apex:param name="removeFilterIndex" value="{!singleFieldFilter.index}" />
+												</apex:commandLink>
+											</b>
+										</apex:outputPanel>
+									</apex:column>
+	
+									<apex:column style="white-space:nowrap; padding-right:15px;">
+										<apex:facet name="header">{!IF(view.filter.singleFieldFilters.usingAllOthersFilter,locale.value,locale.filterCriteria)}</apex:facet>
+										<apex:outputPanel style="padding-right:15px">
+											<apex:outputText value="{!singleFieldFilter.displayString}" />
+										</apex:outputPanel>
+									</apex:column>
+									
+									<apex:column style="padding-right:10px;{!IF(NOT(allowIcons),'width:100%','')}">
+										<apex:facet name="header">{!locale.marker}</apex:facet>
+										<apex:outputPanel style="padding-right:10px">
+									   		<apex:outputPanel onmousedown="jscolor.color(this,getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:table_SingleFieldFilters:{!singleFieldFilter.index}:hidden_SingleFieldFilterColorValue'));" styleClass="color {valueElement:'page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:table_SingleFieldFilters:{!singleFieldFilter.index}:hidden_SingleFieldFilterColorValue'}" style="display:inline-block; width:40px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(singleFieldFilter.fieldValueColor)}; cursor:pointer; " >
+									   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}"/>
+									   		</apex:outputPanel>
+									   		<apex:inputHidden id="hidden_SingleFieldFilterColorValue" value="{!singleFieldFilter.fieldValueColor}" />
+									   	</apex:outputPanel>
+									</apex:column>
+
+
+
+									<apex:column width="100%" rendered="{!allowIcons}">
+										<apex:facet name="header">{!locale.icon}</apex:facet>
+										<apex:outputPanel >
+											<apex:inputHidden id="hidden_FilterMarkerInfo" value="{!singleFieldFilter.mapIcon.mapIconInfo}" />
+											<apex:inputCheckbox value="{!singleFieldFilter.mapIcon.mapIconSelected}" onclick="javascript:iconPicker.useIconChanged(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:table_SingleFieldFilters:{!singleFieldFilter.index}:hidden_FilterMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:table_SingleFieldFilters:{!singleFieldFilter.index}:image_FilterIcon'),this);" />
+											<apex:outputText escape="false">{!locale.useIcon}&nbsp;</apex:outputText>
+											<apex:image id="image_FilterIcon" width="16px" height="16px" onclick="javascript:iconPicker.showIconPicker(document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:table_SingleFieldFilters:{!singleFieldFilter.index}:hidden_FilterMarkerInfo'),document.getElementById('page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:table_SingleFieldFilters:{!singleFieldFilter.index}:image_FilterIcon'))" url="{!singleFieldFilter.mapIcon.iconImageUrl}" style="cursor:pointer;visibility:{!IF(singleFieldFilter.mapIcon.mapIconSelected,'visible','hidden')}"/>
+									   	</apex:outputPanel>
+									</apex:column>
+
+
+									
+								</apex:pageBlockTable>
+								
+								<apex:outputPanel layout="block" rendered="{!AND(NOT(view.type='User'),NOT(view.filter.singleFieldFilters.usingAllOthersFilter))}"> 
+									<br/>
+									<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramField,paramField">
+										<apex:inputCheckbox value="{!view.useFilterColorScheme}" />
+										<apex:outputText value="{!locale.useMapMarkerColors}" style="position:relative; top:2px;"/>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+								
+								
+							</apex:outputPanel>
+							
+							
+							<apex:outputPanel rendered="{!view.filter.singleFieldFilters.fieldFilterCount=0}" >
+								<br/>
+								<apex:outputText value="{!locale.noSingleFieldFilters}" />
+							</apex:outputPanel>
+
+						</apex:outputPanel>
+
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+<!-- Step Six -->  
+
+			<apex:outputPanel rendered="{!NOT(OR(view.type='Custom',view.type='Combination'))}">
+				<apex:pageBlockSection id="section_MultiFieldFilter" columns="1" collapsible="false" title="{!locale.defineMultiFieldFilters}">
+					<apex:outputPanel id="panel_StepSix" >
+
+						<apex:outputPanel rendered="{!NOT(view.viewObject='CampaignMember')}">
+							<apex:outputText value="{!locale.multiFieldFiltersInfo}" escape="false">
+								<apex:param value="{!view.viewObjectPlural}" />
+							</apex:outputText>						
+						</apex:outputPanel>							
+						<apex:outputPanel rendered="{!view.viewObject='CampaignMember'}">
+							<apex:outputText escape="false" value="{!locale.campaignMultiFieldFiltersInfo}" />
+						</apex:outputPanel>
+						
+						
+						
+						<br/><br/>
+						<apex:outputPanel id="panel_MultiFieldFilterInput">
+						
+							<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+								<apex:outputText value="{!locale.fieldOrRecordType}" />
+								<apex:selectList value="{!view.filter.multiFieldFilters.currentFilterValue}" id="select_MultiFieldFilterField" size="1" onchange="onMultiFieldFilterFieldChanged()">
+									<apex:selectOptions value="{!view.filter.multiFieldFilters.filterOptions}" />
+								</apex:selectList>
+							</apex:panelGrid>
+						
+												
+							<apex:outputPanel rendered="{!NOT(view.filter.multiFieldFilters.currentFilterValue='NONE')}">
+								<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+									<apex:outputText value="{!locale.filterType}" />
+									<apex:panelGroup >
+										<apex:outputText value="{!view.filter.multiFieldFilters.currentFilter.filterTypeLabel}"/>
+										<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='Lookup'}" >
+											:&nbsp;
+											<apex:outputText value="{!view.filter.multiFieldFilters.currentFilter.fieldReferenceToLabel}"/>
+										</apex:outputPanel>
+									</apex:panelGroup>
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+							<apex:outputPanel rendered="{!NOT(view.filter.multiFieldFilters.currentFilterValue='NONE')}">
+							
+								<!-- Picklist -->
+								<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='Picklist'}" >
+									<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+										<apex:outputText value="{!locale.value}" />
+										<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.operator}" id="select_MultiFieldFilterPicklistOperator" size="1" >
+											<apex:selectOptions value="{!view.filter.multiFieldFilters.picklistOperatorOptions}" />
+										</apex:selectList>
+										<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" id="select_MultiFieldFilterPicklistValue" size="1" >
+											<apex:selectOptions value="{!view.filter.multiFieldFilters.picklistValueOptions}" />
+										</apex:selectList>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+							<!-- MultiPicklist -->
+							<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='MultiPicklist'}" >
+								<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+									<apex:outputText value="{!locale.values}" />
+									<apex:selectList style="min-width:200px" multiselect="true" value="{!view.filter.multiFieldFilters.currentFilter.multiFieldValues}" id="select_MultiFieldFilterMultiPicklistValue" size="5" >
+										<apex:selectOptions value="{!view.filter.multiFieldFilters.picklistValueOptions}" />
+									</apex:selectList>
+									<apex:outputText value="{!locale.ctrlMultiSelect}" escape="false" />
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+								<!-- Checkbox -->
+								<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='Checkbox'}" >
+									<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+										<apex:outputText value="{!locale.value}" />
+										<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" id="select_MultiFieldFilterBooleanValue" size="1" >
+				                            <apex:selectOptions value="{!view.filter.multiFieldFilters.checkboxValueOptions}" />
+										</apex:selectList>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+								<!-- Number -->
+								<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='Number'}" >
+									<apex:panelGrid columns="4" cellspacing="5" columnClasses="paramLabel,paramField,paramField,paramField">
+										<apex:outputText value="{!locale.value}" />
+										<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.operator}" id="select_MultiFieldFilterNumberOperator" onchange="onMultiFieldFilterOperatorChanged(this)" size="1" >
+											<apex:selectOption itemValue="equals" itemLabel="{!locale.equalTo}"/>
+											<apex:selectOption itemValue="greaterThanOrEqual" itemLabel="{!locale.greaterThanOrEqualTo}"/>
+											<apex:selectOption itemValue="lessThan" itemLabel="{!locale.lessThan}"/>
+										</apex:selectList>
+										<apex:inputText value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" id="input_MultiFieldFilterNumberFieldValue" style="text-align:center" size="10" maxLength="32"/>
+										<apex:panelGroup >
+											<apex:outputPanel id="panel_RightValues" style="visibility:collapse">
+												<apex:outputText id="text_AndLessThan" value=" {!locale.and} {!locale.lessThan} " style="white-space:nowrap"/>
+												&nbsp;
+												<apex:inputText value="{!view.filter.multiFieldFilters.currentFilter.rightFieldValue}" id="input_MultiFieldFilterNumberFieldRightValue" style="text-align:center; " size="10" maxLength="32"/>
+											</apex:outputPanel>
+										</apex:panelGroup>						
+									</apex:panelGrid>
+								</apex:outputPanel>
+		
+								<!-- Date -->
+								<apex:outputPanel rendered="{!OR(view.filter.multiFieldFilters.currentFilter.filterType='Date',view.filter.multiFieldFilters.currentFilter.filterType='DateTime')}" >
+									<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+										<apex:outputText value="{!locale.value}" />
+										
+										
+										<apex:panelGroup >
+										
+											<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.operator}" id="select_MultiFieldFilterDateOperator" onchange="onMultiFieldFilterDateOperatorChanged(this)" size="1" >
+												<apex:selectOption itemValue="equals" itemLabel="{!locale.equalTo}"/>
+												<apex:selectOption itemValue="greaterThanOrEqual" itemLabel="{!locale.greaterThanOrEqualTo}"/>
+												<apex:selectOption itemValue="lessThanOrEqual" itemLabel="{!locale.lessThanOrEqualTo}"/>
+											</apex:selectList>
+											&nbsp;
+											<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" id="select_MultiFieldFilterDateValue" onchange="onMultiFieldFilterDateValueChanged(this)" size="1" >
+												<apex:selectOptions value="{!view.filter.multiFieldFilters.dateValueOptions}" />
+											</apex:selectList>
+										</apex:panelGroup>	
+											
+										<apex:panelGroup >
+											<apex:outputPanel id="panel_DateNValue" style="visibility:collapse">
+												<apex:outputText value=" N = " style="white-space:nowrap; "/>
+												<apex:inputText value="{!view.filter.multiFieldFilters.currentFilter.nValue}" style="text-align:center; " size="10" maxLength="8"/>
+											</apex:outputPanel>
+										</apex:panelGroup>
+									</apex:panelGrid>
+								</apex:outputPanel>
+		
+								<!-- Record Type -->
+								<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='RecordType'}" >
+									<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+										<apex:outputText value="{!locale.value}" />
+										<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" id="select_MultiFieldFilterRecordTypeValue" size="1" >
+											<apex:selectOptions value="{!view.filter.multiFieldFilters.recordTypeOptions}" />
+										</apex:selectList>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+								<!-- Address -->
+								<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='Address'}" >
+									<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+										<apex:outputText value="{!locale.value}" />
+										<apex:inputText value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" size="50" maxLength="255"/>
+										<apex:panelGroup >
+											<apex:outputText rendered="{!view.filter.multiFieldFilters.currentFilter.fieldName='Country'}" escape="false" value="{!locale.enterACountry}" />
+											<apex:outputText rendered="{!view.filter.multiFieldFilters.currentFilter.fieldName='City'}" escape="false" value="{!locale.enterACity}" />
+											<apex:outputText rendered="{!view.filter.multiFieldFilters.currentFilter.fieldName='State'}" escape="false" value="{!locale.enterAState}" />
+											<apex:outputText rendered="{!view.filter.multiFieldFilters.currentFilter.fieldName='PostalCode'}" escape="false" value="{!locale.enterAPostalCode}" />
+
+										</apex:panelGroup>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+								
+								<!-- Lookup -->
+								<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='Lookup'}" >
+									<apex:inputHidden id="hidden_MultiFieldLookupFieldValueName" value="{!view.filter.multiFieldFilters.currentFilter.lookupFieldValueName}" />
+									<apex:inputHidden id="hidden_MultiFieldLookupFieldValueId" value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" />
+								
+								
+									<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+										<apex:outputText value="{!locale.value}" />
+										<apex:outputPanel >
+											<input name="m_aro_lkid" id="m_aro_lkid" value="000000000000000" type="hidden"/>
+											<input name="m_aro_lkold" id="m_aro_lkold" value="null" type="hidden"/>
+											<input name="m_aro_lktp" id="m_aro_lktp" value="{!view.filter.multiFieldFilters.currentFilter.fieldReferenceKeyPrefix}" type="hidden"/>
+											<input name="m_aro_lspf" id="m_aro_lspf" value="0" type="hidden"/>
+											<input name="m_aro_mod" id="m_aro_mod" value="0" type="hidden"/>
+											
+											<input id="m_aro" maxlength="255" name="m_aro" value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" size="50" type="text"/>
+					
+											<a href="JavaScript: util.launchMultiFieldFilterLookup();" id="button_Lookup" onclick="setLastMousePosition(event)" title="{!view.filter.multiFieldFilters.currentFilter.fieldReferenceTo} Lookup (New Window)">
+												<img src="/s.gif" alt="{!view.filter.multiFieldFilters.currentFilter.fieldReferenceTo} Lookup (New Window)" class="lookupIcon" onblur="this.className = 'lookupIcon';" onfocus="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon';this.className = 'lookupIcon';" onmouseover="this.className = 'lookupIconOn';this.className = 'lookupIconOn';" title="{!view.filter.multiFieldFilters.currentFilter.fieldReferenceTo} Lookup (New Window)"/>
+											</a>
+										</apex:outputPanel>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+								<!-- Text -->
+								<apex:outputPanel rendered="{!view.filter.multiFieldFilters.currentFilter.filterType='Text'}" >
+									<apex:panelGrid columns="3" cellspacing="5" columnClasses="paramLabel,paramField,paramField">
+										<apex:outputText value="{!locale.value}" />
+										<apex:selectList value="{!view.filter.multiFieldFilters.currentFilter.operator}" id="select_MultiFieldFilterTextOperator" size="1"  onchange="onMultiFieldTextFilterOperatorChanged(this)">
+											<apex:selectOption itemValue="equals" itemLabel="{!locale.equalTo}"/>
+											<apex:selectOption itemValue="contains" itemLabel="{!locale.contains}"/>
+											<apex:selectOption itemValue="doesNotContain" itemLabel="{!locale.doesNotContain}"/>
+											<apex:selectOption itemValue="startsWith" itemLabel="{!locale.startsWith}"/>
+											<apex:selectOption itemValue="endsWith" itemLabel="{!locale.endsWith}"/>
+											<apex:selectOption itemValue="isBlank" itemLabel="{!locale.isBlank}"/>
+											<apex:selectOption itemValue="isNotBlank" itemLabel="{!locale.isNotBlank}"/>
+										</apex:selectList>
+										<apex:inputText id="input_MultiFieldTextFilterValue" value="{!view.filter.multiFieldFilters.currentFilter.fieldValue}" size="50" maxLength="255"/>
+									</apex:panelGrid>
+								</apex:outputPanel>
+								
+							</apex:outputPanel>
+
+
+
+
+							<apex:outputPanel rendered="{!NOT(view.filter.multiFieldFilters.currentFilterValue='NONE')}">
+								<apex:panelGrid columns="2" cellspacing="5" columnClasses="paramLabel,paramField">
+									<apex:outputText value=""/>
+									<apex:commandButton action="{!view.filter.multiFieldFilters.addCurrentFilter}" value="{!locale.add} »" onclick="util.showViewLoadingImage();beforeAddMultiFieldFilter();" oncomplete="afterAddNewMultiFieldFilter()" rerender="panel_StepSix, panel_Messages"/>
+								</apex:panelGrid>
+							</apex:outputPanel>
+							
+						</apex:outputPanel>
+
+
+						
+						<br/>
+						<apex:outputPanel id="panel_MultiFieldFilters" >
+							<apex:outputPanel rendered="{!NOT(view.filter.multiFieldFilters.fieldFilterCount=0)}" >						
+								<apex:pageBlockTable id="table_MultiFieldFilters" value="{!view.filter.multiFieldFilters.fieldFilters}" var="multiFieldFilter" cellpadding="2">
+										
+									<apex:column >
+										<b>
+											<apex:commandLink value="{!locale.remove}" action="{!view.filter.multiFieldFilters.removeFilter}" onclick="util.showViewLoadingImage()" oncomplete="util.hideViewLoadingImage()" rerender="panel_StepSix, panel_Messages">
+												<apex:param name="removeFilterIndex" value="{!multiFieldFilter.index}" />
+											</apex:commandLink>
+										</b>
+									</apex:column>
+	
+									<apex:column width="100%" style="white-space:nowrap; padding-right:15px">
+										<apex:facet name="header">{!locale.filterCriteria}</apex:facet>
+										<apex:outputPanel style="padding-right:15px">
+											<apex:outputText value="{!multiFieldFilter.displayString}" />
+										</apex:outputPanel>
+									</apex:column>
+									
+								</apex:pageBlockTable>
+								
+							</apex:outputPanel>
+							
+							
+							<apex:outputPanel rendered="{!view.filter.multiFieldFilters.fieldFilterCount=0}" >
+								<br/>
+								<apex:outputText value="{!locale.noMultiFieldFilters}" />
+							</apex:outputPanel>
+
+						</apex:outputPanel>
+
+
+
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+
+
+<!-- Step Seven -->  
+
+			<apex:outputPanel rendered="{!NOT(OR(view.type='Custom',view.type='Combination',view.type='Campaign'))}">
+				<apex:pageBlockSection id="section_FieldsToDisplay" columns="1" collapsible="false" title="{!locale.selectFieldsToDisplay}">
+					<apex:outputPanel id="panel_StepSeven" >
+				
+						<apex:inputHidden id="hidden_AvailableFieldsToDisplay" value="{!view.filter.viewObjectFields.displayFields}" />
+						<apex:inputHidden id="hidden_SelectedFieldsToDisplay" value="{!view.fieldsToDisplay}" />
+
+						<apex:outputPanel >
+							<apex:outputText value="{!locale.selectUpToFive}" escape="false">
+								<apex:param value="{!view.viewObjectLabel}" />
+							</apex:outputText>
+							<br/>
+							<br/>
+						</apex:outputPanel>							
+
+						<c:DuelingListBoxes id="duelList_FieldsToDisplay" 
+							visibleItems="15"
+							multiSelect="false"
+							availableListBoxId="select_AvailableFieldsToDisplay"
+							availableListBoxLabel="{!locale.availableFields}" 
+							selectedListBoxId="select_SelectedFieldsToDisplay"
+							selectedListBoxLabel="{!locale.selectedFields}"
+							addButtonId="button_AddFieldsToDisplay"
+							removeButtonId="button_RemoveFieldsToDisplay"
+							varName="fieldsToDisplayDuelList"
+							addLabel="{!locale.add}"
+							removeLabel="{!locale.withdraw}"
+							topLabel="{!locale.top}"
+							bottomLabel="{!locale.bottom}"
+							upLabel="{!locale.up}"
+							downLabel="{!locale.down}"/>
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+<!-- Step Eight -->  
+
+			<apex:outputPanel rendered="{!OR(view.id=null,userIsSysAdmin,userId=view.ownerId)}">
+				<apex:pageBlockSection id="section_ViewPermissions" columns="1" collapsible="false" title="{!locale.restrictVisibility}">
+					<apex:outputPanel id="panel_Permissions" >
+				
+						<input id="hidden_AvailablePermissions" type="hidden" />
+						<apex:inputHidden id="hidden_GroupPermissions" value="{!view.groupPermissions}" />
+						<apex:inputHidden id="hidden_RolePermissions" value="{!view.rolePermissions}" />
+						<apex:inputHidden id="hidden_RoleAndSubordinatePermissions" value="{!view.roleAndSubordinatePermissions}" />
+
+						<apex:outputPanel rendered="{!view.type='Combination'}">
+							{!locale.comboViewVisiblity}
+							<br/>
+							<br/>
+						</apex:outputPanel>
+	
+						<table cellspacing="0px" cellpadding="0px">
+							<tr>
+								<td>
+									<apex:selectRadio id="radio_PermissionOption" layout="pageDirection" value="{!view.PermissionsOption}" disabled="{!IF(view.type='Combination','true','false')}" onclick="setPermissionsOptionUI();">
+<!--  									
+										<apex:selectOption itemValue="Me Only" itemEscaped="false" itemLabel="Visible only to {!IF(OR(view.id=null,NOT(userIsSysAdmin)),'me','owner')}" />
+-->										
+										<apex:selectOption itemValue="Me Only" itemEscaped="false" itemLabel="{!IF(OR(view.id=null,NOT(userIsSysAdmin)),locale.visibleOnlyToMe,locale.visibleOnlyToOwner)}" />
+										<apex:selectOption itemValue="Everyone" itemEscaped="false" itemLabel="{!locale.visibleToAll}"/>
+										<apex:selectOption itemValue="Selected Users" itemEscaped="false" itemLabel="{!locale.visibleToSelectedUsers}"/>
+									</apex:selectRadio>
+									
+	
+									<apex:outputPanel rendered="{!view.type='Combination'}">
+										<div style="margin:10px;display:{!IF(AND(OR(view.PermissionsOption='Selected Users',view.PermissionsOption='Everyone'),view.type='Combination'),'block','none')};">
+											<apex:inputCheckbox value="{!view.allowViewAndEdit}" id="checkbox_ComboAllowViewAndEdit"/>
+											<apex:outputLabel value="{!locale.allowEditing}" for="checkbox_ComboAllowViewAndEdit"/>
+										</div>
+									</apex:outputPanel>
+
+									
+									
+									
+								</td>
+							</tr>
+							<tr>
+								<td id="cell_ViewPermissionsDuelList" style="visibility:{!IF(view.PermissionsOption='Selected Users','visible','collapse')};">
+								<apex:outputPanel rendered="{!view.type!='Combination'}">
+								
+									<div style="margin:10px">
+										<select id="select_PermissionGroup" onchange="loadPermissions()">
+											<option value="groups" selected="selected">{!locale.publicGroups}</option>
+											<option value="roles">{!locale.roles}</option>
+											<option value="rolesAndSubordinates">{!locale.rolesAndSubordinates}</option>
+										</select>
+									</div>
+									<div style="margin:10px">
+										<c:DuelingListBoxes id="duelList_ViewPermissions" 
+											visibleItems="14"
+											multiSelect="true"
+											reorder="false"
+											availableListBoxId="select_AvailableForSharing"
+											availableListBoxLabel="{!locale.availableForSharing}" 
+											selectedListBoxId="select_SharedTo"
+											selectedListBoxLabel="{!locale.sharedTo}"
+											addButtonId="button_AddPermission"
+											removeButtonId="button_RemovePermission"
+											varName="viewPermissionsDuelList"
+											addLabel="{!locale.add}"
+											removeLabel="{!locale.withdraw}"
+											topLabel="{!locale.top}"
+											bottomLabel="{!locale.bottom}"
+											upLabel="{!locale.up}"
+											downLabel="{!locale.down}"/>
+									</div>
+<!--  									
+									<apex:outputPanel rendered="{!view.type!='Combination'}">
+-->
+										<div style="margin:10px">
+											<apex:inputCheckbox value="{!view.allowViewAndEdit}" id="checkbox_AllowViewAndEdit"/>
+											<apex:outputLabel value="{!locale.allowEditing}" for="checkbox_AllowViewAndEdit"/>
+										</div>
+<!--  									
+									</apex:outputPanel>
+-->
+									
+									
+								</apex:outputPanel>
+								</td>
+							</tr>
+						</table>
+						
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+<!-- Step Nine -->  
+
+			<apex:outputPanel >
+				<apex:pageBlockSection id="section_LegendType" columns="1" collapsible="false" title="{!locale.mapLegend}">
+					<apex:outputPanel id="panel_LegendType" >
+			
+						{!locale.onlyColorLegend}
+						<br/>
+						<br/> 
+			
+					
+						<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabel,paramField">
+							<apex:outputLabel value="{!locale.shortLegend}" for="checkbox_UseShortLegend"/>
+							<apex:inputCheckbox value="{!view.useShortLegend}" id="checkbox_UseShortLegend"/>
+					    </apex:panelGrid>
+					
+					
+					
+					</apex:outputPanel>
+				</apex:pageBlockSection>
+			</apex:outputPanel>
+
+
+
+			<br/>
+		</apex:pageBlock>
+	</apex:form>
+
+
+
+<script type="text/javascript">
+/////////////////////////////////////////////////////////////////////////////////////
+
+initSelectAllSingleRoleUsersCheckBox();
+
+var userId = util.fixId("{!$User.Id}");
+var userRoleId = "{!userRoleId}";
+var userIsSysAdmin = {!userIsSysAdmin};
+
+
+try
+{
+	sforce.connection.init("{!$Api.Session_ID}", "{!$Api.Partner_Server_URL_160}");
+}
+catch (error)
+{
+    alert("{!locale.connectionFailed}" + " " + error);
+}
+
+if ("{!JSENCODE(view.type)}" == "Combination")
+{
+	permissions.filterViewSelectList("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_CombinationViews:select_View");
+}
+else if ("{!JSENCODE(view.type)}" != "Campaign" && "{!JSENCODE(view.type)}" != "Custom")
+{
+	var fieldsToDisplayDuelList = new DuelingListBoxes(true, "{!locale.none}", 5);
+	fieldsToDisplayDuelList.init("", ("{!JSENCODE(view.type)}"=="Combination"), "select_AvailableFieldsToDisplay", "select_SelectedFieldsToDisplay",
+		"button_AddFieldsToDisplay", "button_RemoveFieldsToDisplay", 
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_FieldsToDisplay:hidden_AvailableFieldsToDisplay",
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_FieldsToDisplay:hidden_SelectedFieldsToDisplay");
+
+}
+
+var viewPermissionsDuelList = new DuelingListBoxes(false, "{!locale.none}");
+viewPermissionsDuelList.init("", ("{!JSENCODE(view.type)}"=="Combination"), "select_AvailableForSharing", "select_SharedTo",
+	"button_AddPermission", "button_RemovePermission", "hidden_AvailablePermissions",
+	"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_ViewPermissions:hidden_GroupPermissions");
+setPermissionsOptionUI();
+
+function setPermissionsOptionUI()
+{
+	var selectedChecked = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_ViewPermissions:radio_PermissionOption:2").checked;
+	document.getElementById("cell_ViewPermissionsDuelList").style.visibility = selectedChecked ? "visible" : "collapse";
+	document.getElementById("cell_ViewPermissionsDuelList").style.display = selectedChecked ? "block" : "none";
+
+	if (selectedChecked)
+	{
+		loadPermissions();
+	}
+}
+
+function loadPermissions()
+{
+	var permissionGroupSelect = document.getElementById("select_PermissionGroup");
+	var selectedPermissionGroup = permissionGroupSelect.options[permissionGroupSelect.selectedIndex].value;
+	var availableItemsInputId = "hidden_AvailablePermissions";
+	var selectedItemsInputId;
+	var itemPrefix = "";
+	
+	switch(selectedPermissionGroup)
+	{
+		case "groups":
+			selectedItemsInputId = "page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_ViewPermissions:hidden_GroupPermissions";
+			permissions.getAvailableGroups(availableItemsInputId);
+			break;
+		case "roles":
+			itemPrefix = "{!locale.role}: ";
+			selectedItemsInputId = "page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_ViewPermissions:hidden_RolePermissions";
+			permissions.getAvailableRoles(availableItemsInputId);
+			break;
+		case "rolesAndSubordinates":
+			itemPrefix = "{!locale.rolesAndSubordinates}: ";
+			selectedItemsInputId = "page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_ViewPermissions:hidden_RoleAndSubordinatePermissions";
+			permissions.getAvailableRoles(availableItemsInputId);
+			break;
+		default:
+			return;
+	}
+
+	viewPermissionsDuelList.init(itemPrefix, ("{!JSENCODE(view.type)}"=="Combination"), "select_AvailableForSharing", "select_SharedTo",
+		"button_AddPermission", "button_RemovePermission", "hidden_AvailablePermissions", selectedItemsInputId);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+var previousBodyOnClick = document.body.onclick;        
+document.body.onclick = function()
+{ 
+	if (previousBodyOnClick)
+	{ 
+    	previousBodyOnClick();
+    }
+
+	iconPicker.hideIconPicker();
+	if (typeof jscolor != "undefined" &&
+		typeof jscolor.hidePicker == "function")
+	{		
+		jscolor.hidePicker();
+	}
+}
+*/
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+function showLoadingImage()
+{
+	document.getElementById("{!$Component.page_TerritoriesViewEdit.image_Loader}").style.visibility = "visible";
+}
+
+function hideLoadingImage()
+{
+	document.getElementById("{!$Component.page_TerritoriesViewEdit.image_Loader}").style.visibility = "hidden";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+
+function beforeRoleChanged()
+{
+	uncheckSelectAllItems();
+	util.showViewLoadingImage();
+	return true;
+}
+
+function afterRoleChanged()
+{
+	var selectAllUsersCheck = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectUsers:table_Users:check_SelectAll");
+	
+	if (selectAllUsersCheck)
+	{
+		selectAllUsersCheck.checked = false;
+	}
+		
+	util.hideViewLoadingImage();
+}
+
+function beforeUserSelectionStateChanged(userCheckBox)
+{
+	util.showViewLoadingImage()
+	userSelected(userCheckBox);
+	
+	userSelectionStateChanged();
+}
+
+function afterUserSelectionStateChanged()
+{
+	util.hideViewLoadingImage()
+}
+
+function beforeShowUserList()
+{
+	util.showViewLoadingImage();
+}
+
+function afterShowUserList()
+{
+	initSelectAllRoleUsersCheckBox();
+	util.hideViewLoadingImage();
+}
+
+function selectAllUsers(selectAllCheckBox)
+{
+	var selectAllUsersCheckBox = selectAllCheckBox;
+	
+	if (selectAllUsersCheckBox == null)
+	{
+		selectAllUsersCheckBox = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:check_SelectAll");
+	}
+
+	util.selectAllCheckBoxes(selectAllUsersCheckBox,
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:",
+		":check_SelectedUser");
+}
+
+function userSelected(itemCheckBox)
+{
+	checkSelectAllUsersCheckBox(itemCheckBox);
+}
+
+function checkSelectAllUsersCheckBox(itemCheckBox)
+{
+	util.checkBoxSelected(itemCheckBox,
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:check_SelectAll",
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:", ":check_SelectedUser");
+}
+
+function uncheckSelectAllItems()
+{
+    var checkBox = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:check_SelectAll");
+    if (checkBox != null)
+    {
+		checkBox.checked = false;
+    }
+};
+
+
+function initSelectAllUsersCheckBox()
+{
+	var firstCheckBox = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectUsers:table_Users:0:check_SelectedUser");
+
+	if (firstCheckBox)
+	{
+		checkSelectAllUsersCheckBox(firstCheckBox);
+	}
+}
+
+function beforeAllUsersSelectionStateChanged(selectAllUsersCheckBox)
+{
+	util.showViewLoadingImage();
+	selectAllUsers();
+	
+	allUsersSelectionStateChanged();
+}
+
+function afterAllUsersSelectionStateChanged()
+{
+	util.hideViewLoadingImage();
+}
+function beforeAddRole()
+{
+	util.showViewLoadingImage();
+	return true;
+}
+
+function afterAddRole()
+{
+	util.hideViewLoadingImage();
+}
+
+function beforeAddCombinationView()
+{
+	util.showViewLoadingImage();
+	return true;
+}
+
+function afterAddCombinationView()
+{
+	setPermissionsOptionUI();
+	util.hideViewLoadingImage();
+}
+
+function afterRemoveCombinationView()
+{
+	setPermissionsOptionUI();
+	util.hideViewLoadingImage();
+}
+
+function beforeSave()
+{
+	if ("{!JSENCODE(view.type)}" == "Campaign")
+	{
+		document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignId").value =
+			document.getElementById("aro_lkid").value;
+		document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectCampaign:hidden_CampaignName").value =
+			document.getElementById("aro").value;
+	}
+	return true;
+}
+
+function beforeAddSingleFieldFilter()
+{
+	var hiddenLookupIdInput = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:hidden_SingleFieldLookupFieldValueId");
+	var hiddenLookupNameInput = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:hidden_SingleFieldLookupFieldValueName");
+	var isLookupFilter = (hiddenLookupIdInput != null && hiddenLookupNameInput != null);
+	 	 
+	if (isLookupFilter)
+	{
+		hiddenLookupIdInput.value = document.getElementById("s_aro_lkid").value;
+		hiddenLookupNameInput.value = document.getElementById("s_aro").value;
+	}
+	
+	return true;
+}
+
+function beforeAddMultiFieldFilter()
+{
+	var hiddenLookupIdInput = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:hidden_MultiFieldLookupFieldValueId");
+	var hiddenLookupNameInput = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:hidden_MultiFieldLookupFieldValueName");
+	var isLookupFilter = (hiddenLookupIdInput != null && hiddenLookupNameInput != null);
+	 	 
+	if (isLookupFilter)
+	{
+		hiddenLookupIdInput.value = document.getElementById("m_aro_lkid").value;
+		hiddenLookupNameInput.value = document.getElementById("m_aro").value;
+	}
+	
+	return true;
+}
+
+
+
+function selectAllRoleUsers(selectAllRoleCheckBox)
+{
+	util.selectAllCheckBoxes(selectAllRoleCheckBox,
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_RoleUsers:",
+		":check_SelectedUser");
+}
+
+function roleUserSelected(itemCheckBox)
+{
+	checkSelectAllRoleUsersCheckBox(itemCheckBox);
+}
+
+function checkSelectAllRoleUsersCheckBox(itemCheckBox)
+{
+	util.checkBoxSelected(itemCheckBox,
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_RoleUsers:check_SelectAll",
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_RoleUsers:", ":check_SelectedUser");
+}
+
+function checkSelectAllSingleRoleUsersCheckBox(itemCheckBox)
+{
+	util.checkBoxSelected(itemCheckBox,
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:check_SelectAll",
+		"page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:", ":check_SelectedUser");
+}
+
+function initSelectAllRoleUsersCheckBox()
+{
+	var firstCheckBox = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRolesAndUsers:table_RoleUsers:0:check_SelectedUser");
+
+	if (firstCheckBox)
+	{
+		checkSelectAllRoleUsersCheckBox(firstCheckBox);
+	}
+}
+function initSelectAllSingleRoleUsersCheckBox()
+{
+	var firstCheckBox = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SelectRoleAndUsers:table_Users:0:check_SelectedUser");
+
+	if (firstCheckBox)
+	{
+		checkSelectAllSingleRoleUsersCheckBox(firstCheckBox);
+	}
+}
+
+function onSingleFieldFilterOperatorChanged(operatorSelect)
+{
+	var visibility = operatorSelect.value == "greaterThanOrEqual" ? "visible" : "collapse";
+	var rightElements = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:panel_RightValues");
+	rightElements.style.visibility = visibility;
+}
+
+function onSingleFieldFilterDateValueChanged(dateValueSelect)
+{
+	var dateOperatorSelect = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:select_SingleFieldFilterDateOperator");
+	disableEnableDateOperatorSelect(dateOperatorSelect, dateValueIsNextLastDays(dateValueSelect.value));
+
+	var visibility = dateValueSelect.value.indexOf("_N_") == -1 ? "collapse" : "visible";
+	var nValueElements = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:panel_DateNValue");
+	nValueElements.style.visibility = visibility;
+}
+
+function onSingleFieldFilterDateOperatorChanged(dateOperatorSelect)
+{
+	var dateValueSelect = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:select_SingleFieldFilterDateValue");
+	disableEnableDateOperatorSelect(dateOperatorSelect, dateValueIsNextLastDays(dateValueSelect.value));
+}
+
+function onSingleFieldTextFilterOperatorChanged(operatorSelect)
+{
+	var visibility = (operatorSelect.value == "isBlank" || operatorSelect.value == "isNotBlank") ? "collapse" : "visible";
+	var valueInput = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:input_SingleFieldTextFilterValue");
+	valueInput.style.visibility = visibility;
+}
+function onMultiFieldTextFilterOperatorChanged(operatorSelect)
+{
+	var visibility = (operatorSelect.value == "isBlank" || operatorSelect.value == "isNotBlank") ? "collapse" : "visible";
+	var valueInput = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:input_MultiFieldTextFilterValue");
+	valueInput.style.visibility = visibility;
+}
+
+function dateValueIsNextLastDays(dateValue)
+{
+	return (dateValue == "LAST_90_DAYS" ||
+		dateValue == "NEXT_90_DAYS" ||
+		dateValue == "LAST_N_DAYS" ||
+		dateValue == "NEXT_N_DAYS");
+}
+
+function disableEnableDateOperatorSelect(dateOperatorSelect, disabled)
+{
+	if (disabled)
+	{
+		dateOperatorSelect.options.selectedIndex = 0;
+		dateOperatorSelect.disabled = "disabled";
+	}
+	else
+	{
+		dateOperatorSelect.disabled = null;
+	}
+}
+
+function onSingleFieldFilterFieldChanged()
+{
+	util.showViewLoadingImage();
+	singleFieldFilterFieldChanged();
+}
+
+function afterSingleFieldFilterFieldChanged()
+{
+	util.hideViewLoadingImage();
+}
+
+function afterAddNewSingleFieldFilter()
+{
+	util.hideViewLoadingImage();
+	
+	var dateValueSelect = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_SingleFieldFilter:select_SingleFieldFilterDateValue");
+	
+	if (dateValueSelect != null)
+	{
+		onSingleFieldFilterDateValueChanged(dateValueSelect);
+	}
+}
+
+function onMultiFieldFilterOperatorChanged(operatorSelect)
+{
+	var visibility = operatorSelect.value == "greaterThanOrEqual" ? "visible" : "collapse";
+	var rightElements = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:panel_RightValues");
+	rightElements.style.visibility = visibility;
+}
+
+function onMultiFieldFilterDateValueChanged(dateValueSelect)
+{
+	var dateOperatorSelect = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:select_MultiFieldFilterDateOperator");
+	disableEnableDateOperatorSelect(dateOperatorSelect, dateValueIsNextLastDays(dateValueSelect.value));
+
+	var visibility = dateValueSelect.value.indexOf("_N_") == -1 ? "collapse" : "visible";
+	var nValueElements = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:panel_DateNValue");
+	nValueElements.style.visibility = visibility;
+}
+
+function onMultiFieldFilterDateOperatorChanged(dateOperatorSelect)
+{
+	var dateValueSelect = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:select_MultiFieldFilterDateValue");
+	disableEnableDateOperatorSelect(dateOperatorSelect, dateValueIsNextLastDays(dateValueSelect.value));
+}
+
+
+function onMultiFieldFilterFieldChanged()
+{
+	util.showViewLoadingImage();
+	multiFieldFilterFieldChanged();
+}
+
+function afterMultiFieldFilterFieldChanged()
+{
+	util.hideViewLoadingImage();
+}
+
+function afterAddNewMultiFieldFilter()
+{
+	util.hideViewLoadingImage();
+	
+	var dateValueSelect = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_MultiFieldFilter:select_MultiFieldFilterDateValue");
+	
+	if (dateValueSelect != null)
+	{
+		onMultiFieldFilterDateValueChanged(dateValueSelect);
+	}
+}
+
+function hideShowMultiRoleSelect(checkBox)
+{
+	var visibility = "visible";
+	if (checkBox.checked)
+	{
+		visibility = "collapse";
+	}
+	
+	document.getElementById("row_MultiRoleSelect").style.visibility = visibility;
+	document.getElementById("row_MultiRoleSelect").style.display = (visibility == "visible" ? "block" : "none");
+	document.getElementById("row_AllUsersAndRolesColor").style.visibility = (visibility == "visible" ? "collapse" : "visible");
+	document.getElementById("row_AllUsersAndRolesColor").style.display = (visibility == "visible" ? "none" : "block");
+	
+	var showUserMarkersCheckBox = document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:check_ShowUserMarkers"); 
+	showUserMarkersCheckBox.disabled = checkBox.checked ? "disabled" : null;
+	showUserMarkersCheckBox.checked = false;
+	
+	document.getElementById("page_TerritoriesViewEdit:form_TerritoriesViewEdit:block_TerritoriesViewEdit:section_OtherMarkers:panel_ShowUserMarkers").style.color = 
+		checkBox.checked ? "dimgray" : "black";	
+}
+/*
+var iconsPath = "https://www.pexmaps.com:8443/img/icons/";
+var colorPickerImagePath = "..{!URLFOR($Resource.ColorPickerImagesZip, '')}/";
+var territoriesImagePath = "..{!URLFOR($Resource.TerritoryImagesZip, '')}/";
+var mapIconImagePath = "{!view.iconImagePath}";
+*/
+</script>
+
+<apex:includeScript value="{!$Resource.pexmaps__UtilityJS}"/>
+<apex:includeScript value="{!$Resource.pexmaps__TerritoriesPermissionsJS}"/>
+<script type="text/javascript" src="{!$Resource.ColorPickerJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesIconPickerJS}"></script>
+
+
+</apex:page>

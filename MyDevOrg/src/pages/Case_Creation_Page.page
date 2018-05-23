@@ -1,0 +1,27 @@
+<apex:page tabstyle="Case" controller="BusinessLineController">
+<apex:sectionHeader subtitle="New Case"/>
+  <apex:form >
+      <apex:pageBlock >
+          <apex:pageBlockButtons >
+              <!--<apex:commandButton value="Previos" action="{!previousPageIssueType}" />-->
+              <apex:commandButton action="{!save}" value="Sumit"/>
+          </apex:pageBlockButtons>
+          <apex:pageBlockSection columns="1" >
+            <apex:inputField required="true" value="{!caseObj.subject}"/>
+            <apex:inputField required="true" value="{!caseObj.Priority}"/>
+            <!--<apex:inputField value="{!caseObj.Description}"/>-->
+            <apex:PageBlockSectionItem >
+                    <apex:outputLabel value="Description" for="description"/>
+                    <apex:inputTextarea required="true" id="description" value="{!caseObj.Description}" rows="4" cols="50"/>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="File" for="file_File"/>
+
+                    <apex:inputFile id="file_File" value="{!fileBody}" filename="{!fileName}"/>
+
+          </apex:pageBlockSectionItem> 
+          </apex:pageBlockSection>
+          
+      </apex:pageBlock>
+   </apex:form>
+</apex:page>

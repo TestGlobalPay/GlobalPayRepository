@@ -1,0 +1,24 @@
+<apex:page controller="BusinessLineController">
+<apex:sectionHeader subtitle="Issue Type"/>
+<style>        
+    .radioOpt td, .radioOptinput, .radioOpt label{
+    color:#666c71; 
+    font-family : Verdana, Geneva, sans-serif;
+    font-size : 15px   
+    }     
+</style>
+  <apex:form >
+  <apex:pageMessages ></apex:pageMessages>
+      <apex:pageBlock >
+          <apex:pageBlockButtons >
+                <apex:commandButton value="Previos" action="{!previousPage}" />
+                <apex:commandButton value="Next" action="{!caseDetailPage}" />
+          </apex:pageBlockButtons>
+          <apex:pageBlockSection >
+            <apex:selectRadio styleClass="radioOpt" layout="pageDirection" value="{!issueTypeName}">  
+                <apex:selectOptions value="{!issueTypes}"/>
+            </apex:selectRadio> 
+          </apex:pageBlockSection>
+      </apex:pageBlock>
+   </apex:form>
+</apex:page>

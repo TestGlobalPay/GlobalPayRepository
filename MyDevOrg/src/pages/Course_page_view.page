@@ -1,0 +1,12 @@
+<apex:page standardController="Course__c">
+<apex:form >
+    <apex:pageBlock >
+        <apex:pageblockSection title="field set" >
+            <apex:repeat value="{!$ObjectType.Course__c.FieldSets.Course_Field_Set}" var="field" >
+                <apex:inputField value="{!Course__c[field]}"/>
+            </apex:repeat>
+        </apex:pageblockSection>
+    </apex:pageBlock>
+</apex:form>
+  
+</apex:page>

@@ -1,0 +1,110 @@
+<apex:page controller="pexmaps.TerritoriesHelpController" 
+	tabStyle="Account_Maps__tab" id="page_TerritoriesHelp" showHeader="true"
+	action="{!init}" title="Google Maps for Salesforce: Help">
+
+	<style type="text/css">
+	.blockheader
+	{
+		background:transparent;
+		padding:4px 0px;
+		color:white;
+		font-size:large;
+		font-weight:bold;
+		font-family:Arial;
+	}
+	</style>	
+
+	<apex:sectionHeader title="Google Maps for Salesforce" subtitle="Help" />
+
+	<apex:form >
+
+		<table width="100%" cellpadding="0" cellspacing="0">	
+			<tr>
+				<td style="padding-right:5px">
+					<apex:commandLink action="{!usersGuideClicked}">
+						<apex:image url="{!URLFOR($Resource.pexmaps__TerritoriesHelpImagesZip, usersGuideButtonImage)}" />
+					</apex:commandLink>
+				</td>
+				<td style="padding-right:5px">
+					<apex:commandLink action="{!howDoIClicked}">
+						<apex:image url="{!URLFOR($Resource.pexmaps__TerritoriesHelpImagesZip, howDoIButtonImage)}" />
+					</apex:commandLink>
+				</td>
+				<td style="padding-right:5px">
+					<apex:commandLink action="{!aboutClicked}">
+						<apex:image url="{!URLFOR($Resource.pexmaps__TerritoriesHelpImagesZip, aboutButtonImage)}" />
+					</apex:commandLink>
+				</td>
+				<td width="100%">
+				</td>
+			</tr>
+		</table>
+
+		<apex:include pageName="{!helpFileName}" />
+
+<!--
+	<apex:form >
+		<br/>
+		<table width="100%" cellpadding="0px" cellspacing="0px">
+			<tr>
+				<td width="200px">
+				</td>
+			
+				<td width="100%">
+			
+					<table width="100%" height="30px" cellpadding="0" cellspacing="0">
+						<tr>
+							<td width="10px" style="background-image: url({!URLFOR($Resource.TerritoriesHelpImagesZip, 'tab_blue_left.png')}); background-repeat:no-repeat">
+								<apex:image url="/s.gif" width="10" height="1"/>
+							</td>
+							<td width="100%" style="background-image: url({!URLFOR($Resource.TerritoriesHelpImagesZip, 'tab_blue_middle.png')}); background-repeat:repeat-x">
+								<apex:outputPanel layout="block" styleClass="blockheader">
+									<apex:outputText value="{!headerText}" />
+								</apex:outputPanel>
+							</td>
+							<td width="10px" style="background-image: url({!URLFOR($Resource.TerritoriesHelpImagesZip, 'tab_blue_right.png')}); background-repeat:no-repeat">
+								<apex:image url="/s.gif" width="10" height="1"/>
+							</td>
+						<tr>
+					</table>
+			
+			</td>
+			<td width="15px">
+				<apex:image url="/s.gif" width="15" height="1"/>
+			</td>
+			
+			</tr>
+			<tr>
+				<td width="200px">
+					<apex:outputPanel layout="block" style="padding:40px 15px 0px 15px">
+						<apex:commandLink action="{!usersGuideClicked}">
+							<apex:image url="{!URLFOR($Resource.pexmaps__TerritoriesHelpImagesZip, usersGuideButtonImage)}" />
+						</apex:commandLink>
+						<br/>
+						<apex:commandLink action="{!howDoIClicked}">
+							<apex:image url="{!URLFOR($Resource.pexmaps__TerritoriesHelpImagesZip, howDoIButtonImage)}" />
+						</apex:commandLink>
+						<br/>
+						<apex:commandLink action="{!aboutClicked}">
+							<apex:image url="{!URLFOR($Resource.pexmaps__TerritoriesHelpImagesZip, aboutButtonImage)}" />
+						</apex:commandLink>
+					</apex:outputPanel>
+				</td>
+				<td width="100%">
+					<apex:iframe src="{!helpFileName}" scrolling="true" />
+				</td>
+
+				<td width="15px">
+				</td>
+				
+				
+			</tr>
+			
+			
+		</table>
+			
+	</apex:form>
+-->
+
+	</apex:form>	
+</apex:page>

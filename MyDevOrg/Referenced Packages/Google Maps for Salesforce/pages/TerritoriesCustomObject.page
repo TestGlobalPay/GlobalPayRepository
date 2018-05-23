@@ -1,0 +1,378 @@
+<apex:page controller="pexmaps.TerritoriesCustomObjectController" 
+	tabStyle="Account_Maps__tab" id="page_TerritoriesCustomObject" showHeader="true" action="{!init}"
+	title="Google Maps for Salesforce: {!locale.customObjectSetup}">
+
+<style type="text/css">
+	.tableHeader
+	{ 
+		font-weight:bold; 
+		vertical-align:middle;
+		white-space:nowrap;
+		padding-right: 10px;
+		padding-bottom: 5px;
+		padding-top: 5px;
+		border-bottom:2px solid dimgray;	
+	}
+	.fieldName
+	{ 
+		font-weight:bold; 
+		vertical-align:middle;
+		white-space:nowrap;
+		padding-right: 10px;
+		padding-bottom: 5px;
+		padding-top: 5px;
+		border-bottom:1px solid lightgray;	
+	}
+	.fieldDropDown
+	{
+		border-bottom:1px solid lightgray;	
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+	.fieldDescription
+	{ 
+		padding-left: 10px;	
+		padding-top: 5px;
+		padding-bottom: 5px;
+		border-bottom:1px solid lightgray;	
+	}
+	
+</style>
+
+
+	<apex:sectionHeader subtitle="{!locale.customObjectSetup} - {!customObject.label}" title="Google Maps for Salesforce"/>
+	
+	<apex:form id="form_CustomObject">
+	
+	    <apex:pageBlock title="" id="block_CustomObject" mode="edit">
+	    
+			<apex:pageBlockButtons location="top">
+				<apex:commandButton action="{!validateFields}" value="{!locale.validateFields}" rerender="panel_Messages"/>
+				<apex:commandButton action="{!saveCustomObject}" value="{!locale.save}" />
+				<apex:commandButton action="{!cancel}" value="{!locale.cancel}" />
+			</apex:pageBlockButtons>
+				    
+			<apex:outputPanel id="panel_Messages">
+				<font color="{!IF(fieldsValidated,'green','red')}">
+	            	<apex:messages />
+				</font>
+			</apex:outputPanel>
+			
+			<apex:outputPanel layout="block" style="padding:10px">
+				<apex:outputText value="{!locale.inOrderToBeMappable}" />
+				<br/><br/>
+				<apex:outputText value="{!locale.firstDecideHow}" />
+				<br/><br/>
+				<apex:outputText value="{!locale.whenAllFieldsAreMatched}" escape="false" />
+				<br/><br/>
+				
+				<apex:selectRadio id="radio_UseFieldOption" layout="pageDirection" value="{!useFieldOption}" onclick="setFieldOptionUI();">
+					<apex:selectOption itemValue="useObjectFields" itemLabel="{!locale.useCustomObject}"/>
+					<apex:selectOption itemValue="useLookupField" itemLabel="{!locale.useLookupField}"/>
+				</apex:selectRadio>
+			</apex:outputPanel>
+			
+			
+			
+			
+			
+			
+			<apex:outputPanel layout="block" style="padding:10px">
+				<table width="100%" cellspacing="0px" cellpadding="0px">
+					<tr>
+						<th class="tableHeader">
+							{!locale.requiredField}
+						</th>
+						<th class="tableHeader">
+							{!locale.customObjectField}
+						</th>
+						<th  width="100%" class="tableHeader"  style="padding-left:10px">
+							{!locale.fieldDescription}
+						</th>
+					</tr>
+					
+					<tr>
+						<td class="fieldName">
+							{!locale.nameField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:outputText value="{!customObject.nameFieldLabel}"/>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText value="{!locale.nameFieldDescription}" />
+						</td>
+					</tr>
+
+					<tr id="row_Lookup">
+						<td class="fieldName">
+							{!locale.lookupField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.lookupField}" size="1">
+					               	<apex:selectOptions value="{!lookupFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText value="{!locale.lookupFieldDescription}" />
+						</td>
+					</tr>
+
+					
+					<tr id="row_Street">
+						<td class="fieldName">
+							{!locale.streetField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.streetField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.streetFieldDescription}" />
+						</td>
+					</tr>
+					
+					<tr id="row_City">
+						<td class="fieldName">
+							{!locale.cityField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.cityField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.cityFieldDescription}" />
+						</td>
+					</tr>
+					
+					
+					<tr id="row_State">
+						<td class="fieldName">
+							{!locale.stateField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.stateField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.stateFieldDescription}" />
+						</td>
+					</tr>
+
+					
+					<tr id="row_PostalCode">
+						<td class="fieldName">
+							{!locale.postalCodeField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.postalCodeField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.postalCodeFieldDescription}" />
+						</td>
+					</tr>
+
+					<tr id="row_Country">
+						<td class="fieldName">
+							{!locale.countryField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.countryField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.countryFieldDescription}" />
+						</td>
+					</tr>
+					
+					<tr id="row_GeocodeStatus">
+						<td class="fieldName">
+							{!locale.geocodeStatusField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.geocodeStatusField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.geocodeStatusFieldDescription}" />
+						</td>
+					</tr>
+					
+					<tr id="row_GeocodeAddress">
+						<td class="fieldName">
+							{!locale.geocodeAddressField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.geocodeAddressField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.geocodeAddressFieldDescription}" />
+						</td>
+					</tr>
+					
+					<tr id="row_GeocodeAccuracy">
+						<td class="fieldName">
+							{!locale.geocodeAccuracyField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.geocodeAccuracyField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.geocodeAccuracyFieldDescription}" />
+						</td>
+					</tr>
+					
+					<tr id="row_Latitude">
+						<td class="fieldName">
+							{!locale.latitudeField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.latitudeField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.latitudeFieldDescription}" />
+						</td>
+					</tr>
+					
+					<tr id="row_Longitude">
+						<td class="fieldName">
+							{!locale.longitudeField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.longitudeField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription">
+							<apex:outputText escape="false" value="{!locale.longitudeFieldDescription}" />
+						</td>
+					</tr>
+
+					<tr id="row_County">
+						<td class="fieldName">
+							{!locale.countyField}
+						</td>
+						<td class="fieldDropDown">
+							<div>
+								<apex:selectList value="{!customObject.countyField}" size="1">
+					               	<apex:selectOptions value="{!customObjectFieldOptions}" />
+								</apex:selectList>
+							</div>
+						</td>
+						<td class="fieldDescription" style="color: blue">
+							<apex:outputText escape="false" value="{!locale.countyFieldDescription}" />
+						</td>
+					</tr>
+					
+				</table>
+				
+			</apex:outputPanel>
+		</apex:pageBlock>
+	</apex:form>
+				
+<script type="text/javascript">
+
+setFieldOptionUI();
+
+function getUseFieldOption()
+{
+	if(document.getElementById("page_TerritoriesCustomObject:form_CustomObject:block_CustomObject:radio_UseFieldOption:0").checked)
+	{
+		return "useObjectFields";
+	}
+	else if (document.getElementById("page_TerritoriesCustomObject:form_CustomObject:block_CustomObject:radio_UseFieldOption:1").checked)
+	{
+		return "useLookupField";
+	}
+}
+
+function setFieldOptionUI()
+{
+	switch (getUseFieldOption())
+	{
+		case "useObjectFields":
+			showObjectFields(true);
+			showLookupField(false);
+			break;
+		case "useLookupField":
+			showObjectFields(false);
+			showLookupField(true);
+			break;
+		default:
+			break;
+	}
+}
+
+function showLookupField(show)
+{
+	var visibility = show ? "collapse" : "visible";
+	
+	document.getElementById("row_Lookup").style.visibility = show ? "visible" : "collapse"; 
+	document.getElementById("row_Street").style.visibility = visibility; 
+	document.getElementById("row_City").style.visibility = visibility;
+	document.getElementById("row_State").style.visibility = visibility;
+	document.getElementById("row_PostalCode").style.visibility = visibility;
+	document.getElementById("row_Country").style.visibility = visibility;
+	document.getElementById("row_GeocodeStatus").style.visibility = visibility;
+	document.getElementById("row_GeocodeAddress").style.visibility = visibility;
+	document.getElementById("row_GeocodeAccuracy").style.visibility = visibility;
+	document.getElementById("row_Latitude").style.visibility = visibility;
+	document.getElementById("row_Longitude").style.visibility = visibility;
+}
+
+function showObjectFields(show)
+{
+	var visibility = show ? "visible" : "collapse";
+	
+	document.getElementById("row_Lookup").style.visibility = show ? "collapse" : "visible"; 
+	document.getElementById("row_Street").style.visibility = visibility; 
+	document.getElementById("row_City").style.visibility = visibility;
+	document.getElementById("row_State").style.visibility = visibility;
+	document.getElementById("row_PostalCode").style.visibility = visibility;
+	document.getElementById("row_Country").style.visibility = visibility;
+	document.getElementById("row_GeocodeStatus").style.visibility = visibility;
+	document.getElementById("row_GeocodeAddress").style.visibility = visibility;
+	document.getElementById("row_GeocodeAccuracy").style.visibility = visibility;
+	document.getElementById("row_Latitude").style.visibility = visibility;
+	document.getElementById("row_Longitude").style.visibility = visibility;
+}
+
+
+</script>
+</apex:page>

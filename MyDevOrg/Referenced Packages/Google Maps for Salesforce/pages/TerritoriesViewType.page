@@ -1,0 +1,119 @@
+<apex:page controller="pexmaps.TerritoriesViewTypeController" action="{!init}"
+	tabStyle="Account_Maps__tab" id="page_TerritoriesViewType" 
+	title="Google Maps for Salesforce: {!locale.selectViewType}">
+<style type="text/css">
+.paramLabel
+	{ 
+	font-weight:bold; 
+	font-size:97%; 
+	text-align:right; 
+	vertical-align:middle;	
+	}
+.paramField
+	{
+	text-align:left;
+	}
+</style>
+
+	<apex:sectionHeader title="{!locale.newView}" subtitle="{!locale.selectViewType}"/>
+	
+	<apex:form id="form_TerritoriesViewType">
+
+		{!locale.selectTypeOfView}<br/><br/>
+	
+	    <apex:pageBlock title="{!locale.selectViewType}" id="block_TerritoriesViewType">
+
+			<apex:pageBlockButtons location="top">
+				<apex:commandButton action="{!continueClicked}" value="{!locale.continue}" />
+				<apex:commandButton action="{!cancel}" value="{!locale.cancel}" />
+			</apex:pageBlockButtons>
+			
+			<apex:outputPanel id="panel_Messages">
+				<font color="red">
+			    	<apex:messages />
+				</font>
+			</apex:outputPanel>
+
+
+			<apex:panelGrid columns="2" cellspacing="4" columnClasses="paramLabel,paramField">
+				<apex:panelGroup >
+					<apex:outputPanel styleClass="requiredMark" />
+					<apex:outputLabel value="{!locale.typeOfNewView}" for="input_Type" styleClass="labelCol requiredInput" style="vertical-align: middle"/>
+				</apex:panelGroup>
+				<apex:panelGroup >
+					<apex:outputPanel layout="block" styleClass="requiredInput" >
+						<apex:outputPanel layout="block" styleClass="requiredBlock" />
+						<apex:selectList value="{!viewType}" id="select_ViewType" size="1" onchange="onViewTypeChanged()">
+				        	<apex:selectOptions value="{!viewTypeOptions}" />
+				        </apex:selectList>
+					</apex:outputPanel>
+				</apex:panelGroup>
+			
+				<apex:outputLabel id="label_ObjectToMap" value="{!locale.itemToMap}" styleClass="labelCol requiredInput" style="vertical-align: middle"/>
+				<apex:outputPanel id="panel_ObjectToMap" layout="block" >
+					<apex:selectList value="{!viewObject}" id="select_ViewObject" size="1">
+			        	<apex:selectOptions value="{!viewObjectOptions}" />
+			        </apex:selectList>
+				</apex:outputPanel>
+				
+		    </apex:panelGrid>
+
+		</apex:pageBlock>
+
+		<h3 class="recordTypesHeading">{!locale.availableViewTypes}</h3>
+		<table  class="infoTable" border="0" cellpadding="0" cellspacing="0">
+			<tr class="headerRow">
+				<TH class="recordTypeName" scope="col">{!locale.viewType}</TH>
+				<TH class="recordTypeDescription" scope="col">{!locale.description}</TH>
+			</tr>
+		
+			<tr>
+				<TH class="recordTypeName" scope="row">{!locale.singleRole}</TH>
+				<td class="recordTypeDescription">{!locale.singleRoleDesc}</td>
+			</tr>
+			<tr>
+				<TH class="recordTypeName" scope="row">{!locale.multipleRole}</TH>
+				<td class="recordTypeDescription">{!locale.multiRoleDesc}</td>
+			</tr>
+			<tr>
+				<TH class="recordTypeName" scope="row">{!locale.campaign}</TH>
+				<td class="recordTypeDescription">{!locale.campaignDesc}</td>
+			</tr>
+			<tr>
+				<TH class="recordTypeName" scope="row">{!locale.custom}</TH>
+				<td class="recordTypeDescription">{!locale.customDesc}</td>
+			</tr>
+			<tr>
+				<TH class="recordTypeName" scope="row">{!locale.combination}</TH>
+				<td class="recordTypeDescription">{!locale.combinationDesc}</td>
+			</tr>
+			<tr>
+				<TH class="recordTypeName" scope="row">{!locale.user}</TH>
+				<td class="recordTypeDescription">{!locale.userDesc}</td>
+			</tr>
+		</table>
+		<br/>
+		
+	</apex:form>
+
+<script type="text/javascript">
+function onViewTypeChanged()
+{
+	var viewTypeSelect = document.getElementById("page_TerritoriesViewType:form_TerritoriesViewType:block_TerritoriesViewType:select_ViewType");
+	var viewObjectSelect = document.getElementById("page_TerritoriesViewType:form_TerritoriesViewType:block_TerritoriesViewType:select_ViewObject");
+	var objectToMapPanel = document.getElementById("page_TerritoriesViewType:form_TerritoriesViewType:block_TerritoriesViewType:panel_ObjectToMap");
+	var objectToMapLabel = document.getElementById("page_TerritoriesViewType:form_TerritoriesViewType:block_TerritoriesViewType:label_ObjectToMap");
+	
+	var visible = "visible";
+	if (viewTypeSelect.selectedIndex > 1)
+	{
+		visible = "hidden";
+		viewObjectSelect.selectedIndex = 0;
+	}
+	
+	objectToMapPanel.style.visibility = visible;
+	objectToMapLabel.style.visibility = visible;
+}
+</script>
+
+</apex:page>

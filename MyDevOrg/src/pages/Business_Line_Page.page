@@ -1,0 +1,25 @@
+<apex:page controller="BusinessLineController">
+<apex:sectionHeader subtitle="Business Line"/>
+<style>        
+    .radioOpt td, .radioOptinput, .radioOpt label{
+    color:#666c71; 
+    font-family : Verdana, Geneva, sans-serif;
+    font-size : 15px   
+    }     
+</style>
+  <apex:form >
+  <apex:pageMessages ></apex:pageMessages>
+      <apex:pageBlock >
+          <apex:pageBlockButtons >
+              <apex:commandButton action="{!cancelPage}" value="Cancel"/>
+              <apex:commandButton action="{!nextPage}" value="Next"/>  
+          </apex:pageBlockButtons>
+          <apex:pageBlockSection >
+              <!--<apex:outputText >Select any Business line</apex:outputText>-->
+                <apex:selectRadio styleClass="radioOpt" layout="pageDirection" value="{!recordTypeName}">  
+                    <apex:selectOptions value="{!businesLinesList}"/>
+              </apex:selectRadio> 
+          </apex:pageBlockSection>
+      </apex:pageBlock>
+   </apex:form>
+</apex:page>

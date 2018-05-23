@@ -1,0 +1,544 @@
+<apex:page action="{!initPage}" controller="sfcloud.ProductBundle_AddController" sidebar="false" title="GoCloudz :: Add {!IF(searchType='product', $ObjectType.Product2.Label, $ObjectType.sfcloud__Product_Bundle__c.Label)} to {!sObjName}" > 
+   
+    <apex:pageMessages id="messages" escape="false" rendered="{!OR(cs.sfcloud__Show_Message_Bar__c, pricebook='')}" />
+    <br/>
+    
+    <apex:form id="mainForm" style="margin:4px 20px;">    
+    
+        <!-- These functions will be called from JS, once the form is validated -->
+        <apex:actionFunction name="save" action="{!save}" reRender="errorMsgTop, errorMsgBottom, pnlBundle, pnlProducts" oncomplete="return false;" />        
+        <apex:actionFunction name="quickSave" action="{!save}" reRender="errorMsgTop, errorMsgBottom, pnlBundle, pnlProducts" oncomplete="return false;" >
+            <apex:param name="quickSave" value="true" />
+        </apex:actionFunction>
+                
+        <div class="error">             
+            <!-- Append site prefix for sites with URL path prefix -->
+            <apex:variable var="sitePrefix" value="{!IF($Site.Prefix!=null, '{!$Site.Prefix}', '')}" /> 
+            <table style="width: 100%">
+                <tbody>
+                    <tr>
+                        <td style="width:80%">               
+                            <a href="{!sitePrefix}/{!id}" title="Go back to the {!sObjName}">Go back to the {!sObjName}</a>
+                            <span style="color:black;">&nbsp;&nbsp;||&nbsp;&nbsp;</span>
+                            <a href="{!sitePrefix}/apex/sfcloud__ProductBundle_Add?id={!id}&retURL={!id}&searchType={!IF(searchType='bundle', 'product', 'bundle')}" title="Add {!IF(searchType='bundle', $ObjectType.Product2.Label, $ObjectType.Product_Bundle__c.Label)}">Add {!IF(searchType='bundle', $ObjectType.Product2.Label, $ObjectType.Product_Bundle__c.Label)}</a>
+                        </td>
+                        <td style="text-align:right;">
+                            <a target="_blank" class="helpLink" title="Opens in new window" href="{!sitePrefix}/apex/ProductBundle_Documentation">Help</a>
+                            <img src="/s.gif" class="helpIcon" />
+                        </td>
+                    </tr>
+                </tbody> 
+            </table>
+        </div>
+        
+        <br/>
+    
+        <!-- Set sObject variable which is later used to show custom fields part of field sets
+        <apex:variable var="sObject" value="{!IF(BEGINS(id, '006'), 'OpportunityLineItem', 'QuoteLineItem')}" /> -->
+        
+        <!-- Search panel -->
+        <apex:outputPanel id="pnlSearch" layout="block">
+         
+            <!-- Search Bundle/Products -->
+            <apex:outputPanel layout="block" rendered="{!NOT(ISNULL(sObj['Pricebook2Id']))}"> 
+                <apex:outputLabel value="Search {!IF(searchType='bundle', $ObjectType.sfcloud__Product_Bundle__c.LabelPlural, $ObjectType.Product2.LabelPlural)}" styleClass="bold" />                 
+                <apex:pageBlock id="blkSearch" tabStyle="{!IF(searchType='bundle', 'Product_Bundle__c', 'Opportunity')}">                  
+                    <!-- calculateItemPricing() calculates default volume pricing for products -->
+                    <!-- disableFields() disables product fields as per custom settings -->
+                    <apex:actionFunction name="search" action="{!search}" reRender="pnlBundle, pnlProducts, searchMessage" status="loading0" oncomplete="calculateItemPricing('add'); disableFields();" /> 
+                    <c:ProductBundle_Component attr_pageController="{!this}" attr_page="add" attr_pricebook="{!pricebook}" attr_isoCode="{!currencyISOCode}" attr_currencySymbol="{!currencySymbol}" attr_segment="{!segment}" />
+                </apex:pageBlock> 
+                <apex:outputLabel id="errorMsgTop" value="{!errorMessage}" styleClass="error" title="Error" /> 
+            </apex:outputPanel>
+            
+            <!-- Search message -->
+            <apex:outputPanel id="searchMessage">  
+                <apex:outputLabel value="No {!$ObjectType.sfcloud__Product_Bundle__c.Label} found" rendered="{!bundleSize=0}" styleClass="error" /> 
+                <apex:outputLabel value="No {!$ObjectType.Product2.Label} found" rendered="{!prodSize=0}" styleClass="error" />
+            </apex:outputPanel>            
+        </apex:outputPanel>
+
+
+        <!-- Select and Configure Bundles -->
+        <apex:outputPanel id="pnlBundle"  layout="block">
+            <apex:outputLabel value="Select and Configure {!$ObjectType.sfcloud__Product_Bundle__c.Label}" rendered="{!bundleSize>0}" styleClass="bold" />
+            <apex:pageBlock rendered="{!bundleSize>0}" tabStyle="Product_Bundle__c">
+    
+                <apex:pageBlockButtons location="both" rendered="true">                    
+                    <input type="button" class="btn quickSave" value="Quick Save" onclick="validateForm('add', 'quickSave');" />
+                    <input type="button" class="btn save" value="Save" onclick="validateForm('add', 'save');" />
+                </apex:pageBlockButtons>
+                    
+                <!-- Bundles -->
+                <apex:pageBlockSection id="sectionBundle" title="{!$ObjectType.sfcloud__Product_Bundle__c.LabelPlural} available in {!pricebook}" rendered="{!bundleSize>0}" columns="1">
+                    <apex:pageBlockSectionItem >
+                        <apex:pageBlockTable value="{!bundleList}" var="wB"> 
+                        
+                            <!-- Expand / Collapse  -->                         
+                            <apex:column width="25px" styleClass="bundleColor">                            
+                                <apex:actionRegion >    
+                                    <apex:image styleClass="bundleSelect" value="{!IF(wB.selected, $Resource.sfcloud__Minus_Sign, $Resource.sfcloud__Plus_Sign)}" title="{!IF(wB.selected, 'collapse/reset', 'expand/configure')}" alt="{!IF(wB.selected, 'collapse/reset', 'expand/configure')}" width="20" height="20" >               
+                                    <apex:actionSupport event="onclick" action="{!getBundleItems}" rerender="sectionBundle" status="loading6" oncomplete="disableFields();">
+                                        <apex:param name="itemId" value="{!wB.pb.id}" />
+                                        </apex:actionSupport>
+                                    </apex:image>
+                                </apex:actionRegion>
+                                <b><apex:actionStatus id="loading6" startText="..."/></b>
+                            </apex:column>
+                            
+                            <!-- Bundle name and list price -->
+                            <apex:column headerValue="{!$ObjectType.sfcloud__Product_Bundle__c.Label}" styleClass="bundleColor">
+                                <apex:outputLink value="/{!wB.pb.id}" target="_blank" title="Opens in new window">{!wB.pb.Name}</apex:outputLink>   
+                                <!-- <apex:inputText id="bundleListPrice" styleClass="{!$Component.sectionBundleItem}bundleListPrice" value="{!wB.pb['sfcloud__List_Price__c']}" style="display:none;" /> -->
+                            </apex:column>  
+                            
+                            <!-- TEST Attribute Pricing 
+                            <apex:column headerValue="color" width="100px">
+                                <apex:inputField value="{!wB.pb['sfcloud__color__c']}" styleClass="sfcloud__color__c" required="false" label="sfcloud__color__c" style="width:90px;" onchange="configureAllNEW('add', 'sfcloud__color__c', '{!$Component.this}', '{!$Component.sectionBundleItem}')" />
+                            </apex:column>  -->           
+
+                            <!-- Bundle field set -->
+                            <apex:repeat value="{!bundleFieldSet}" var="f">   
+                                                 
+                                <!-- Bundle image  -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='sfcloud__Image_URL__c'}" width="100px" styleClass="bundleColor">
+                                    <apex:image value="{!wB.pb[f.fieldPath]}" title="{!wB.pb.Name}" alt="{!wB.pb.Name}" width="75" height="75" rendered="{!wB.pb[f.fieldPath]!=''}"/>
+                                </apex:column> 
+                                
+                                <!-- Bundle description -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='sfcloud__Description__c'}" width="400px" styleClass="bundleColor">
+                                    <apex:inputTextarea id="bundleDescription" value="{!wB.description}" rendered="{!cs.sfcloud__Can_edit_Description__c}" style="width:375px;" onchange="configureAllNEW('add', 'description', '{!$Component.bundleDescription}', '{!$Component.sectionBundleItem}')" />
+                                    <apex:outputField value="{!wB.pb.sfcloud__Description__c}" rendered="{!NOT(cs.sfcloud__Can_edit_Description__c)}" />
+                                </apex:column> 
+                                
+                                <!-- Bundle quantity -->
+                                <apex:column headerValue="{!$ObjectType.OpportunityLineItem.Fields.Quantity.Label}" rendered="{!f.fieldPath=='sfcloud__Has_Line_Item__c'}"  width="50px" styleClass="bundleColor"> 
+                                    <apex:inputText id="bundleQuantity" value="{!wB.quantity}" style="width:45px;"  onchange="configureAllNEW('add', 'quantity', '{!$Component.bundleQuantity}', '{!$Component.sectionBundleItem}')" />
+                                </apex:column>
+                                                              
+                                <!-- Bundle list price -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!AND(cs.sfcloud__Can_edit_Price__c, f.fieldPath=='sfcloud__List_Price__c')}" width="100px" styleClass="bundleColor">
+                                    <apex:outputText id="bundleListPrice" styleClass="{!$Component.sectionBundleItem}bundleListPrice" value="{!currencySymbol}{0,number,###,###.0000}" escape="false" style="width:90px;">
+                                        <apex:param value="{!wB.pb['sfcloud__List_Price__c']}" />
+                                    </apex:outputText>                                        
+                                </apex:column> 
+                                                    
+                                <!-- Bundle sale price -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!AND(cs.sfcloud__Can_edit_Price__c, f.fieldPath=='sfcloud__Sale_Price__c')}" width="100px" styleClass="bundleColor">
+                                    <apex:inputText id="bundleSalePrice" styleClass="{!$Component.sectionBundleItem}bundleSalePrice" value="{!wB.salePrice}" style="width:90px;" onchange="configureAllNEW('add', 'salePrice', '{!$Component.bundleSalePrice}', '{!$Component.sectionBundleItem}')" />
+                                </apex:column> 
+                                
+                                <!-- Bundle discount -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!AND(cs.sfcloud__Can_edit_Price__c, f.fieldPath=='sfcloud__Discount__c')}" width="50px" styleClass="bundleColor">
+                                    <apex:inputText id="bundleDiscount" styleClass="{!$Component.sectionBundleItem}bundleDiscount" value="{!wB.discount}" style="width:45px;" onchange="configureAllNEW('add', 'discount', '{!$Component.bundleDiscount}', '{!$Component.sectionBundleItem}')" />
+                                </apex:column>      
+                                                
+                                <!-- Other bundle fields. Skip any related field -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!AND(f.fieldPath!='Name', f.fieldPath!='sfcloud__Description__c', f.fieldPath!='sfcloud__Has_Line_Item__c', f.fieldPath!='sfcloud__List_Price__c', f.fieldPath!='sfcloud__Sale_Price__c', f.fieldPath!='sfcloud__Discount__c', f.fieldPath!='sfcloud__Image_URL__c', NOT(CONTAINS(f.fieldPath, '.')) )}" width="100px" styleClass="bundleColor">
+                                    <apex:inputField value="{!wB.pb[f.fieldPath]}" style="width:90px;" onchange="configureAllNEW('add', '{!f.fieldPath}', '{!$Component.this}', '{!$Component.sectionBundleItem}')"/> 
+                                </apex:column>
+                            </apex:repeat> 
+                                
+                            <!-- Bundle Line Items -->
+                            <apex:column breakBefore="true" colspan="{!colSpan}">
+                                <apex:pageBlockSection id="sectionBundleItem" title="{!wB.pb.Name} : {!$ObjectType.sfcloud__Product_Line_Item__c.LabelPlural}" columns="1" rendered="{!wB.selected}">
+                                    <apex:pageBlockTable id="tblBundleItem" styleclass="tblBundleItem" value="{!wBundleItems[wB.pb.id]}" var="wBI">
+
+                                        <!-- LineItem select / warning -->
+                                        <apex:column headerValue="Select" width="40px">
+                                            <apex:inputCheckbox id="selectItem" styleClass="selectItem" value="{!wBI.selected}" disabled="{!wBI.pli.Required__c}" rendered="{!NOT(CONTAINS(wBI.description, '--INACTIVE PRODUCT--'))}" title="{!IF(wBI.pli.Required__c, 'This is required ', 'select ')} {!$ObjectType.Product2.Label}" onchange="calculateBundlePricing('add', '{!$Component.this}');"/>
+                                           <div class="warningM3" style="display: {!IF(CONTAINS(wBI.description, '--INACTIVE PRODUCT--'), '', 'none' )}">
+                                                <img alt="WARNING" class="msgIcon" src="/s.gif" title="WARNING: This is inactive {!$ObjectType.Product2.Label}. Please contact your system administrator for further assistance." />
+                                            </div>
+                                            
+                                            <!-- LineItem volume pricing model. This field stores volume model for this item -->
+                                            <apex:inputText id="itemVolumeModel" styleClass="itemVolumeModel" value="{!wBI.sObj['sfcloud__Volume_Pricing_Model__c']}" style="display:none;"/> 
+                                            
+                                            <!-- LineItem total list price. This field helps in overall bundle discount calculation -->             
+                                            <apex:outputText id="itemTotalListPrice" styleClass="itemTotalListPrice" value="{!wBI.quantity * wBI.pli.sfcloud__List_Price__c}" style="display:none;"/>
+                                            
+                                            <!-- Lineitem product id. The value is used for attrPricing() -->
+                                            <apex:inputText id="itemProdId" styleClass="itemProdId" value="{!wBI.pli.sfcloud__Product_Name__c}" style="display:none;"/> 
+                                                        
+                                        </apex:column>
+
+                                        <!-- LineItem name -->
+                                        <apex:column headerValue="Name" style="width:200px;">
+                                            <apex:outputText value="{!wBI.prodName}" escape="false" />
+                                        </apex:column>
+                                        
+                                        <!-- TEST Attribute Pricing
+                                        <apex:column headerValue="color" width="100px">
+                                            <apex:inputField value="{!wBI.sObj['sfcloud__color__c']}" styleClass="sfcloud__color__c" required="false" label="sfcloud__color__c" style="width:90px;" onchange="attrPricing('{!$Component.this}');" />
+                                        </apex:column>  -->
+                                                                                                                        
+                                        <!-- OLI/QLI field set -->
+                                        <apex:repeat value="{!xliFieldSet}" var="f">
+
+                                            <!-- LineItem description -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='Description'}" width="400px">
+                                                <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                                    <apex:inputTextarea id="itemDescription" styleClass="itemDescription" value="{!wBI.description}" rows="2" label="{!f.label}" style="width:375px;" /> <!-- rendered="{!cs.sfcloud__Can_edit_Description__c}"  -->
+                                                </div>
+                                            </apex:column>
+
+                                            <!-- LineItem quantity -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='Quantity'}" width="100px">
+                                                <div class="{!IF(cs.Can_edit_Quantity__c, 'requiredInput', '')}">
+                                                    <div class="{!IF(cs.Can_edit_Quantity__c, 'requiredBlock', '')}"></div>
+                                                    <apex:inputText id="itemQuantity1" styleClass="itemQuantity" value="{!wBI.quantity}" style="width:90px;" onchange="volumePricing('add', '{!wBI.pli.Volume_Pricing_Model__c}', '{!wBI.pli.Product_Name__c}', '{!$Component.tblBundleItem}', '{!$Component.itemQuantity1}')" />
+                                                                                                        
+                                                    <!-- Original quantity is required for quantity multiplication -->
+                                                    <apex:outputText styleClass="originalQuantity" value="{!wBI.quantity}" style="display:none;" /> 
+                                                </div>
+                                                <!-- Tool-tip for volume pricing -->
+                                                <apex:outputPanel rendered="{!wBI.pli.sfcloud__Volume_Pricing_Info__c!=null}" style="color:#8AC007; font-size:12px; font-weight:bold;">
+                                                    <div class="tooltip">
+                                                        <apex:image value="{!$Resource.sfcloud__Settings}" alt="Volume Pricing" width="20" height="20" />  
+                                                        <span> 
+                                                            <apex:outputtext value="{!wBI.pli.sfcloud__Volume_Pricing_Info__c}" escape="false" />
+                                                        </span>
+                                                    </div>                  
+                                                </apex:outputPanel>
+                                            </apex:column>
+
+                                            <!-- LineItem sale price -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='UnitPrice'}" width="100px">
+                                                <div class="requiredInput">
+                                                    <div class="requiredBlock"></div>
+                                                    <apex:inputText id="itemSalePrice" styleClass="itemSalePrice" value="{!wBI.salePrice}" label="{!f.label}" style="width:90px;" onchange="configureNEW('add', 'salePrice', '{!$Component.itemSalePrice}', '{!$Component.tblBundleItem}')" />
+                                                </div>
+                                            </apex:column>
+
+                                            <!-- LineItem discount -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='Discount'}" width="55px">
+                                                <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                                    <apex:inputText id="itemDiscount" styleClass="itemDiscount" value="{!wBI.discount}" label="{!f.label}" style="width:50px;" onchange="configureNEW('add', 'discount', '{!$Component.itemDiscount}', '{!$Component.tblBundleItem}')" />
+                                                </div>
+                                            </apex:column>
+                                                                                        
+                                            <!-- LineItem margin -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='sfcloud__Margin__c'}" width="55px">
+                                                <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                                    <apex:inputText id="itemMargin" styleClass="itemMargin" value="{!wBI.margin}" label="{!f.label}" style="width:50px;" onchange="configureNEW('add', 'margin', '{!$Component.itemMargin}', '{!$Component.tblBundleItem}')" />
+                                                </div>
+                                            </apex:column> 
+
+                                            <!-- LineItem sub-total -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!AND(f.fieldPath=='Subtotal', NOT(cs.sfcloud__Discount_changes_Sale_Price__c))}" width="150px">
+                                                <apex:outputText id="itemSubTotal" styleClass="itemSubTotal" value="{!currencySymbol}{0,number,###,###.0000}" escape="false" style="width:140px;">
+                                                    <apex:param value="{!wBI.subTotal}" />
+                                                </apex:outputText>
+                                            </apex:column>
+
+                                            <!-- LineItem total sale price -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='TotalPrice'}" width="150px">
+                                                <apex:outputText id="itemTotalPrice" styleClass="itemTotalPrice" value="{!currencySymbol}{0,number,###,###.0000}" escape="false" style="width:140px;">
+                                                    <apex:param value="{!wBI.totalPrice}" />
+                                                </apex:outputText>
+                                            </apex:column>
+
+                                            <!-- Product: related fields -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!CONTAINS(f.fieldPath,'Product2.')}" width="100px">
+                                                <apex:variable var="x" value="{!SUBSTITUTE(f.fieldPath, 'Product2.', 'sfcloud__Product_Name__r.')}" />
+                                                <apex:outputField value="{!wBI.pli[x]}" style="width:90px;" rendered="{!NOT(CONTAINS(f.fieldPath, 'sfcloud__Image_URL__c'))}" />
+                                                <apex:image value="{!wBI.pli[x]}" title="{!wBI.prodName}" alt="{!wBI.prodName}" width="75" height="75" rendered="{!AND(CONTAINS(f.fieldPath, 'sfcloud__Image_URL__c'), wBI.pli[x]!='')}" />
+                                            </apex:column>
+                                            
+                                            <!-- PBE: cost -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='sfcloud__Product_Cost__c'}" width="100px">
+                                                <apex:outputText id="itemCost" styleClass="itemCost" value="{!currencySymbol}{0,number,###,###.0000}" style="width:90px;">
+                                                    <apex:param value="{!wBI.pli.sfcloud__Product_Cost__c}" />                           
+                                                </apex:outputText>
+                                            </apex:column>
+                                            
+                                            <!-- PBE: list price -->
+                                            <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='ListPrice'}" width="100px">
+                                                <apex:outputText id="itemListPrice" styleClass="itemListPrice" value="{!currencySymbol}{0,number,###,###.0000}" style="width:90px;">
+                                                    <apex:param value="{!wBI.pli.sfcloud__List_Price__c}" />                           
+                                                </apex:outputText>
+                                            </apex:column>
+                                
+                                            <!-- OLI/QLI: other fields not part of package. Skip any related field -- >
+                                            <apex:column headerValue="{!f.Label}" rendered="{!AND(NOT(CONTAINS(f.fieldPath,'sfcloud__')), CONTAINS(f.fieldPath,'__c'), NOT(CONTAINS(f.fieldPath, '.')) )}" width="100px"> -->                                            
+                                            <apex:column headerValue="{!f.Label}" rendered="{!NOT(OR( CONTAINS(f.fieldPath,'.'), CONTAINS(f.fieldPath, 'sfcloud__'), f.fieldPath=='Description', f.fieldPath=='Quantity', f.fieldPath=='UnitPrice', f.fieldPath=='Discount', f.fieldPath=='Subtotal', f.fieldPath=='TotalPrice', f.fieldPath=='ListPrice' ))}" width="100px">
+                                                <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                                    <apex:inputField value="{!wBI.sObj[f.fieldPath]}" styleClass="{!f.fieldPath}" required="false" label="{!f.label}" style="width:90px;" onchange="attrPricing('{!$Component.this}');" />
+                                                </div>
+                                            </apex:column> 
+
+                                        </apex:repeat>
+
+                                    </apex:pageBlockTable>
+                                    <br />
+                                </apex:pageBlockSection>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+            </apex:pageBlock>                
+        </apex:outputPanel>
+                 
+        <br/>
+        
+        <!-- Select and Configure Products -->
+        <apex:outputPanel id="pnlProducts" layout="block"> 
+            <apex:outputLabel value="Select and Configure {!$ObjectType.Product2.Label}" rendered="{!prodSize>0}" styleClass="bold" />
+               <apex:pageBlock rendered="{!prodSize>0}" tabStyle="Opportunity">
+    
+                <apex:pageBlockButtons location="both" rendered="true">                    
+                    <input type="button" class="btn quickSave" value="Quick Save" onclick="validateForm('add', 'quickSave');" />
+                    <input type="button" class="btn save" value="Save" onclick="validateForm('add', 'save');" />
+                </apex:pageBlockButtons>
+                 
+                <!-- Product Grouping -->
+                <apex:repeat value="{!prodGroup}" var="grp">
+                
+                    <apex:pageBlockSection id="sectionProdItems" title="{!grp}" rendered="{!prodSize>0}" columns="1">
+                        <apex:pageBlockTable styleclass="tblItem" id="tblProduct" value="{!mapName_ProdList[grp]}" var="wP" rendered="{!mapName_ProdList[grp]!=null}">   
+        
+                            <!-- Product select -->
+                            <apex:column style="width:40px;">
+                                <apex:facet name="header">
+                                    <apex:inputCheckbox id="selectAllItems" onchange="selectAll('{!$Component.selectAllItems}');" />
+                                </apex:facet>
+                                <apex:inputCheckbox id="selectItem" styleClass="selectItem" value="{!wP.selected}"/>
+                                
+                                <!-- Row info used in jQuery -->
+                                <apex:outputText styleclass="rowInfo" value="{!wP.volumeModel}::{!wP.pbe.Product2Id}::{!$Component.tblProduct}" style="display:none;" />
+                                
+                                <!-- Product volume pricing model. This field stores volume model for this item -->
+                                <apex:inputText id="itemVolumeModel" styleClass="itemVolumeModel" value="{!wP.sObj['sfcloud__Volume_Pricing_Model__c']}" style="display:none;"/> 
+                            
+                                <!-- Product id. The value is used for attrPricing() -->
+                                <apex:inputText id="itemProdId" styleClass="itemProdId" value="{!wP.pbe.Product2Id}" style="display:none;"/> 
+                                                
+                            </apex:column>
+    
+                            <!-- Product name -->
+                            <apex:column headerValue="Name" width="200px">
+                                <apex:outputLink value="/{!wP.pbe.Product2Id}" target="_blank" title="{!wP.pbe.Name}">{!wP.pbe.Name}</apex:outputLink>
+                            </apex:column> 
+                                 
+                            <!-- OLI/QLI field set -->
+                            <apex:repeat value="{!xliFieldSet}" var="f" rendered="{!wP.pbe['Product2.Family'] == grp}">
+                                                                            
+                                <!-- Product description -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='Description'}" width="400px">
+                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                        <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                        <apex:inputTextarea value="{!wP.description}" rows="2" rendered="{!cs.sfcloud__Can_edit_Description__c}" label="{!f.label}" style="width:375px;" />
+                                    </div>
+                                    <apex:outputText value="{!wP.description}" rendered="{!NOT(cs.sfcloud__Can_edit_Description__c)}" />
+                                </apex:column>
+                                    
+                                <!-- Product quantity -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='Quantity'}" width="100px">
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"></div>
+                                        <apex:inputText id="itemQuantity" styleClass="itemQuantity" value="{!wP.quantity}" label="{!f.label}" style="width:90px;" onchange="volumePricing('add', '{!wP.volumeModel}', '{!wP.pbe.Product2Id}', '{!$Component.tblProduct}', '{!$Component.itemQuantity}')" />
+                                    </div>
+                                    <!-- Tool-tip for volume pricing -->
+                                    <apex:outputPanel rendered="{!wP.tooltip!=null}" style="color:#8AC007; font-size:12px; font-weight:bold;">
+                                        <div class="tooltip">
+                                            <apex:image value="{!$Resource.sfcloud__Settings}" alt="Volume Pricing" width="20" height="20" />  
+                                            <span> 
+                                                <apex:outputtext value="{!wP.tooltip}" escape="false" />
+                                            </span>
+                                        </div>                  
+                                    </apex:outputPanel>
+                                </apex:column>
+    
+                                <!-- Product sale price -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='UnitPrice'}" width="100px">
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"></div>
+                                        <apex:inputText id="prodSalePrice" styleClass="itemSalePrice"  value="{!wP.salePrice}" label="{!f.label}" style="width:90px;" onchange="configureNEW('add', 'salePrice', '{!$Component.prodSalePrice}', '{!$Component.tblProduct}')" /> 
+                                    </div>                                    
+                                </apex:column>
+    
+                                <!-- Product discount -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='Discount'}" width="55px">
+                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                        <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                        <apex:inputText id="prodDiscount" styleClass="itemDiscount" value="{!wP.discount}" label="{!f.label}" style="width:50px;" onchange="configureNEW('add', 'discount', '{!$Component.prodDiscount}', '{!$Component.tblProduct}')" />
+                                    </div>
+                                </apex:column>
+                                    
+                                <!-- Product margin -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='sfcloud__Margin__c'}" width="55px" >
+                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                        <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                        <apex:inputText id="prodMargin" styleClass="itemMargin" value="{!wP.margin}" label="{!f.label}" style="width:50px;" onchange="configureNEW('add', 'margin', '{!$Component.prodMargin}', '{!$Component.tblProduct}')" />
+                                    </div>
+                                </apex:column>
+    
+                                <!-- Product subtotal --> 
+                                <apex:column headerValue="{!f.Label}" rendered="{!AND(f.fieldPath=='Subtotal', NOT(cs.sfcloud__Discount_changes_Sale_Price__c))}" width="150px">
+                                    <apex:outputText id="prodSubTotal" styleClass="itemSubTotal" value="{!currencySymbol}{0,number,###,###.0000}" escape="false" style="width:140px;">
+                                        <apex:param value="{!wP.subTotal}" />
+                                    </apex:outputText>
+                                </apex:column>
+    
+                                <!-- Product total sale price -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='TotalPrice'}" width="150px">
+                                    <apex:outputText id="prodTotalPrice" styleClass="itemTotalPrice" value="{!currencySymbol}{0,number,###,###.0000}" escape="false" style="width:140px;">
+                                        <apex:param value="{!wP.totalPrice}" />
+                                    </apex:outputText>
+                                </apex:column>                                
+                                                            
+                                <!-- Product related fields -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!CONTAINS(f.fieldPath,'Product2.')}" width="100px">
+                                    <apex:outputField value="{!wP.pbe[f.fieldPath]}" style="width:90px;" rendered="{!NOT(CONTAINS(f.fieldPath, 'sfcloud__Image_URL__c'))}" />
+                                    <apex:image value="{!wP.pbe[f.fieldPath]}" title="{!wP.pbe.Name}" alt="{!wP.pbe.Name}" width="75" height="75" rendered="{!AND(CONTAINS(f.fieldPath, 'sfcloud__Image_URL__c'), wP.pbe[f.fieldPath]!='')}" /> 
+                                </apex:column>
+                                
+                                <!-- PBE: cost -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='sfcloud__Product_Cost__c'}" width="100px">
+                                    <apex:outputText id="prodCost" styleClass="itemCost" value="{!currencySymbol}{0,number,###,###.0000}" style="width:90px;">
+                                        <apex:param value="{!wP.pbe.sfcloud__Product_Cost__c}" />                           
+                                    </apex:outputText>
+                                </apex:column>
+                                
+                                <!-- PBE: list price -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!f.fieldPath=='ListPrice'}" width="100px">
+                                    <apex:outputText id="prodListPrice" styleClass="itemListPrice" value="{!currencySymbol}{0,number,###,###.0000}" style="width:90px;">
+                                        <apex:param value="{!wP.pbe.UnitPrice}" />                           
+                                    </apex:outputText>
+                                </apex:column>
+                                                                
+                                <!-- PBE: related fields -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!CONTAINS(f.fieldPath,'PricebookEntry.')}" width="100px">
+                                    <apex:variable var="x" value="{!SUBSTITUTE(f.fieldPath, 'PricebookEntry.', '')}" />
+                                    <apex:outputField value="{!wP.pbe[x]}" style="width:90px;" />
+                                </apex:column>
+                                
+                                <!-- OLI/QLI: other fields not part of package. Skip any related field 
+                                required="false" tag skips standard valdiation. Otherwise it shows error for items that are not selected-- >
+                                <apex:column headerValue="{!f.Label}" rendered="{!AND( NOT(CONTAINS(f.fieldPath,'.')), NOT(CONTAINS(f.fieldPath, 'sfcloud__')), CONTAINS(f.fieldPath, '__c') )}" width="100px"> -->
+                                <apex:column headerValue="{!f.Label}" rendered="{!NOT(OR( CONTAINS(f.fieldPath,'.'), CONTAINS(f.fieldPath, 'sfcloud__'), f.fieldPath=='Description', f.fieldPath=='Quantity', f.fieldPath=='UnitPrice', f.fieldPath=='Discount', f.fieldPath=='Subtotal', f.fieldPath=='TotalPrice', f.fieldPath=='ListPrice' ))}" width="100px">
+                                    <div class="{!IF(OR(f.required, f.dbrequired), 'requiredInput', '')}">
+                                        <div class="{!IF(OR(f.required, f.dbrequired), 'requiredBlock', '')}"></div>
+                                        <apex:inputField value="{!wP.sObj[f.fieldPath]}" styleClass="{!f.fieldPath}" style="width:90px;" required="false" onchange="attrPricing('{!$Component.this}');" />
+                                    </div>
+                                </apex:column> 
+                              
+                            </apex:repeat>
+    
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+
+                </apex:repeat>
+                
+            </apex:pageBlock>   
+        </apex:outputPanel>
+                                    
+        <apex:outputLabel id="errorMsgBottom" value="{!errorMessage}" styleClass="error" title="Error" />
+    
+    </apex:form>
+    
+    <br/><br/><hr />
+    
+    <table style="width: 100%; display:{!IF(cs.Show_Message_Bar__c, '', 'none')}"> 
+        <tbody>
+            <tr>
+                <td style="width: 550px">
+                    We are listening. Please <b><i><a target="_blank" title='support@GoCloudz.com' href='mailto:support@GoCloudz.com'>Email</a></i></b> us if you need any help with Product Bundle.                           
+                </td>
+                <td style="text-align: right;">
+                    Feeling blessed? Please <b><i><a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N30000007r2QFEAY&tab=r" target="_blank" title="Opens in new window">Review</a></i></b> on AppExchange.  
+                </td>
+            </tr>
+        </tbody> 
+    </table>
+      
+</apex:page>
+
+                    <!--
+                    <apex:commandButton action="{!save}" value="Quick Save" reRender="errorMsgTop, errorMsgBottom, pnlBundle, pnlProducts" status="loading1">
+                        <apex:param name="quickSave" value="true" />
+                    </apex:commandButton>&nbsp;
+                    <apex:commandButton action="{!save}" value="Save" reRender="errorMsgTop, errorMsgBottom" status="loading1" />
+                    <b><apex:actionStatus id="loading1" startText="loading..."/></b><br/>
+                    -->
+                    
+
+                    <!--                
+                    <apex:commandButton action="{!save}" value="Quick Save" reRender="errorMsgTop, errorMsgBottom, pnlBundle, pnlProducts" status="loading1">
+                        <apex:param name="quickSave" value="true" />
+                    </apex:commandButton>&nbsp;
+                    <apex:commandButton action="{!save}" value="Save" reRender="errorMsgTop, errorMsgBottom" status="loading1"/>                    
+                    <b><apex:actionStatus id="loading1" startText="loading..."/></b><br/>
+                   -->  
+                   
+                    <!-- Expand / Collapse  
+                    <apex:column width="30px">
+                        <label class="cursor" for="{!$Component.select}">
+                            <apex:image value="{!IF(wB.selected, $Resource.sfcloud__Minus_Sign, $Resource.sfcloud__Plus_Sign)}" title="{!IF(wB.selected, 'collapse/reset', 'expand/configure')}" alt="{!IF(wB.selected, 'collapse/reset', 'expand/configure')}" width="14" height="14" />  
+                        </label>
+                        <apex:actionRegion >
+                            <apex:inputCheckbox id="select" value="{!wB.selected}" style="display:none;">
+                                <apex:actionSupport event="onclick" action="{!getBundleItems}" rerender="sectionBundle" status="loading6" oncomplete="disableFields();">
+                                    <apex:param name="itemId" value="{!wB.pb.id}" />
+                                </apex:actionSupport>
+                            </apex:inputCheckbox>
+                        </apex:actionRegion>
+                        <b><apex:actionStatus id="loading6" startText="..."/></b>
+                    </apex:column>
+                    -->  
+                            
+
+                    <!-- Bundle header fields -->
+                    <!-- <apex:inputTextarea id="bundleDescription" value="{!wB.description}" rendered="{!cs.sfcloud__Can_edit_Description__c}" style="width:375px;" onchange="configureBundle('{!$Component.bundleDescription}', '{!$Component.sectionBundleItem}', 'itemDescription')" /> -->
+                    <!-- <apex:inputText id="bundleQuantity" value="{!wB.quantity}" style="width:45px;"  onchange="configureBundle('{!$Component.bundleQuantity}', '{!$Component.sectionBundleItem}', 'itemQuantity')" />  -->
+                    <!-- <apex:inputText id="bundleSalePrice" value="{!wB.salePrice}" style="width:90px;" onchange="configureBundle('{!$Component.bundleSalePrice}', '{!$Component.sectionBundleItem}', 'itemSalePrice')" /> -->
+                    <!-- <apex:inputText id="bundleDiscount" value="{!wB.discount}" style="width:45px;" onchange="configureBundle('{!$Component.bundleDiscount}', '{!$Component.sectionBundleItem}', 'itemDiscount')" />  -->
+                    <!-- <apex:inputField value="{!wB.pb[f.fieldPath]}" style="width:90px;" onchange="configureBundle('{!$Component.this}', '{!$Component.sectionBundleItem}', '{!f.fieldPath}')"/> -->
+                    <!-- <apex:outputField value="{!wB.pb[f.fieldPath]}" style="width:90px;" /> -->
+                    
+                    
+                    <!-- Bundle line item fields -->                    
+                    <!-- <apex:inputText id="itemMargin" styleClass="itemMargin" value="{!wBI.margin}" label="{!f.label}" required="{!f.required}" style="width:50px;" onchange="configure('margin', '{!$Component.tblBundleItem}')" /> -->
+                    <!-- <apex:inputText id="itemDiscount" styleClass="itemDiscount" value="{!wBI.discount}" label="{!f.label}" required="{!f.required}" style="width:50px;" onchange="configure('discount', '{!$Component.tblBundleItem}')" />-->
+                    <!-- <apex:inputText id="itemSalePrice" styleClass="itemSalePrice" value="{!wBI.salePrice}" label="{!f.label}" required="true" style="width:90px;" onchange="configure('salePrice', '{!$Component.tblBundleItem}')" />-->
+                    
+                    <!-- Product fields -->
+                    <!-- <apex:inputText id="prodMargin" value="{!wP.margin}" label="{!f.label}" required="{!f.required}" style="width:50px;" onchange="configure('margin', '{!$Component.tblProduct}')" />-->
+                    <!-- <apex:inputText id="prodDiscount" styleClass="itemDiscount" value="{!wP.discount}" label="{!f.label}" required="{!f.required}" style="width:50px;" onchange="configure('discount', '{!$Component.tblProduct}')" /> -->
+                    <!-- <apex:inputText id="prodSalePrice" value="{!wP.salePrice}" label="{!f.label}" required="true" style="width:90px;" onchange="configure('salePrice', '{!$Component.tblProduct}')" /> -->
+                                        
+                                            <!-- NOT REQUIRED
+                                            PBE related fields -- >                                            
+                                            <!-- Cannot display any PBE related fields as PBE is not a lookup field -- >
+                                            <apex:column headerValue="{!f.Label}" rendered="{!OR( CONTAINS(f.fieldPath,'PricebookEntry.sfcloud__Product_Cost__c'), CONTAINS(f.fieldPath,'PricebookEntry.UnitPrice'))}" width="100px">
+                                                <!-- <apex:variable var="x" value="{!SUBSTITUTE(f.fieldPath, 'PricebookEntry.', 'sfcloud__PricebookEntryId__r.')}" />
+                                                <apex:outputField value="{!wBI.pli[x]}" style="width:90px;" rendered="{!NOT(CONTAINS(f.fieldPath, 'sfcloud__Product_Cost__c'))}" /> -- >     
+                                                                      
+                                                <!-- Showing cost and list price as outputField shows price in 2 currencies for multi-currecny org. This causes issues in calculation -- >
+                                                <apex:outputText id="itemCost" value="{!currencySymbol}{0,number,###,###.0000}" rendered="{!CONTAINS(f.fieldPath, 'sfcloud__Product_Cost__c')}" style="width:90px;">
+                                                    <apex:param value="{!wBI.pli.sfcloud__Product_Cost__c}" />                           
+                                                </apex:outputText>
+                                                <apex:outputText id="itemListPrice" value="{!currencySymbol}{0,number,###,###.0000}" rendered="{!CONTAINS(f.fieldPath, 'UnitPrice')}" style="width:90px;">
+                                                    <apex:param value="{!wBI.pli.sfcloud__List_Price__c}" />                           
+                                                </apex:outputText>
+                                            </apex:column>-->
+                                            
+                                                          
+                                <!-- -------- NOT REQUIRED --------
+                                PBE related fields -- >
+                                <apex:column headerValue="{!f.Label}" rendered="{!CONTAINS(f.fieldPath,'PricebookEntry.')}" width="100px">
+                                    <apex:variable var="x" value="{!SUBSTITUTE(f.fieldPath, 'PricebookEntry.', '')}" />
+                                    <apex:outputField value="{!wP.pbe[x]}" style="width:90px;" rendered="{!NOT(OR(CONTAINS(f.fieldPath, 'sfcloud__Product_Cost__c'), CONTAINS(f.fieldPath, 'UnitPrice') ))}" />
+                                                                    
+                                    <!-- Showing cost and list price as outputField shows price in 2 currencies for multi-currecny org. This causes issues in calculation -- >
+                                    <apex:outputText id="prodCost" value="{!currencySymbol}{0,number,###,###.0000}" rendered="{!CONTAINS(f.fieldPath, 'sfcloud__Product_Cost__c')}" style="width:90px;">
+                                        <apex:param value="{!wP.pbe[x]}" />                           
+                                    </apex:outputText> 
+                                    <apex:outputText id="prodListPrice" value="{!currencySymbol}{0,number,###,###.0000}" rendered="{!CONTAINS(f.fieldPath, 'UnitPrice')}" style="width:90px;">
+                                        <apex:param value="{!wP.pbe.UnitPrice}" />                           
+                                    </apex:outputText> 
+                                </apex:column> -->

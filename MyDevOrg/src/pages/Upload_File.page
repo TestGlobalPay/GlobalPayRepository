@@ -1,0 +1,27 @@
+<apex:page controller="MyLeadUploadController">
+    <script>
+        function submitPage() {
+            callSavePage();
+        }
+    </script>
+  <apex:form >
+    <apex:actionRegion >
+          <apex:actionFunction name="getLeadInformation" action="{!leadInformation}" reRender="idxLeadId">
+              <apex:param name="leadname" value="" assignTo="{!leadname}" />
+          </apex:actionFunction>
+          <apex:pageBlock >
+              <apex:pageBlockSection columns="2">
+                  <apex:inputField value="{!lead.LastName}" onblur="getLeadInformation(this.value);"/>
+                  <apex:inputField value="{!lead.phone}" id="idxLeadId"/>
+              </apex:pageBlockSection>
+          </apex:pageBlock>
+      </apex:actionRegion>
+      <apex:actionFunction name="callSavePage" action="{!savePage}" />
+      <apex:pageBlock id="pb33">
+          <apex:pageBlockSection columns="2">
+              <apex:inputFile fileName="{!fileName}" value="{!fileContent }"></apex:inputFile>
+          </apex:pageBlockSection>
+      </apex:pageBlock>
+      <apex:commandButton id="idxSubmitButton" value="SUBMIT" onclick="submitPage();"/>
+  </apex:form>
+</apex:page>

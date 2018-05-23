@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Segment__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Deprecated. Use Segment field on opportunity instead</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Deprecated. Use Segment field on opportunity instead</inlineHelpText>
+        <label>x-Deprected -- Segment</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Picklist</type>
+        <valueSet>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Segment A</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>Segment B</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>Segment C</fullName>
+                    <default>false</default>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+</CustomObject>

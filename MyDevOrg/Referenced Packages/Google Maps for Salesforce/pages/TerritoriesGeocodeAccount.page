@@ -1,0 +1,154 @@
+<apex:page controller="pexmaps.TerritoriesGeocodeAccountController" action="{!init}"
+	tabStyle="Account_Maps__tab" id="page_GeocodeAccount" title="Google Maps for Salesforce: {!locale.geocodeAccount}"
+	showHeader="true">
+
+	<apex:sectionHeader subtitle="{!locale.geocodeAccount}" title="Google Maps for Salesforce"/>
+
+	<apex:form id="form_GeocodeAccount">
+	
+		<apex:outputPanel id="panel_Messages">
+			<font color="red">
+		    	<apex:messages />
+			</font>
+		</apex:outputPanel>
+	
+	    <apex:pageBlock title="" id="block_GeocodeAccount">
+			<apex:pageBlockButtons location="top">
+				<apex:commandButton action="{!done}" value="{!locale.done}" />
+			</apex:pageBlockButtons>	    
+			
+			<apex:outputPanel layout="block" style="padding:10px">
+				{!locale.enterLatitudeAndLongitude} {!locale.latitudesRange} {!locale.longitudesRange}
+				<br/>
+				<br/>
+				
+				<b>{!locale.account}: </b>
+				<apex:outputText value="{!account.Name}" />
+				<br/>
+				<br/>
+				<br/>
+				
+				<table cellspacing="0px" cellpadding="0px">
+					<tr>
+						<td>
+							<b>{!locale.billingAddress}</b><br/>
+							<apex:outputText value="{!account.BillingStreet}"/><br/>
+							<apex:outputText value="{!account.BillingCity}"/>&nbsp;
+							<apex:outputText value="{!account.BillingState}"/>&nbsp;
+							<apex:outputText value="{!account.BillingPostalCode}"/><br/>
+							<apex:outputText value="{!account.BillingCountry}"/>
+							<br/>
+							<br/>
+						</td>
+						<td>
+							<table cellspacing="0px" cellpadding="0px" style="margin-left:40px">
+								<tr>
+									<td style="font-weight:bold;padding-right:10px">
+										{!locale.latitude}:
+									</td>
+									<td style="padding-bottom:5px">
+										<apex:inputField value="{!account.pexmaps__Billing_Latitude__c}" onkeypress="clearBillingGeocodeResult();" onchange="clearBillingGeocodeResult();"/>
+									</td>
+								</tr>
+								<tr>
+									<td style="font-weight:bold;padding-right:10px">
+										{!locale.longitude}:
+									</td>
+									<td style="padding-bottom:5px">
+										<apex:inputField value="{!account.pexmaps__Billing_Longitude__c}" onkeypress="clearBillingGeocodeResult();" onchange="clearBillingGeocodeResult();" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+									</td>
+									<td>
+										<apex:commandButton action="{!saveBillingGeocodes}" value="{!locale.save}" rerender="panel_BillingGeocodeResult, panel_Messages"/>
+									</td>
+								</tr>
+								
+							</table>
+						</td>
+						<td style="padding:10px; vertical-align:bottom;white-space:nowrap">
+							<apex:outputPanel id="panel_BillingGeocodeResult">
+								<apex:outputText id="text_BillingGeocodeResult" value="{!JSENCODE(billingGeocodeResult)}" style="color:{!JSENCODE(billingGeocodeResultColor)}"/>
+							</apex:outputPanel>
+						</td>
+					</tr>
+					
+					<tr>
+						<td style="padding:20px">
+						</td>
+						<td>
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							<b>{!locale.shippingAddress}</b><br/>
+							<apex:outputText value="{!account.ShippingStreet}"/><br/>
+							<apex:outputText value="{!account.ShippingCity}"/>&nbsp;
+							<apex:outputText value="{!account.ShippingState}"/>&nbsp;
+							<apex:outputText value="{!account.ShippingPostalCode}"/><br/>
+							<apex:outputText value="{!account.ShippingCountry}"/>
+						</td>
+						<td>
+							<table cellspacing="0px" cellpadding="0px" style="margin-left:40px">
+								<tr>
+									<td style="font-weight:bold;padding-right:10px">
+										{!locale.latitude}:
+									</td>
+									<td style="padding-bottom:5px">
+										<apex:inputField value="{!account.pexmaps__Shipping_Latitude__c}" onkeypress="clearShippingGeocodeResult();" onchange="clearShippingGeocodeResult();"/>
+									</td>
+								</tr>
+								<tr>
+									<td style="font-weight:bold;padding-right:10px">
+										{!locale.longitude}:
+									</td>
+									<td style="padding-bottom:5px">
+										<apex:inputField value="{!account.pexmaps__Shipping_Longitude__c}"  onkeypress="clearShippingGeocodeResult();" onchange="clearShippingGeocodeResult();"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									</td>
+									<td>
+										<apex:commandButton action="{!saveShippingGeocodes}" value="{!locale.save}" rerender="panel_ShippingGeocodeResult, panel_Messages"/>
+									</td>
+								</tr>
+								
+							</table>
+						</td>
+						<td style="padding:10px; vertical-align:bottom;white-space:nowrap">
+							<apex:outputPanel id="panel_ShippingGeocodeResult">
+								<apex:outputText id="text_ShippingGeocodeResult" value="{!JSENCODE(shippingGeocodeResult)}" style="color:{!JSENCODE(shippingGeocodeResultColor)}"/>
+							</apex:outputPanel>
+						</td>
+					</tr>
+					
+				</table>
+			    <br/>
+			    <br/>
+
+				
+			</apex:outputPanel>
+			
+			
+			
+		</apex:pageBlock>	
+	
+	</apex:form>
+
+<script type="text/javascript">
+function clearBillingGeocodeResult()
+{
+	document.getElementById("page_GeocodeAccount:form_GeocodeAccount:block_GeocodeAccount:text_BillingGeocodeResult").innerHTML="";
+}
+function clearShippingGeocodeResult()
+{
+	document.getElementById("page_GeocodeAccount:form_GeocodeAccount:block_GeocodeAccount:text_ShippingGeocodeResult").innerHTML="";
+}
+
+</script>
+
+</apex:page>

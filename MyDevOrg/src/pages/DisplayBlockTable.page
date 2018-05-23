@@ -1,0 +1,53 @@
+<apex:page controller="DisplayAsTable" id="pgId">
+ <apex:form id="formid">
+     <body>
+         <table border="1" style="width:60% ;text-align:left" >
+
+        <tr>
+
+            <th>#</th>
+
+            <th>Picklist Entry</th>
+            <th>Input Text</th>
+
+        </tr>
+            <tr>
+                <td>1</td>
+                <td><apex:inputField value="{!accVar.rating}" /> </td>                
+                <td><apex:inputText value="{!accVar.name}"/></td>            
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><apex:inputField value="{!accVar.MP_NA__c}" /> </td>                
+                <td><apex:inputText value="{!accVar.name}"/></td>           
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><apex:inputField value="{!accVar.Production_New__c}" /> </td>                
+                <td><apex:inputText value="{!accVar.name}"/></td>           
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><apex:inputField value="{!accVar.Prepay_Model__c}" /> </td>                
+                <td><apex:inputText value="{!accVar.name}"/></td>            
+            </tr>
+            <tr>
+                <td>5</td>
+                <td><apex:inputField value="{!accVar.SLA__c}" /> </td>                
+                <td><apex:inputText value="{!accVar.name}"/></td>            
+            </tr>
+            <tr>
+                <td>6</td>
+                <td><apex:inputField value="{!accVar.UpsellOpportunity__c}"/> </td>                
+                <td><apex:inputText value="{!accVar.name}"/></td>            
+            </tr>
+            <tr>
+                <td>7</td>
+                <td><apex:inputField value="{!accVar.Is_Parent__c}"/> </td>                
+                <td><apex:inputText value="{!accVar.name}"/></td>           
+            </tr>
+
+    </table>
+     </body>
+ </apex:form>
+</apex:page>

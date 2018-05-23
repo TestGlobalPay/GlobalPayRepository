@@ -1,0 +1,88 @@
+<apex:page controller="sfcloud.ProductBundle_WelcomeController" sidebar="false" title="GoCloudz :: Welcome">
+
+    <script type='text/javascript'> 
+    
+    
+        //Calls the Metdata API from JavaScript to create the Remote Site Setting to permit Apex callouts
+        window.onload = function(){
+            
+            if('{!edition}' == 'EE'){
+                //alert('{!edition}');
+                var binding = new XMLHttpRequest();
+                var request = 
+                    '<?xml version="1.0" encoding="utf-8"?>' + 
+                    '<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
+                        '<env:Header>' + 
+                            '<urn:SessionHeader xmlns:urn="http://soap.sforce.com/2006/04/metadata">' + 
+                                '<urn:sessionId>{!$Api.Session_ID}</urn:sessionId>' + 
+                            '</urn:SessionHeader>' + 
+                        '</env:Header>' + 
+                        '<env:Body>' +
+                            '<createMetadata xmlns="http://soap.sforce.com/2006/04/metadata">' + 
+                                '<metadata xsi:type="RemoteSiteSetting">' + 
+                                    '<fullName>Metadata_API</fullName>' + 
+                                    '<description>Metadata API Remote Site Setting for Product Bundle</description>' + 
+                                    '<disableProtocolSecurity>false</disableProtocolSecurity>' + 
+                                    '<isActive>true</isActive>' + 
+                                    '<url>https://{!host}</url>' +
+                                '</metadata>' +
+                            '</createMetadata>' +
+                        '</env:Body>' + 
+                    '</env:Envelope>';
+                binding.open('POST', 'https://{!host}/services/Soap/m/31.0');
+                binding.setRequestHeader('SOAPAction','""');
+                binding.setRequestHeader('Content-Type', 'text/xml');
+                binding.onreadystatechange = 
+                    function() { 
+                        if(this.readyState==4) {
+                            var parser = new DOMParser();
+                            var doc  = parser.parseFromString(this.response, 'application/xml');
+                            var errors = doc.getElementsByTagName('errors');
+                            var messageText = '';
+                            for(var errorIdx = 0; errorIdx < errors.length; errorIdx++)
+                                messageText+= errors.item(errorIdx).getElementsByTagName('message').item(0).innerHTML + '\n';
+                            //alert(messageText);
+                        } 
+                    }
+                binding.send(request);
+            }
+        }
+            
+    </script>
+    
+    <apex:form >
+        <br/> 
+        <div style="font-size:20px">
+            Thank you for installing Product Bundle / Kits.<br/><br/>
+            Please see getting started guide with step-by-step instructions: <a href='http://www.gocloudz.com/documentation-PDF/Product-Bundle-Usage-Guide.pdf' target='_blank' title='opens in new window'>http://www.gocloudz.com/documentation-PDF/Product-Bundle-Usage-Guide.pdf</a>
+            <br/><br/>
+            
+            <!-- EE message -->
+            <div style="font-size:20px; display:{!IF(edition=='EE','','none')}">
+                Before using the app, please click below button to automatically create 3 field sets in your org. It will help configure custom fields. This is required only once, next time you can directly go to "Bundles" tab.<br/><br/> 
+                <apex:commandbutton style="font-size:20px;" value="Create Field Sets" action="{!createMetadata}" />
+            </div>
+            
+            <!-- PE message -->
+            <div style="font-size:20px; display:{!IF(edition=='PE','','none')}">
+                Before using the app, please follow below steps to create 3 field sets in your org. It will help configure custom fields. This is required only once, next time you can directly go to "Bundles" tab.<br/><br/> 
+                <b>Field Set 1</b><br/>
+                1. Click "Setup" on top right hand side to go to setup menu. In the quick find on left hand side, search for "Price Book Entries". Click "Field Sets"<br/>
+                2. Click "New"<br/>
+                3. Enter "<i>FieldsToDisplay</i>" as label and name. Enter "Product Bundle app" in the description<br/>
+                4. Click "Save"<br/>
+                5. Drag standard and custom fields from "Price Book Entry" and "Product Id" object in the section below<br/>
+                6. Once you have necessary fields, click "Save"<br/><br/>
+                <b>Field Set 2</b><br/>
+                All the steps are same as above. In step 3, provide "<i>FieldsToSort</i>" as label and name<br/><br/>
+                <b>Field Set 3</b><br/>
+                All the steps are same as above. In step 3, provide "<i>FieldsToFilter</i>" as label and name<br/><br/>
+                Once you create these field sets. Click on "Bundles" tab and click "New" to create bundles. 
+            </div>
+            <br/><br/><br/>
+            
+            Got Questions? Need a quick Demo? Please contact us at <a href="mailto:support@gocloudz.com?subject=Need help with Product Bundles">support@gocloudz.com</a>. You will get a response in less than 24 hours. 
+        </div>
+    </apex:form>
+
+</apex:page>

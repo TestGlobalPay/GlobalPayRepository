@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Segment__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Choose appropriate segment for this opportunity. Bundles will be filtered by this segment.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Choose appropriate segment for this opportunity. Bundles will be filtered by this segment.</inlineHelpText>
+        <label>Segment</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <valueSet>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Segment A</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>Segment B</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>Segment C</fullName>
+                    <default>false</default>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+        <visibleLines>3</visibleLines>
+    </fields>
+</CustomObject>

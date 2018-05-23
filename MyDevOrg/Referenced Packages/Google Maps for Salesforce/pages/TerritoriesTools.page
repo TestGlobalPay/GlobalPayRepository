@@ -1,0 +1,400 @@
+<apex:page controller="pexmaps.TerritoriesToolsController" 
+	tabStyle="Account_Maps__tab" id="page_TerritoriesTools" showHeader="true" action="{!init}"
+	title="Google Maps for Salesforce: {!locale.administratorTools}">
+
+<style type="text/css">
+	.fieldName
+	{ 
+		font-weight:bold; 
+		vertical-align:top;
+		white-space:nowrap;
+		padding-bottom: 5px;
+	}
+	.fieldDropDown
+	{
+		width: 250px;
+	}
+	
+</style>
+
+ 
+    <apex:includeScript value="https://maps.googleapis.com/maps/api/js?key=AIzaSyD77NJEyY75GCCcHsXQZX0CSlpKvxWY0Tg&sensor=false"/>
+ 	
+	<script type="text/javascript" src="{!$Resource.JQueryJS}"></script>
+ 	
+	<apex:includeScript value="/soap/ajax/16.0/connection.js" />
+	<apex:includeScript value="/soap/ajax/16.0/apex.js" />
+
+	<apex:sectionHeader subtitle="{!locale.administratorTools}" title="Google Maps for Salesforce"/>
+	
+	<apex:form id="form_Tools">
+
+		<apex:outputPanel id="panel_Messages">
+			<font color="red">
+            	<apex:messages />
+			</font>
+		</apex:outputPanel>			
+		
+	
+	    <apex:pageBlock title="{!locale.customObjectsSetup}" id="block_CustomObjectSetup" mode="edit">
+	    
+			<apex:outputPanel layout="block" style="margin:10px">
+				<apex:outputText escape="false" value="{!locale.customObjectSetupInfo}" />
+				<br/>
+				<br/>
+				<apex:selectList value="{!selectedCustomObject}" size="1">
+	               	<apex:selectOptions value="{!customObjectOptions}" />
+				</apex:selectList>
+				
+				<apex:commandButton action="{!addSelectedCustomObject}" value="{!locale.add} »" rerender="panel_CustomObjects, panel_Messages"/>
+				
+				
+				<br/>
+				<apex:outputPanel id="panel_CustomObjects">
+
+					<br/>
+					<apex:outputPanel rendered="{!customObjectCount=0}">
+						<br/>
+						{!locale.noCustomObjectsSelected}
+						<br/>	
+					</apex:outputPanel>				
+				
+					<apex:pageBlockTable rendered="{!NOT(customObjectCount=0)}" id="table_CustomObjects" value="{!customObjects}" var="customObject">
+					
+						<apex:column style="white-space:nowrap;">
+							<apex:facet name="header">&nbsp;</apex:facet>
+							<b>
+								<apex:commandLink value="{!locale.withdraw}" action="{!removeCustomObject}" onclick="if(!confirm('{!locale.removeTheCustomObject}'))return false;" rerender="panel_CustomObjects, panel_Messages">
+									<apex:param name="customObjectName" value="{!customObject.name}" />
+								</apex:commandLink></b>&nbsp;|&nbsp;<b>
+								<apex:commandLink value="{!locale.setup}" action="{!setupCustomObject}" rerender="panel_CustomObjects, panel_Messages" >
+									<apex:param name="customObjectName" value="{!customObject.name}" />
+								</apex:commandLink>
+							</b>
+						</apex:column>
+
+						<apex:column style="padding-right:15px">
+							<apex:facet name="header">{!locale.customObject}</apex:facet>
+							<apex:outputText value="{!customObject.label}" style="white-space:nowrap; padding-right:15px"/>
+						</apex:column>
+
+						<apex:column width="100%">
+							<apex:facet name="header">{!locale.active}</apex:facet>
+							<apex:outputText value="{!IF(customObject.isValid,locale.yes,locale.no)}"/>
+						</apex:column>
+					</apex:pageBlockTable>				
+				</apex:outputPanel>
+			</apex:outputPanel>			
+		</apex:pageBlock>
+		
+	    <apex:pageBlock title="{!locale.batchGeocoding}" id="block_BatchGeocoding" mode="edit">
+	    
+			<apex:outputPanel layout="block" style="margin:10px">
+				<apex:outputText escape="false" value="{!locale.geocodeAll}" /> 
+				<br/>
+				<br/>
+				<apex:outputText escape="false" value="{!locale.onlyItemsWithGeocode}" />
+				<br/>
+				<br/>
+				<apex:outputText escape="false" value="{!locale.ifYouWantToSet}" />
+				<br/>
+				<br/>
+				<apex:outputText escape="false" value="{!locale.selectObjectToGeocode}" />
+				<br/>
+				<br/>
+				
+				<apex:panelGrid columns="2" cellspacing="4">
+					<apex:outputLabel style="font-weight:bold" value="{!locale.object}"/>
+					<apex:selectList id="select_GeocodableObjects" value="{!selectedGeocodableObject}" onchange="onGeocodableObjectChanged()" size="1">
+		               	<apex:selectOptions value="{!geocodableObjectsOptions}" />
+					</apex:selectList>
+				</apex:panelGrid>
+				<br/>				
+				
+				<input class="btn" id="button_StartBatchGeocoding" name="button_StartBatchGeocoding" onclick="startBatchGeocoding();" value="{!locale.start}" type="button" />
+				<input class="btn" id="button_StopBatchGeocoding" name="button_StopBatchGeocoding" onclick="stopBatchGeocoding();" value="{!locale.stop}" type="button" style="display:none"/>
+				<br/>
+	    		<span id="text_BatchGeocodoingStatus" ></span>
+				<input id="hidden_StopBatchGeocoding" name="hidden_StopBatchGeocoding" type="hidden" />
+
+			</apex:outputPanel>
+			
+			<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+			
+			<apex:outputPanel layout="block" style="margin:10px">
+				<apex:outputText escape="false" value="{!locale.selectAnObject}" />
+				<br/>
+				<br/>				
+				<input class="btn" id="button_ClearGeocodeStatus" name="button_ClearGeocodeStatus" onclick="startClearGeocodeStatus();" value="{!locale.resetAllGeocodeStatus}" type="button" />
+				<br/>
+				<br/>
+	    		<span id="text_ClearGeocodesStatus" ></span>
+			</apex:outputPanel>			
+			
+			<br/>
+		</apex:pageBlock>
+
+	    <apex:pageBlock title="{!locale.mapIcons}" id="block_MapIcons" mode="edit">
+			<apex:outputPanel layout="block" style="margin:10px">
+				<apex:outputText escape="false" value="{!locale.selectEnableIcons}" />
+				<br/>
+				<br/>
+				<apex:outputText escape="false" value="{!locale.selectEnableCustomLocationIcons}" />
+				<br/>
+				<br/>				
+				<apex:outputText escape="false" value="{!locale.theIconPicker}" />
+				<a href="javascript:iconPicker.showIconPicker(null, document.getElementById('page_TerritoriesTools:form_Tools:block_MapIcons:image_IconPicker'));">{!locale.click}</a> {!locale.toSeeTheIcons}
+				<apex:image id="image_IconPicker" width="16px" height="16px" url="/s.gif"/>
+				<br/>
+				<br/>				
+				<apex:inputCheckbox value="{!allowIcons}" onclick="document.getElementById('text_IconOptionsSaved').style.visibility='hidden';"/>&nbsp; {!locale.enableIcons}
+				<br/>
+				<apex:inputCheckbox value="{!allowCustomLocationIcons}" onclick="document.getElementById('text_IconOptionsSaved').style.visibility='hidden';"/>&nbsp; {!locale.enableCustomLocationIcons}
+				<br/>
+				<br/>
+	    		<apex:commandButton action="{!saveMapIconOptions}" value="{!locale.save}" oncomplete="document.getElementById('text_IconOptionsSaved').style.visibility='visible';"/>
+	    		<span id="text_IconOptionsSaved" style="visibility:hidden; padding-left:10px; color:green">{!locale.iconOptionsSaved}</span>
+				
+			</apex:outputPanel>
+		</apex:pageBlock>		
+
+
+		
+	    <apex:pageBlock title="{!locale.deleteView}" id="block_DeleteView" mode="edit">
+	    
+			<apex:outputPanel layout="block" style="margin:10px">
+				<apex:outputText escape="false" value="{!locale.ifViewFailsToLoad}" />
+				<br/>
+				<br/>
+			
+			<apex:panelGrid columns="3" cellspacing="4">
+				<apex:outputLabel style="font-weight:bold" value="{!locale.view}"/>
+			
+				<apex:selectList value="{!deleteViewId}" id="select_Views" size="1">
+		        	<apex:selectOptions value="{!viewList}" />
+		        </apex:selectList>
+			
+				<apex:commandButton value="{!locale.delete}" action="{!deleteView}" onclick="if(!confirm('{!locale.deleteSelectedView}'))return false;"  />
+			</apex:panelGrid>
+			
+			</apex:outputPanel>
+			<br/>
+		</apex:pageBlock>
+		
+		
+		
+	    <apex:pageBlock title="{!locale.clearUserPageParams}" id="block_ClearParameters" mode="edit">
+	    
+			<apex:outputPanel layout="block" style="margin:10px">
+				<apex:outputText escape="false" value="{!locale.selectAUserAndClick}" />
+			<br/>
+			<br/>
+			 
+			 
+			<input name="aro_lkid" id="aro_lkid" value="000000000000000" type="hidden"/>
+			<input name="aro_lkold" id="aro_lkold" value="null" type="hidden"/>
+			<input name="aro_lktp" id="aro_lktp" value="005" type="hidden"/>
+			<input name="aro_lspf" id="aro_lspf" value="0" type="hidden"/>
+			<input name="aro_mod" id="aro_mod" value="0" type="hidden"/>
+
+			<div class="lookupInput">
+				<apex:outputPanel id="panel_Vars">
+					<apex:inputHidden id="hidden_UserName" value="{!clearParamsUserName}" />
+					<apex:inputHidden id="hidden_UserId" value="{!clearParamsUserId}" />
+					<apex:inputHidden id="hidden_Result" value="{!clearParamsResult}" />
+				</apex:outputPanel>
+				
+				<apex:panelGrid columns="3" cellspacing="4">
+					<apex:outputLabel style="font-weight:bold" value="{!locale.user}"/>
+					<apex:panelGroup >
+						<input id="aro" maxlength="255" name="aro" value="{!clearParamsUserName}" size="25" title="User" type="text"/>
+	
+						<a href="javascript: launchUserLookup();" id="button_Lookup" onclick="setLastMousePosition(event)" title="User Lookup (New Window)">
+							<img src="/s.gif" alt="User Lookup (New Window)" class="lookupIcon" onblur="this.className = 'lookupIcon';" onfocus="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon';this.className = 'lookupIcon';" onmouseover="this.className = 'lookupIconOn';this.className = 'lookupIconOn';" title="User Lookup (New Window)"/>
+						</a>
+					</apex:panelGroup>
+					<apex:commandButton value="{!locale.clearPageParams}" action="{!clearPageParameters}" onclick="beforeClearUserParams();" oncomplete="showClearUserParamsResult();" rerender="panel_Vars" />
+					
+				</apex:panelGrid>
+			 </div>
+			</apex:outputPanel>
+			<br/>
+		</apex:pageBlock>
+		
+		<br/>
+				
+	</apex:form>	
+	
+	
+<script type="text/javascript" src="{!$Resource.TerritoriesBatchGeocodingJS}"></script>
+	
+<script type="text/javascript">
+
+try
+{
+	sforce.connection.init("{!$Api.Session_ID}", "{!$Api.Partner_Server_URL_160}");
+}
+catch (error)
+{
+    alert("{!locale.connectionFailed}" + " " + error);
+}
+
+
+function launchUserLookup()
+{
+	openLookup("/_ui/common/data/LookupPage?lkfm=page_FileEdit:form_FileEdit&lknm=aro&sn=1&lktp=" + 
+		getElementByIdCS("aro_lktp").value, 670, "1", "&lksrch=" + escapeUTF(getElementByIdCS("aro").value));
+}
+
+function beforeClearUserParams()
+{
+	var hiddenIdInput = document.getElementById("page_TerritoriesTools:form_Tools:block_ClearParameters:hidden_UserId");
+	var hiddenNameInput = document.getElementById("page_TerritoriesTools:form_Tools:block_ClearParameters:hidden_UserName");
+	 	 
+	hiddenIdInput.value = document.getElementById("aro_lkid").value;
+	hiddenNameInput.value = document.getElementById("aro").value;
+	
+	return true;
+}
+
+function showClearUserParamsResult()
+{
+	var resultInput = document.getElementById("page_TerritoriesTools:form_Tools:block_ClearParameters:hidden_Result");
+	
+	if (resultInput == null || resultInput.value != "OK")
+	{
+		alert("{!locale.unableToClear}");
+	}
+	else
+	{
+		alert("{!locale.theUsersPageParams}");
+	}
+}
+
+function startBatchGeocoding()
+{
+	var geocodableObjectSelect =
+		document.getElementById("page_TerritoriesTools:form_Tools:block_BatchGeocoding:select_GeocodableObjects");
+	var geocodableObjectData = geocodableObjectSelect[geocodableObjectSelect.selectedIndex].value;	
+
+	if (geocodableObjectData == "NONE")
+	{
+		return;
+	}
+	
+	var objectName = geocodableObjectData.split(separator.para)[0];
+	var addressPrefix = geocodableObjectData.split(separator.para)[1]; 
+	var objectLabel = geocodableObjectSelect[geocodableObjectSelect.selectedIndex].text;	
+
+	document.getElementById("hidden_StopBatchGeocoding").value = "";
+	document.getElementById("button_StartBatchGeocoding").style.display = "none";
+	document.getElementById("button_StopBatchGeocoding").style.display = "block";
+	document.getElementById("text_BatchGeocodoingStatus").style.color = "blue";
+	geocodableObjectSelect.disabled = "disabled";
+	document.getElementById("button_ClearGeocodeStatus").disabled = "disabled";
+	
+	batchGeocoding.start(objectName, objectLabel, addressPrefix, "setBatchGeocodingStatus", 
+		"abortBatchGeocodingCallback", "completeBatchGeocodingCallback");
+}
+
+function stopBatchGeocoding()
+{
+	document.getElementById("hidden_StopBatchGeocoding").value = "stop";
+
+	document.getElementById("button_StartBatchGeocoding").style.display = "block";
+	document.getElementById("button_StopBatchGeocoding").style.display = "none";
+	document.getElementById("text_BatchGeocodoingStatus").style.color = "red";
+	document.getElementById("page_TerritoriesTools:form_Tools:block_BatchGeocoding:select_GeocodableObjects").disabled = null;
+	document.getElementById("button_ClearGeocodeStatus").disabled = null;
+}
+
+function setBatchGeocodingStatus(status)
+{
+	document.getElementById("text_BatchGeocodoingStatus").innerHTML = status;
+}
+
+function abortBatchGeocodingCallback()
+{
+	return document.getElementById("hidden_StopBatchGeocoding").value == "stop";
+}
+
+function completeBatchGeocodingCallback()
+{
+	document.getElementById("button_StartBatchGeocoding").style.display = "block";
+	document.getElementById("button_StopBatchGeocoding").style.display = "none";
+	document.getElementById("text_BatchGeocodoingStatus").style.color = "green";
+	document.getElementById("page_TerritoriesTools:form_Tools:block_BatchGeocoding:select_GeocodableObjects").disabled = null;
+	document.getElementById("button_ClearGeocodeStatus").disabled = null;
+}
+
+function onGeocodableObjectChanged()
+{
+	document.getElementById("text_BatchGeocodoingStatus").innerHTML = "";
+}
+
+function startClearGeocodeStatus()
+{
+	var geocodableObjectSelect =
+		document.getElementById("page_TerritoriesTools:form_Tools:block_BatchGeocoding:select_GeocodableObjects");
+	var geocodableObjectData = geocodableObjectSelect[geocodableObjectSelect.selectedIndex].value;	
+
+	if (geocodableObjectData == "NONE")
+	{
+		return;
+	}
+
+	var objectName = geocodableObjectData.split(separator.para)[0];
+	var addressPrefix = geocodableObjectData.split(separator.para)[1]; 
+	var objectLabel = geocodableObjectSelect[geocodableObjectSelect.selectedIndex].text;	
+	var confirmClearGeocodes = "{!locale.confirmClearAllGeocodes}".replace("{0}", objectLabel);
+	
+	if (!confirm(confirmClearGeocodes)) 
+	{
+		return;
+	}
+
+	document.getElementById("hidden_StopBatchGeocoding").value = "";
+	document.getElementById("button_StartBatchGeocoding").disabled = "disabled";
+	document.getElementById("button_StopBatchGeocoding").disabled = "disabled";
+	geocodableObjectSelect.disabled = "disabled";
+	document.getElementById("button_ClearGeocodeStatus").disabled = "disabled";
+	
+	setClearGeocodesStatus("{!locale.clearingGeocodeStatus}");
+
+	clearGeocodeStatus.start(objectName, objectLabel, addressPrefix, "setClearGeocodesStatus",
+		"completeClearGeocodes");
+}
+
+function setClearGeocodesStatus(status)
+{
+	document.getElementById("text_ClearGeocodesStatus").innerHTML = status;
+}
+
+function completeClearGeocodes()
+{
+	document.getElementById("button_StartBatchGeocoding").disabled = null;
+	document.getElementById("button_StopBatchGeocoding").disabled = null;
+	document.getElementById("page_TerritoriesTools:form_Tools:block_BatchGeocoding:select_GeocodableObjects").disabled = null;
+	document.getElementById("button_ClearGeocodeStatus").disabled = null;
+}
+
+var locale = {};
+locale.noItemsToGeocode = "{!locale.noItemsToGeocode}";
+locale.initializing = "{!locale.initializing}";
+locale.processed = "{!locale.processed}";
+locale.geocodeStatusReset = "{!locale.geocodeStatusReset}";
+locale.geocodeStatusAlreadyCleared = "{!locale.geocodeStatusAlreadyCleared}";
+locale.geocodingOverLimit = "{!locale.geocodingOverLimit}";
+
+
+var territoriesImagePath = "..{!URLFOR($Resource.TerritoryImagesZip, '')}/";
+var mapIconImagePath = "{!iconImagePath}";
+var iconsPath = "https://www.pexmaps.com:8443/img/icons/";
+var OrgId = "{!$Organization.Id}";
+
+</script>	
+
+<script type="text/javascript" src="{!$Resource.UtilityJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesIconPickerJS}"></script>
+
+</apex:page>

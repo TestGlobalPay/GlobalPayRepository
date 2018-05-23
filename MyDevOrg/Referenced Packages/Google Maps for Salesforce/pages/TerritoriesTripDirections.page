@@ -1,0 +1,228 @@
+<apex:page controller="pexmaps.TerritoriesTripDirectionsController" action="{!init}"
+	renderAs="pdf" showHeader="false" sidebar="false" cache="false">
+<head>
+	<style type="text/css">
+	           
+	@page 
+	{
+		margin-top:60px;
+		
+		@top-center
+		{
+			content: "Google Maps for Salesforce";
+			padding-top:20px;
+			vertical-align:top;			
+	  		font-size: 18px;
+	  		font-family:Arial Unicode MS;
+	  		font-weight:bold;
+		}
+	 	@bottom-left 
+	 	{
+	  		content: "{!viewName} : {!tripName}";
+	  		font-size: 12px;
+	  		font-family:Arial Unicode MS;
+	 	}
+	 	@bottom-center 
+	 	{
+	  		font-size: 12px;
+	 	}
+	 	@bottom-right 
+	 	{
+	  		content: "{!locale.page} " counter(page) " {!locale.ofPage} " counter(pages);
+	  		font-size: 12px;
+	  		font-family:Arial Unicode MS;
+	 	}
+	}
+	.t1
+	{
+		width:100%; 
+		margin: 10px 0px; 
+		border: 1px solid black; 
+		background: rgb(238, 238, 238); 
+		color: rgb(0, 0, 0);
+		page-break-inside: avoid;		
+	}
+/*
+	.t1
+	{
+		width:100%; 
+		margin: 10px 0px; 
+		border: 1px solid silver; 
+		background: rgb(238, 238, 238); 
+		color: rgb(0, 0, 0);
+		page-break-inside: avoid;		
+	}
+*/
+	 .dt
+	{
+		text-align:center; 
+		font-size:150%; 
+		font-weight:bold;
+		padding-bottom:10px;
+	}
+/*	
+	.wpl
+	{
+		width: 29px; 
+		height: 29px; 
+		font-size:24px; 
+		font-weight:bold; 
+		background: rgb(80, 80, 80); 
+		color: white; 
+		text-align:center;
+		padding-top:3px;
+	}
+*/	
+	.wpl
+	{
+		width: 29px; 
+		height: 29px; 
+		font-size:24px; 
+		font-weight:bold; 
+		background: black; 
+		color: white; 
+		text-align:center;
+		padding-top:3px;
+	}
+	.wpt
+	{
+		font-size:12px; 
+		padding-left:10px;
+	}
+	.rsh
+	{
+		font-size:12px; 
+		text-align: right; 
+		padding-bottom: 0.3em;
+	}
+	.t2
+	{
+		font-size:12px; 
+		margin: 0pt; 
+		padding: 0pt; 
+		border-spacing:0pt;
+	}
+	.str
+	{
+		page-break-inside: avoid;		
+	}
+/*	
+	.stn
+	{
+		vertical-align: top; 
+		border-top: 1px solid rgb(205, 205, 205); 
+		padding: 0.3em 3px; 
+		margin: 0pt; 
+		text-align: right;
+	}
+	.stt
+	{
+		vertical-align: top; 
+		border-top: 1px solid rgb(205, 205, 205); 
+		padding: 0.3em 3px; 
+		margin: 0pt; width: 100%;
+	}
+	.std
+	{
+		vertical-align: top; 
+		border-top: 1px solid rgb(205, 205, 205); 
+		padding: 0.3em 3px 0.3em 0.5em; 
+		margin: 0pt; 
+		text-align: right;
+	}
+*/	
+	.stn
+	{
+		vertical-align: top; 
+		border-top: 1px solid black; 
+		padding: 0.3em 3px; 
+		margin: 0pt; 
+		text-align: right;
+	}
+	.stt
+	{
+		vertical-align: top; 
+		border-top: 1px solid black; 
+		padding: 0.3em 3px; 
+		margin: 0pt; width: 100%;
+	}
+	.std
+	{
+		vertical-align: top; 
+		border-top: 1px solid black; 
+		padding: 0.3em 3px 0.3em 0.5em; 
+		margin: 0pt; 
+		text-align: right;
+	}
+	.t3
+	{
+		font-size:12px; 
+		margin: 0pt; 
+		padding: 0pt;	 
+		border-spacing:0pt;
+		width:100%;
+	}
+	.t4
+	{
+		width:100%;
+		font-size:12px; 
+		margin: 0pt; 
+		padding: 0pt;
+		border-spacing:0pt;
+	}
+	.cph
+	{
+		vertical-align: padding: 0.3em 3px; 
+		margin: 0pt; 
+	}
+	.oo
+	{
+		border-top: 1px solid rgb(255,0,0);
+		color:red;
+		font-size:12px; 
+		padding-top:5px;
+	}
+	
+.trip-directions-row
+{
+	vertical-align: top;
+}
+
+.trip-directions-cell
+{
+	padding: 4px;
+	border-top: 1px solid black;
+}
+
+.trip-directions-summary
+{
+	padding: 4px;
+}
+
+.trip-directions-placemark
+{
+	margin-top: 20px;
+	/*border: 1px solid black;*/
+	background-color: rgb(238, 238, 238);
+}
+
+.trip-directions-copyright
+{
+	font-size: 80%;
+	vertical-align: top;
+	margin-top: 10px;
+	margin-right: 15px;
+	padding: 4px;
+};	
+	
+	</style>
+</head>
+
+	<apex:outputText value="{!directionsHtml1}{!directionsHtml2}{!directionsHtml3}{!directionsHtml4}{!directionsHtml5}
+		{!directionsHtml6}{!directionsHtml7}{!directionsHtml8}{!directionsHtml9}{!directionsHtml10}
+		{!directionsHtml11}{!directionsHtml12}{!directionsHtml13}{!directionsHtml14}{!directionsHtml15}
+		{!directionsHtml16}{!directionsHtml17}{!directionsHtml18}{!directionsHtml19}{!directionsHtml20}	
+		{!directionsHtml21}{!directionsHtml22}{!directionsHtml23}{!directionsHtml24}{!directionsHtml25}"
+		style="font-family:Courier; display:block; " escape="false"/>
+	
+</apex:page>

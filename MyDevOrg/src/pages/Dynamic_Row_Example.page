@@ -1,0 +1,53 @@
+<apex:page standardController="Student__c" extensions="addFunction">
+<apex:form id="studentFormId" >
+   
+   <apex:sectionHeader title="Student Edit" subtitle="New Student"/>
+  <apex:pageBlock mode="edit" >
+  <apex:pageBlockButtons >
+  <apex:commandButton action="{!Save}" value="Save"/>
+  <apex:commandButton action="{!Cancel}" value="Cancel"/>
+  </apex:pageBlockButtons>
+
+   <apex:pageBlockSection title="Course Details" id="hp">
+   <apex:pageMessages />
+ <apex:variable var="rowNumber" value="{!0}"/>
+ 
+ 
+   
+   
+   <apex:pageBlockTable value="{!courseList}" var="stu">
+   <apex:column headerValue="No." style="width:20px; text-align:center;" headerClass="centertext">
+ <apex:outputText value="{0}" style="text-align:center;"> 
+ <apex:param value="{!rowNumber+1}" /> 
+ </apex:outputText>
+ </apex:column> 
+ 
+      
+      <apex:column headerValue="Courses"  >
+      <apex:inputField value="{!stu.Courses__c}" />
+      </apex:column>
+      <apex:column headerValue="Professor" >
+      <apex:inputField value="{!stu.Professor__c}"/>
+      </apex:column>
+      <apex:column headerValue="Final Grade" >
+      <apex:inputField value="{!stu.Final_Grade__c}" />
+      </apex:column>
+      <apex:column headerValue="Action" >
+ <apex:commandButton value="Delete" action="{!deleteRow}" reRender="studentFormId">
+ <apex:param name="rowIndex" value="{!rowNumber}"/>
+ </apex:commandButton>
+ <apex:variable var="rowNumber" value="{!rowNumber+1}"/>
+ </apex:column> 
+     
+</apex:pageBlockTable>
+
+<apex:commandButton action="{!addRow}" value="Add Course" reRender="studentFormId"/>
+
+ 
+
+</apex:pageBlockSection>
+
+
+    </apex:pageBlock>
+   </apex:form>
+</apex:page>

@@ -1,0 +1,27 @@
+<apex:page standardController="QuoteLineItem" >
+
+    <br/>
+    Redirecting...
+    <br/>
+    <apex:outputField value="{!QuoteLineItem.id}" rendered="false"/>
+    <apex:outputField value="{!QuoteLineItem.Quoteid}" rendered="false"/>
+    <apex:outputField value="{!QuoteLineItem.sfcloud__Product_Bundle__c}" rendered="false"/>
+    <apex:outputField value="{!QuoteLineItem.sfcloud__Product_Bundle__r.Name}" rendered="false"/>
+    
+    <script>
+        var quoteId = '{!JSINHTMLENCODE(QuoteLineItem.QuoteId)}';
+        var itemId = '{!JSINHTMLENCODE(QuoteLineItem.id)}';
+        var bundleId = '{!JSINHTMLENCODE(QuoteLineItem.sfcloud__Product_Bundle__c)}';
+        var bundleName = '{!JSINHTMLENCODE(QuoteLineItem.sfcloud__Product_Bundle__r.Name)}';
+        
+        //Individual bundle items cannot be deleted
+        if(bundleId!=''){
+            alert('This item is part of {!$ObjectType.sfcloud__Product_Bundle__c.Label} "' +bundleName+ '". You cannot edit individual {!$ObjectType.sfcloud__Product_Bundle__c.Label} items.');
+            window.top.location='/' +quoteId; 
+        }
+        else
+            window.top.location='{!URLFOR($Action.QuoteLineItem.Edit, QuoteLineItem.id, ['retURL'='/'+QuoteLineItem.QuoteId], true)}';
+    </script>
+
+
+</apex:page>

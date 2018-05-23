@@ -1,0 +1,2758 @@
+<apex:page controller="pexmaps.TerritoriesController" action="{!init}"
+	tabStyle="Account_Maps__tab" id="page_Territories" title="{!IF(view.title=null,'Google Maps for Salesforce',view.title)}">
+
+<style type="text/css">
+	.viewDetailLabel
+	{ 
+		font-weight:bold; 
+		font-size:97%; 
+		vertical-align:middle;
+		white-space:nowrap;
+		padding-right: 4px;	
+	}
+	.viewDetailLabelCustomLocation
+	{ 
+		font-weight:bold; 
+		font-size:97%; 
+		text-align:right; 
+		vertical-align:middle;	
+		white-space:nowrap;
+	}
+	.saveTripLabel
+	{ 
+		font-weight:bold; 
+		font-size:97%; 
+		text-align:right; 
+		vertical-align:middle;	
+		width:100px;
+	}
+	.viewDetailField
+	{
+		font-size:97%;
+		text-align:left;
+		vertical-align:middle;
+	}
+	.viewDetailCaption
+	{
+		font-size:150%;
+		font-weight:bold;
+	}
+	.viewLabel
+	{ 
+		font-weight:bold; 
+		text-align:right; 
+		vertical-align:middle;	
+	}
+	.viewField
+	{
+		font-size:97%;
+		text-align:left;
+		vertical-align:middle;
+	}
+
+	.gisDetailHeader
+	{
+		background-color:coral;
+		font-weight: bold;
+		color: white;
+		padding:5px 10px; 
+		-moz-border-top-left-radius: 5px; 
+		-moz-border-top-right-radius: 5px; 
+		border-top-left-radius: 5px; 
+		border-top-right-radius: 5px; 
+	}
+	.gisDetailDescription
+	{
+		padding:5px 10px;
+		color: #333333; 
+	}
+	
+	.gisDetail
+	{
+		background-color:wheat;
+		padding-bottom: 5px;
+		margin-right: 10px;
+		-moz-border-radius: 5px; 
+		border-radius: 5px;
+		-moz-box-shadow: 3px 3px 4px gray;
+		-webkit-box-shadow: 3px 3px 4px gray;
+		box-shadow: 3px 3px 4px gray;
+	}
+	
+	.gisLegendColorBox
+	{
+		border: 1px solid #777;
+		
+		width: 40px;
+		height: 25px;
+		background-position: center;
+		background-size: 60px;
+
+		-moz-border-radius: 5px; 
+		border-radius: 5px;
+		-moz-box-shadow: 2px 2px 3px gray;
+		-webkit-box-shadow: 2px 2px 3px gray;
+		box-shadow: 2px 2px 3px gray;
+	}
+	
+	.gisLegendLabel
+	{
+		padding-top:5px;
+		font-size: 105%;
+		color: #333333; 
+	}
+	
+	.gisLegendTitle
+	{
+		font-weight: bold;
+		font-size: 150%;
+		color: #333333; 
+		padding: 0px 10px;
+	}
+	.gisLegendSubtitle
+	{
+		font-weight: bold;
+		font-size: 90%;
+		color: #333333; 
+		padding: 0px 10px 10px 10px;
+	}
+	.gisLegendBox
+	{
+		margin:0px 13px;
+		padding:10px 3px;
+		background-color:white;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		border:1px solid #ddd;
+	}
+	
+	#gisDataTable 
+	{
+		padding:10px;
+ 	}
+	#gisDataTable th div
+	{
+		border-top-left-radius: 5px; 
+		border-top-right-radius: 5px; 
+		background-color: #333333;
+		color: white;
+		text-align: left;
+		padding: 3px 10px;
+	}
+	#gisDataTable td
+	{
+		padding: 2px 10px;
+	}
+	#gisDataTable tr:nth-child(odd) 
+	{
+	    background-color: #f7e5c2;
+	}
+	#gisDataTable tr:nth-child(even) 
+	{
+	    background-color: #faeed9;
+	}
+	
+	#gisChartHeader
+	{
+		margin-top: 10px;
+		color: #333333;
+		text-align:center;
+		font-weight: bold;
+		position: relative;
+		z-index: 99;
+	}
+	#gisChartBox
+	{
+		position:relative;
+		top: -10px;
+	}
+	#gisChartTable
+	{
+		width: 100%;
+	}
+	
+	
+
+
+
+
+
+
+
+
+	#heatMapsDataTable 
+	{
+		padding:10px;
+ 	}
+	.heatMapsDataTableHeader
+	{
+		border-top-left-radius: 5px; 
+		border-top-right-radius: 5px; 
+		background-color: #333333;
+		color: white;
+		text-align: left;
+		padding: 3px 10px;
+	}
+	#heatMapsDataTable td
+	{
+		padding: 2px 10px;
+	}
+	#heatMapsDataTable tr:nth-child(odd) 
+	{
+	    background-color: #cde5e5;
+	}
+	#heatMapsDataTable tr:nth-child(even) 
+	{
+	    background-color: #e1f9f9;
+	}
+	
+	
+	.nameOverlay
+	{
+		border: 1px solid black;
+		position: absolute;
+		white-space: nowrap;
+		background: rgba(54, 54, 54, 0.5);
+		border-radius: 5px;
+		-moz-border-radius: 5px;
+		-moz-box-shadow: 3px 3px 4px gray;
+		-webkit-box-shadow: 3px 3px 4px gray;
+		box-shadow: 3px 3px 4px gray;
+		padding: 2px 5px;
+		color: white;
+		font-weight: bold;
+	}
+        	
+        	
+	.currentZoomLevelText
+	{
+		padding:0px 30px 5px 10px;
+		font-size:110%;
+		font-weight: bold;
+	}
+	
+	.currentZoomLevel
+	{
+		text-align:left;
+		font-weight:bold;
+		font-size:110%
+	}
+
+
+	.boundariesInfo
+	{
+		background-color:#B4CFEC;
+		padding-bottom: 5px;
+		margin-right: 10px;
+		-moz-border-radius: 5px; 
+		border-radius: 5px;
+		-moz-box-shadow: 3px 3px 4px gray;
+		-webkit-box-shadow: 3px 3px 4px gray;
+		box-shadow: 3px 3px 4px gray;
+		width: 397px;
+	}
+
+	.boundariesInfoHeader
+	{
+		background-color:#2B547E;
+		font-weight: bold;
+		color: white;
+		padding:5px 10px; 
+		-moz-border-top-left-radius: 5px; 
+		-moz-border-top-right-radius: 5px; 
+		border-top-left-radius: 5px; 
+		border-top-right-radius: 5px; 
+	}
+	.boundariesDescription
+	{
+		padding:5px 10px;
+		color: #333333; 
+	}
+        	
+    .boundariesZoomInfo
+    {
+		margin:15px 10px 15px 0px;
+		display:none;
+    }
+        	
+/* styles for the More... button - vf doesn't recognize an external css */
+
+	#more_inner 
+	{
+		text-align:center;
+		font-size:12px;
+		background-color: #fff;
+		color: #000;
+		border: 1px solid #fff;
+		border-right-color: #b0b0b0;
+		border-bottom-color: #c0c0c0;
+		width:7em;
+		cursor: pointer;
+	}
+	
+	#more_inner.highlight 
+	{
+		font-weight: bold;
+		border: 1px solid #483D8B;
+		border-right-color: #6495ed;
+		border-bottom-color: #6495ed;
+	}
+	
+	#box 
+	{  
+		position:absolute;
+		top:20px; left:0px;
+		margin-top:-1px;
+		font-size:12px;
+		padding: 6px 4px;
+		width:120px;
+		background-color: #fff;
+		color: #000;
+		border: 1px solid gray;
+		border-top:1px solid #e2e2e2;
+		display: none;
+		cursor:default;
+	}
+	
+	#box.highlight 
+	{
+		width:119px;
+		border-width:2px;
+	}
+	
+	#boxlink 
+	{ 
+		color: #a5a5a5;
+		text-decoration: none;
+		cursor: default;
+		margin-left: 20px;
+	}
+	
+	#boxlink.highlight 
+	{ 
+		color: #0000cd;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+	
+/* end More... button styles */
+	
+	
+	#traffic_inner 
+	{
+		text-align:center;
+		font-size:12px;
+		background-color: #fff;
+		color: #000;
+		border: 1px solid #fff;
+		border-right-color: #b0b0b0;
+		border-bottom-color: #c0c0c0;
+		width:7em;
+		cursor: pointer;
+	}
+	
+	#traffic_inner.highlight 
+	{
+		font-weight: bold;
+		border: 1px solid #483D8B;
+		border-right-color: #6495ed;
+		border-bottom-color: #6495ed;
+	}
+	
+.trip-directions-row
+{
+	vertical-align: top;
+}
+
+.trip-directions-cell
+{
+	padding: 4px;
+	border-top: 1px solid black;
+}
+
+.trip-directions-summary
+{
+	padding: 4px;
+}
+
+.trip-directions-placemark
+{
+	margin-top: 20px;
+	/*border: 1px solid black;*/
+	background-color: rgb(238, 238, 238);
+}
+
+.trip-directions-copyright
+{
+	font-size: 80%;
+	vertical-align: top;
+	margin-top: 10px;
+	margin-right: 15px;
+	padding: 4px;
+};	
+</style>
+
+	<script type="text/javascript">
+		var iconsPath = "https://www.pexmaps.com:8443/img/icons/";
+		var colorPickerImagePath = "..{!URLFOR($Resource.ColorPickerImagesZip, '')}/";
+		var territoriesImagePath = "..{!URLFOR($Resource.TerritoryImagesZip, '')}/";
+		var mapIconImagePath = "{!view.iconImagePath}";
+	</script>
+	
+	<apex:image id="image_Loader" url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'ajax-loader.gif')}" style="position:fixed; top:50%; left:50%; margin-top:-24px; margin-left:-24px; z-index:1000; visibility:hidden"/>	
+
+
+
+
+
+    <apex:includeScript value="https://maps.googleapis.com/maps/api/js?key=AIzaSyD77NJEyY75GCCcHsXQZX0CSlpKvxWY0Tg&sensor=false&libraries=places,drawing,geometry,weather"/>
+
+
+
+	<script type="text/javascript" src="https://www.pexmaps.com:8443/js/arcgisonline.com.js"></script>
+	<script type="text/javascript" src="https://www.pexmaps.com:8443/js/esri.js"></script>
+	
+	
+	
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="{!$Resource.JQueryJS}"></script>
+
+
+	<apex:includeScript value="/soap/ajax/16.0/connection.js" />
+	<apex:includeScript value="/soap/ajax/16.0/apex.js" />
+	
+	<apex:sectionHeader title="  " subtitle="{!IF(view.title=null,'Google Maps for Salesforce',view.title)}"/>
+
+	<!-- Note: leave these out here to avoid nested forms -->	
+	<div id="outer_traffic" />
+	
+	<div id="outer_more">
+		<form action="">
+			<div id="box">
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[0].obj)" />{!locale.photos}<br/>
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[1].obj)" />{!locale.videos}<br/>
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[2].obj)" />{!locale.wikipedia}<br/>
+				<input name="mark" type="checkbox" onclick="switchLayer(this.checked, layers[3].obj)" />{!locale.webcams}
+				<hr style="width:92%;height:1px;border:1px;color:#e2e2e2;background-color:#e2e2e2;" />
+				<a id="boxlink" href="javascript:void(0)" onclick="hideAll()">{!locale.hideAll}</a>
+			</div>
+		</form>
+	</div>
+
+
+	<!-- -->
+	
+	<apex:form id="form_Territories">
+		<apex:actionFunction name="insertTripWaypoint" action="{!insertTripWaypoint}" oncomplete="trip.afterInsertTripWaypoint()" reRender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages" >
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="removeTripWaypoint" action="{!removeTripWaypoint}" oncomplete="trip.afterRemoveTripWaypoint()" rerender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_SelectTrip">
+			<apex:param name="removeTripWaypointIndex" assignTo="{!removeTripWaypointIndex}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="loadTripWaypoints" action="{!trip.createWaypoints}" oncomplete="trip.afterLoadTripWaypoints()" reRender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages" >
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="moveTripWaypoint" action="{!trip.moveWaypoint}" oncomplete="trip.afterMoveTripWaypoint()" reRender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages" >
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="insertGeocodeCustomLocation" action="{!insertGeocodeCustomLocation}" oncomplete="addMapMarker.afterInsertGeocodeCustomLocation()" reRender="panel_AddMarker, panel_ViewListing, panel_Messages" >
+			<apex:param name="geocodeCustomLocationName" assignTo="{!view.geocodeCustomLocation.name}" value="" />
+			<apex:param name="geocodeCustomLocationGeocodeStatus" assignTo="{!view.geocodeCustomLocation.pexmaps__Geocode_Status__c}" value="" />
+			<apex:param name="geocodeCustomLocationLatitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Latitude__c}" value="" />
+			<apex:param name="geocodeCustomLocationLongitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Longitude__c}" value="" />
+			<apex:param name="geocodeCustomLocationStreet" assignTo="{!view.geocodeCustomLocation.pexmaps__Street__c}" value="" />
+			<apex:param name="geocodeCustomLocationCity" assignTo="{!view.geocodeCustomLocation.pexmaps__City__c}" value="" />
+			<apex:param name="geocodeCustomLocationState" assignTo="{!view.geocodeCustomLocation.pexmaps__State__c}" value="" />
+			<apex:param name="geocodeCustomLocationPostalCode" assignTo="{!view.geocodeCustomLocation.pexmaps__Postal_Code__c}" value="" />
+			<apex:param name="geocodeCustomLocationCountry" assignTo="{!view.geocodeCustomLocation.pexmaps__Country__c}" value="" />
+			<apex:param name="geocodeCustomLocationAddress" assignTo="{!view.geocodeCustomLocation.pexmaps__Geocode_Address__c}" value="" />
+			<apex:param name="geocodeCustomLocationAccuracy" assignTo="{!view.geocodeCustomLocation.pexmaps__Geocode_Accuracy__c}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="insertDraggableCustomLocation" action="{!insertDraggableCustomLocation}" oncomplete="addMapMarker.afterInsertDraggableCustomLocation()" reRender="panel_AddMarker, panel_ViewListing, panel_Messages" >
+			<apex:param name="insertCustomLocationLatitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Latitude__c}" value="" />
+			<apex:param name="insertCustomLocationLongitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Longitude__c}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="updateDraggableCustomLocationCoordinates" action="{!view.updateDraggableCustomLocationCoordinates}" reRender="panel_Messages" >
+			<apex:param name="updateCustomLocationId" assignTo="{!view.insertCustomLocationId}" value="" />
+			<apex:param name="updateCustomLocationLatitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Latitude__c}" value="" />
+			<apex:param name="updateCustomLocationLongitude" assignTo="{!view.geocodeCustomLocation.pexmaps__Longitude__c}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction name="removeCustomLocation" action="{!removeCustomLocation}" oncomplete="territories.view.afterRemoveCustomLocation()" reRender="panel_ViewListing, panel_Messages" >
+			<apex:param name="removeCustomLocationId" assignTo="{!removeCustomLocationId}" value="" />
+		</apex:actionFunction>
+		
+		
+       	<apex:actionFunction name="loadTrip" action="{!loadTrip}" oncomplete="trip.afterLoadTrip()" rerender="panel_HiddenVars, panel_TripPlanner, panel_SelectTrip, panel_ViewDetails, panel_Outlines, panel_Messages, panel_AddMarker, panel_Export, panel_Boundaries, panel_GIS, panel_HeatMaps, panel_ViewListing" />
+       	<apex:actionFunction name="closeTrip" action="{!closeTrip}" oncomplete="util.hideLoadingImage();territories.view.showLegend();" rerender="panel_TripPlanner, panel_SelectTrip, panel_ViewDetails, panel_ViewListing, panel_AddMarker, panel_HiddenVars, panel_Messages, panel_Export" />
+		<apex:actionFunction name="saveThisTrip" action="{!saveTrip}" oncomplete="util.hideLoadingImage();" rerender="panel_TripPlanner, panel_SelectTrip, panel_Messages">
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>		
+		<apex:actionFunction name="saveTripAs" action="{!saveTripAs}" oncomplete="util.hideLoadingImage();" rerender="panel_TripPlanner, panel_SelectTrip, panel_Messages">
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>		
+		<apex:actionFunction name="saveTrip" action="{!saveTrip}" oncomplete="util.hideLoadingImage();" rerender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages">
+			<apex:param name="tripWaypointData" assignTo="{!trip.waypointData}" value="" />
+		</apex:actionFunction>		
+
+
+       	<apex:actionFunction name="loadSelectedView" action="{!loadSelectedView}" oncomplete="if({!gisIsVisible})gis.init();territories.afterLoadView()" rerender="panel_EditCreate, panel_HiddenVars, panel_HiddenViewState, panel_ViewDetails, panel_ViewListing, panel_TripPlanner, panel_SelectTrip, panel_Outlines, panel_AddMarker, panel_HeatMaps, panel_GIS, panel_Boundaries, panel_Messages" />
+       	<apex:actionFunction name="reloadView" action="{!reloadView}" oncomplete="territories.afterLoadView()" rerender="panel_EditCreate, panel_HiddenVars, panel_HiddenViewState, panel_Messages" />
+       	<apex:actionFunction name="loadNextView" action="{!loadNextView}" oncomplete="territories.afterLoadNextView()" rerender="panel_HiddenVars, panel_Messages" >
+			<apex:param name="nextViewId" assignTo="{!nextViewId}" value="" />
+       	</apex:actionFunction>
+       	<apex:actionFunction name="endLoadingViews" action="{!endLoadingViews}" oncomplete="territories.onEndLoadingViews()" rerender="panel_EditCreate, panel_HiddenVars, panel_HiddenViewState, panel_ViewDetails, panel_ViewListing, panel_SelectTrip, panel_Messages" />
+
+		
+       	<apex:actionFunction name="saveLastSelectedObject" action="{!saveLastSelectedObject}" rerender="panel_LastSelectedObject" >
+			<apex:param name="lastSelectedObjectId" assignTo="{!lastSelectedObjectId}" value="" />
+       	</apex:actionFunction>
+		
+		<apex:actionFunction name="processGeocodedItems" action="{!listing.processGeocodedItems}" oncomplete="geocoding.afterProcessGeocodedItems()" reRender="panel_ViewListing, panel_Messages" />
+		
+		<apex:actionFunction name="letterFilterChanged" action="{!listing.letterFilterChanged}" oncomplete="viewListing.afterChangeLetterFilter()" reRender="panel_ViewListing, panel_Messages" >
+			<apex:param name="letterFilter" assignTo="{!listing.letterFilter}" value="" />
+		</apex:actionFunction>
+
+		<apex:actionFunction name="saveCustomLocationIcon" action="{!saveCustomLocationIcon}" oncomplete="util.hideLoadingImage()" reRender="panel_Messages" >
+			<apex:param name="saveCustomLocationId" assignTo="{!saveCustomLocationId}" value="" />
+			<apex:param name="saveCustomLocationIconInfo" assignTo="{!saveCustomLocationIconInfo}" value="" />
+		</apex:actionFunction>
+
+		<apex:actionFunction name="saveCustomLocationInfo" action="{!saveCustomLocationInfo}" oncomplete="util.hideLoadingImage()" reRender="panel_ViewListing, panel_Messages" >
+			<apex:param name="saveCustomLocationId" assignTo="{!saveCustomLocationId}" value="" />
+			<apex:param name="saveCustomLocationName" assignTo="{!saveCustomLocationName}" value="" />
+			<apex:param name="saveCustomLocationInfo" assignTo="{!saveCustomLocationInfo}" value="" />
+		</apex:actionFunction>
+
+		<apex:actionFunction name="saveOutlineTemplate" action="{!view.outlines.saveTemplate}" oncomplete="outlines.afterSaveTemplate()" reRender="panel_OutlineTemplates, panel_Messages" >
+			<apex:param name="outlineTemplate" assignTo="{!view.outlines.outlineTemplate}" value="" />
+		</apex:actionFunction>
+
+		<apex:actionFunction name="saveOutlines" action="{!saveOutlines}" oncomplete="util.hideLoadingImage();territories.view.showLegend();territories.view.refreshMarkers();" rerender="panel_ViewDetails, panel_ViewListing, panel_Outlines, panel_OutlineGeocodes, panel_Messages">
+			<apex:param name="limitMarkersToShapesOption" assignTo="{!view.limitMarkersToShapes}" value="" />
+		</apex:actionFunction>
+
+
+
+		<!-- Map -->
+	    <apex:pageBlock title="" id="block_Territories">
+
+
+			<apex:inputHidden id="hidden_CurrentMapCenterAndZoom" value="{!currentMapCenterAndZoom}" />
+
+			<apex:pageBlockButtons location="top">
+				<apex:commandButton action="{!mapSettings}" value="{!locale.mapSettings}" onfocus="blur()" onclick="territories.getMapCenterAndZoom();" />
+				<input class="btn" id="button_ResetMap" name="button_ResetMap" onclick="territories.resetMap()" value="{!locale.resetMap}" type="button" />
+				<apex:commandButton action="{!showTools}" value="{!locale.tools}" rendered="{!userIsSysAdmin}"/>
+				&nbsp;
+				<apex:commandButton action="{!showHelp}" value="{!locale.help}" />
+			</apex:pageBlockButtons>
+
+			<div id="msgs" style="color:blue"></div>
+			<div id="msgs2" style="color:blue"></div>
+			<div id="msgs3" style="color:blue"></div>
+			
+			<apex:outputPanel id="panel_Messages">
+				<font color="red">
+			    	<apex:messages />
+				</font>
+			</apex:outputPanel>
+
+			<div style="padding:5px 0px;">
+				<table cellspacing="0px" cellpadding="0px">
+					<tr>
+						<td>
+							<div id="map_canvas" style="width: {!settings.mapWidth}px; height: {!settings.mapHeight}px;">
+								<div id="browser_security_alert" />
+							</div>
+						</td>
+						<td id="colorLegendSide" style="min-width:300px">
+						</td>
+					</tr>
+				</table>
+			</div>
+
+<!--
+			<div style="display: inline-block; position:relative; top: -75px; left: 75px; padding:10px; margin: 10px; border: 1px solid rgba(0, 0, 0, 0.5); border-radius: 10px; background-color: rgba(0, 0, 0, 0.5); box-shadow: inset -1px -1px 1px rgba(0, 0, 0, 0.5), inset 1px 1px 1px rgba(150,150,150,0.8), 0px 0px 5px rgba(0, 0, 0, 0.5)">
+				<table style="border-collapse: 0px; border-spacing: 0px">
+					<tr>
+						<td style="padding-right: 2px">
+							<img src="https://www.pexmaps.com:8443/img/logos/google-g-logo-2012.25.png" />
+						</td>
+						<td>
+							<input id="searchBoxInput" style="padding: 2px; font-size: 16px; color: darkgray;" size="35" maxLength="80" type="text" placeholder="Search">
+							</input>
+						</td>
+						<td style="paddding-left: 2px">
+							<div id="closeSearchBoxSearch" style="display:none">
+								<img src="https://www.pexmaps.com:8443/img/icon-circle-x-red.png" />
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+-->
+		</apex:pageBlock>
+
+		<!-- Select View --> 
+		<apex:outputPanel id="panel_HiddenTripDirections">
+			<apex:inputHidden id="hidden_TripDirectionsViewName" value="{!trip.directionsViewName}" />
+			<apex:inputHidden id="hidden_TripDirections1" value="{!trip.directionsHtml1}" />
+			<apex:inputHidden id="hidden_TripDirections2" value="{!trip.directionsHtml2}" />
+			<apex:inputHidden id="hidden_TripDirections3" value="{!trip.directionsHtml3}" />
+			<apex:inputHidden id="hidden_TripDirections4" value="{!trip.directionsHtml4}" />
+			<apex:inputHidden id="hidden_TripDirections5" value="{!trip.directionsHtml5}" />
+			<apex:inputHidden id="hidden_TripDirections6" value="{!trip.directionsHtml6}" />
+			<apex:inputHidden id="hidden_TripDirections7" value="{!trip.directionsHtml7}" />
+			<apex:inputHidden id="hidden_TripDirections8" value="{!trip.directionsHtml8}" />
+			<apex:inputHidden id="hidden_TripDirections9" value="{!trip.directionsHtml9}" />
+			<apex:inputHidden id="hidden_TripDirections10" value="{!trip.directionsHtml10}" />
+			<apex:inputHidden id="hidden_TripDirections11" value="{!trip.directionsHtml11}" />
+			<apex:inputHidden id="hidden_TripDirections12" value="{!trip.directionsHtml12}" />
+			<apex:inputHidden id="hidden_TripDirections13" value="{!trip.directionsHtml13}" />
+			<apex:inputHidden id="hidden_TripDirections14" value="{!trip.directionsHtml14}" />
+			<apex:inputHidden id="hidden_TripDirections15" value="{!trip.directionsHtml15}" />
+			<apex:inputHidden id="hidden_TripDirections16" value="{!trip.directionsHtml16}" />
+			<apex:inputHidden id="hidden_TripDirections17" value="{!trip.directionsHtml17}" />
+			<apex:inputHidden id="hidden_TripDirections18" value="{!trip.directionsHtml18}" />
+			<apex:inputHidden id="hidden_TripDirections19" value="{!trip.directionsHtml19}" />
+			<apex:inputHidden id="hidden_TripDirections20" value="{!trip.directionsHtml20}" />
+			<apex:inputHidden id="hidden_TripDirections21" value="{!trip.directionsHtml21}" />
+			<apex:inputHidden id="hidden_TripDirections22" value="{!trip.directionsHtml22}" />
+			<apex:inputHidden id="hidden_TripDirections23" value="{!trip.directionsHtml23}" />
+			<apex:inputHidden id="hidden_TripDirections24" value="{!trip.directionsHtml24}" />
+			<apex:inputHidden id="hidden_TripDirections25" value="{!trip.directionsHtml25}" />
+		</apex:outputPanel>
+
+		<apex:outputPanel id="panel_HiddenVars">		
+			<apex:inputHidden id="hidden_ViewOwnerId" value="{!view.ownerId}" />
+			<apex:inputHidden id="hidden_ViewDefinition" value="{!view.definition}" />
+			<apex:inputHidden id="hidden_ViewId" value="{!view.id}" />
+			<apex:inputHidden id="hidden_ViewName" value="{!view.name}" />
+			<apex:inputHidden id="hidden_ViewType" value="{!view.type}" />
+			<apex:inputHidden id="hidden_ViewObject" value="{!view.viewObject}" />
+			<apex:inputHidden id="hidden_ViewObjectLabel" value="{!view.viewObjectLabel}" />
+			<apex:inputHidden id="hidden_ViewObjectPlural" value="{!view.viewObjectPlural}" />
+			<apex:inputHidden id="hidden_MapAddressType" value="{!view.addressType}" />
+			<apex:inputHidden id="hidden_MultiFieldFilterWhereClause" value="{!view.filter.multiFieldFilters.filterWhereClause}" />
+			<apex:inputHidden id="hidden_SingleFieldFilterWhereClause" value="{!view.filter.singleFieldFilters.filterWhereClauseWithColors}" />
+			<apex:inputHidden id="hidden_UseFilterColorScheme" value="{!view.useFilterColorScheme}" />
+			<apex:inputHidden id="hidden_SelectedAccountId" value="{!selectedAccountId}" />
+			<apex:inputHidden id="hidden_SelectedAccountName" value="{!selectedAccountName}" />
+			<apex:inputHidden id="hidden_SelectedViewId" value="{!selectedViewId}" />
+			<apex:inputHidden id="hidden_SelectedTripId" value="{!selectedTripId}" />
+			<apex:inputHidden id="hidden_SelectedTripName" value="{!trip.name}" />
+			<apex:inputHidden id="hidden_ShowUserMarkers" value="{!view.showUserMarkers}" />
+			<apex:inputHidden id="hidden_ShowOwnerMarker" value="{!view.showOwnerMarker}" />
+			<apex:inputHidden id="hidden_UserMarkerColor" value="{!view.userMarkerColor}" />
+			<apex:inputHidden id="hidden_UserMapIcon" value="{!view.userMapIcon.mapIconInfo}" />
+			<apex:inputHidden id="hidden_CustomLocationMarkerColor" value="{!view.customLocationMarkerColor}" />
+			<apex:inputHidden id="hidden_CustomLocationMapIcon" value="{!view.customLocationMapIcon.mapIconInfo}" />
+			<apex:inputHidden id="hidden_MultiObjectMarkerColor" value="{!view.multiObjectMarkerColor}" />
+			<apex:inputHidden id="hidden_MultiObjectMapIcon" value="{!view.multiObjectMapIcon.mapIconInfo}" />
+			<apex:inputHidden id="hidden_ShowAccountRelatedObjects" value="{!view.showAccountRelatedObjects}" />
+			<apex:inputHidden id="hidden_ShowOpenOpportunities" value="{!view.showOpenOpportunities}" />
+			<apex:inputHidden id="hidden_ShowContacts" value="{!view.showContacts}" />
+			<apex:inputHidden id="hidden_UseContactAddress" value="{!view.useContactAddress}" />
+			<apex:inputHidden id="hidden_UseShortLegend" value="{!view.useShortLegend}" />
+			<apex:inputHidden id="hidden_LimitMarkersToShapes" value="{!view.limitMarkersToShapes}" />
+			<apex:inputHidden id="hidden_RetainViewColors" value="{!view.retainViewColors}" />
+			<apex:inputHidden id="hidden_MasterDetailRelationshipName" value="{!view.masterDetailRelationshipName}" />
+			
+			<apex:inputHidden id="hidden_IsCustomObjectView" value="{!view.isCustomObjectView}" />
+			<apex:inputHidden id="hidden_CustomObjectUseLookupField" value="{!view.customObject.useLookupField}" />
+			<apex:inputHidden id="hidden_CustomObjectLookupField" value="{!view.customObject.lookupField}" />
+			<apex:inputHidden id="hidden_CustomObjectLookupFieldType" value="{!view.customObject.lookupFieldType}" />
+			<apex:inputHidden id="hidden_CustomObjectLookupRelationshipName" value="{!view.customObject.lookupRelationshipName}" />
+			<apex:inputHidden id="hidden_CustomObjectName" value="{!view.customObject.name}" />
+			<apex:inputHidden id="hidden_CustomObjectLabel" value="{!view.customObject.label}" />
+			<apex:inputHidden id="hidden_CustomObjectNameField" value="{!view.customObject.nameField}" />
+			<apex:inputHidden id="hidden_CustomObjectStreetField" value="{!view.customObject.streetField}" />
+			<apex:inputHidden id="hidden_CustomObjectCityField" value="{!view.customObject.cityField}" />
+			<apex:inputHidden id="hidden_CustomObjectStateField" value="{!view.customObject.stateField}" />
+			<apex:inputHidden id="hidden_CustomObjectPostalCodeField" value="{!view.customObject.postalCodeField}" />
+			<apex:inputHidden id="hidden_CustomObjectCountryField" value="{!view.customObject.countryField}" />
+			<apex:inputHidden id="hidden_CustomObjectGeocodeStatusField" value="{!view.customObject.geocodeStatusField}" />
+			<apex:inputHidden id="hidden_CustomObjectGeocodeAddressField" value="{!view.customObject.geocodeAddressField}" />
+			<apex:inputHidden id="hidden_CustomObjectGeocodeAccuracyField" value="{!view.customObject.geocodeAccuracyField}" />
+			<apex:inputHidden id="hidden_CustomObjectLatitudeField" value="{!view.customObject.latitudeField}" />
+			<apex:inputHidden id="hidden_CustomObjectLongitudeField" value="{!view.customObject.longitudeField}" />
+			
+			<apex:inputHidden id="hidden_ParentRelationship" value="{!view.parentRelationship}" />
+			
+			<apex:inputHidden id="hidden_DisplayField1Name" value="{!view.displayField1Name}" />
+			<apex:inputHidden id="hidden_DisplayField2Name" value="{!view.displayField2Name}" />
+			<apex:inputHidden id="hidden_DisplayField3Name" value="{!view.displayField3Name}" />
+			<apex:inputHidden id="hidden_DisplayField4Name" value="{!view.displayField4Name}" />
+			<apex:inputHidden id="hidden_DisplayField5Name" value="{!view.displayField5Name}" />
+			<apex:inputHidden id="hidden_DisplayField1Label" value="{!view.displayField1Label}" />
+			<apex:inputHidden id="hidden_DisplayField2Label" value="{!view.displayField2Label}" />
+			<apex:inputHidden id="hidden_DisplayField3Label" value="{!view.displayField3Label}" />
+			<apex:inputHidden id="hidden_DisplayField4Label" value="{!view.displayField4Label}" />
+			<apex:inputHidden id="hidden_DisplayField5Label" value="{!view.displayField5Label}" />
+			<apex:inputHidden id="hidden_DisplayField1Type" value="{!view.displayField1Type}" />
+			<apex:inputHidden id="hidden_DisplayField2Type" value="{!view.displayField2Type}" />
+			<apex:inputHidden id="hidden_DisplayField3Type" value="{!view.displayField3Type}" />
+			<apex:inputHidden id="hidden_DisplayField4Type" value="{!view.displayField4Type}" />
+			<apex:inputHidden id="hidden_DisplayField5Type" value="{!view.displayField5Type}" />
+			
+			<apex:inputHIdden id="hidden_OverLimit" value="{!view.overLimit}" />
+			
+
+			<apex:outputPanel id="panel_OutlineTemplate">
+				<apex:inputHidden id="hidden_OutlineTemplate" value="{!view.outlines.outlineTemplate}" />
+			</apex:outputPanel>
+
+
+			<apex:outputPanel id="panel_OutlineGeocodes">
+
+				<apex:inputHidden id="hidden_Outline1" value="{!view.outlines.outline1}" />
+				<apex:inputHidden id="hidden_Outline2" value="{!view.outlines.outline2}" />
+				<apex:inputHidden id="hidden_Outline3" value="{!view.outlines.outline3}" />
+				<apex:inputHidden id="hidden_Outline4" value="{!view.outlines.outline4}" />
+				<apex:inputHidden id="hidden_Outline5" value="{!view.outlines.outline5}" />
+				<apex:inputHidden id="hidden_Outline6" value="{!view.outlines.outline6}" />
+				<apex:inputHidden id="hidden_Outline7" value="{!view.outlines.outline7}" />
+				<apex:inputHidden id="hidden_Outline8" value="{!view.outlines.outline8}" />
+				<apex:inputHidden id="hidden_Outline9" value="{!view.outlines.outline9}" />
+				<apex:inputHidden id="hidden_Outline10" value="{!view.outlines.outline10}" />
+				<apex:inputHidden id="hidden_Outline11" value="{!view.outlines.outline11}" />
+				<apex:inputHidden id="hidden_Outline12" value="{!view.outlines.outline12}" />
+				<apex:inputHidden id="hidden_Outline13" value="{!view.outlines.outline13}" />
+				<apex:inputHidden id="hidden_Outline14" value="{!view.outlines.outline14}" />
+				<apex:inputHidden id="hidden_Outline15" value="{!view.outlines.outline15}" />
+				<apex:inputHidden id="hidden_Outline16" value="{!view.outlines.outline16}" />
+				<apex:inputHidden id="hidden_Outline17" value="{!view.outlines.outline17}" />
+				<apex:inputHidden id="hidden_Outline18" value="{!view.outlines.outline18}" />
+				<apex:inputHidden id="hidden_Outline19" value="{!view.outlines.outline19}" />
+				<apex:inputHidden id="hidden_Outline20" value="{!view.outlines.outline20}" />
+				<apex:inputHidden id="hidden_Outline21" value="{!view.outlines.outline21}" />
+				<apex:inputHidden id="hidden_Outline22" value="{!view.outlines.outline22}" />
+				<apex:inputHidden id="hidden_Outline23" value="{!view.outlines.outline23}" />
+				<apex:inputHidden id="hidden_Outline24" value="{!view.outlines.outline24}" />
+				<apex:inputHidden id="hidden_Outline25" value="{!view.outlines.outline25}" />
+				<apex:inputHidden id="hidden_Outline26" value="{!view.outlines.outline26}" />
+				<apex:inputHidden id="hidden_Outline27" value="{!view.outlines.outline27}" />
+				<apex:inputHidden id="hidden_Outline28" value="{!view.outlines.outline28}" />
+				<apex:inputHidden id="hidden_Outline29" value="{!view.outlines.outline29}" />
+				<apex:inputHidden id="hidden_Outline30" value="{!view.outlines.outline30}" />
+				<apex:inputHidden id="hidden_Outline31" value="{!view.outlines.outline31}" />
+				<apex:inputHidden id="hidden_Outline32" value="{!view.outlines.outline32}" />
+				<apex:inputHidden id="hidden_Outline33" value="{!view.outlines.outline33}" />
+				<apex:inputHidden id="hidden_Outline34" value="{!view.outlines.outline34}" />
+				<apex:inputHidden id="hidden_Outline35" value="{!view.outlines.outline35}" />
+				<apex:inputHidden id="hidden_Outline36" value="{!view.outlines.outline36}" />
+				<apex:inputHidden id="hidden_Outline37" value="{!view.outlines.outline37}" />
+				<apex:inputHidden id="hidden_Outline38" value="{!view.outlines.outline38}" />
+				<apex:inputHidden id="hidden_Outline39" value="{!view.outlines.outline39}" />
+				<apex:inputHidden id="hidden_Outline40" value="{!view.outlines.outline40}" />
+				<apex:inputHidden id="hidden_Outline41" value="{!view.outlines.outline41}" />
+				<apex:inputHidden id="hidden_Outline42" value="{!view.outlines.outline42}" />
+				<apex:inputHidden id="hidden_Outline43" value="{!view.outlines.outline43}" />
+				<apex:inputHidden id="hidden_Outline44" value="{!view.outlines.outline44}" />
+				<apex:inputHidden id="hidden_Outline45" value="{!view.outlines.outline45}" />
+				<apex:inputHidden id="hidden_Outline46" value="{!view.outlines.outline46}" />
+				<apex:inputHidden id="hidden_Outline47" value="{!view.outlines.outline47}" />
+				<apex:inputHidden id="hidden_Outline48" value="{!view.outlines.outline49}" />
+				<apex:inputHidden id="hidden_Outline49" value="{!view.outlines.outline49}" />
+				<apex:inputHidden id="hidden_Outline50" value="{!view.outlines.outline50}" />
+			</apex:outputPanel>
+		
+			<apex:inputHidden id="hidden_AbortCombinationViewLoad" value="{!abortCombinationViewLoad}" />	
+		</apex:outputPanel>
+
+		<apex:outputPanel id="panel_HiddenViewState">
+			<apex:inputHidden id="hidden_ViewMapType" value="{!view.mapType}" />
+			<apex:inputHidden id="hidden_ViewMapCenterLatitude" value="{!view.mapCenterLatitude}" />
+			<apex:inputHidden id="hidden_ViewMapCenterLongitude" value="{!view.mapCenterLongitude}" />
+			<apex:inputHidden id="hidden_ViewMapZoom" value="{!view.mapZoom}" />
+		</apex:outputPanel>
+		
+		<apex:outputPanel id="panel_LastSelectedObject">
+			<apex:inputHidden id="hidden_LastSelectedObjectId" value="{!lastSelectedObjectId}" />
+		</apex:outputPanel>
+		
+		
+		
+		<apex:outputPanel id="panel_View">
+		
+			<table width="100%">
+				<tr>
+					<td >
+						<apex:panelGrid columns="4" id="section_Views" cellspacing="4" columnClasses="viewLabel,viewField,viewField,viewField">
+
+							<apex:outputLabel value="{!locale.view}" for="select_View" style="position:relative; top:3px"/>
+
+							<apex:selectList onchange="territories.loadSelectedView()" value="{!selectedViewId}" id="select_Views" size="1" style="position:relative; top:2px;">
+					        	<apex:selectOptions value="{!viewList}" />
+					        </apex:selectList>
+
+					        <apex:panelGroup style="position:relative; top:4px; white-space:nowrap">
+								<apex:outputPanel id="panel_EditCreate">					        
+						        	<apex:outputPanel styleClass="fFooter" rendered="{!AND(allowViewEdit,NOT(selectedViewId=null))}">
+							        	<apex:commandLink styleClass="listActionLink" action="{!editCurrentView}" value="{!locale.edit}"/>
+										<apex:outputText escape="false">&nbsp;|&nbsp;</apex:outputText>
+									</apex:outputPanel>
+						        	<apex:outputPanel styleClass="fFooter">
+							        	<apex:commandLink styleClass="listActionLink" action="{!createNewView}" value="{!locale.createNewView}" />
+									</apex:outputPanel>
+
+						        	<apex:outputPanel styleClass="fFooter" rendered="{!AND(selectedListId=null,selectedAccountId=null,selectedViewId=null)}">
+										<apex:outputText escape="false">&nbsp;|&nbsp;</apex:outputText>
+							        	<apex:outputLink value="https://appexchange.salesforce.com/servlet/servlet.FileDownload?file=00P30000005Nk9aEAC" style="color: red" styleClass="listActionLink" target="_blank">Quick Start Guide</apex:outputLink>
+										<apex:outputText escape="false">&nbsp;|&nbsp;</apex:outputText>
+							        	<apex:outputLink value="https://appexchange.salesforce.com/servlet/servlet.FileDownload?file=00P30000005Nk9QEAS" style="color: red" styleClass="listActionLink" target="_blank">App Setup Guide</apex:outputLink>
+
+									</apex:outputPanel>
+
+									
+								</apex:outputPanel>
+					        </apex:panelGroup>
+					        
+						</apex:panelGrid>
+					</td>
+					
+					<td>
+						<apex:image url="/s.gif" width="30px" height="1px"/>
+					</td>
+					
+					<td>
+
+						<apex:outputPanel id="panel_SelectTrip" >
+							<apex:outputPanel rendered="{!NOT(selectedViewId=null)}" > 
+
+								<apex:inputHidden id="hidden_TripName" value="{!trip.name}" />
+								<apex:inputHidden id="hidden_TripWaypoints" value="{!trip.waypointString}" />
+								
+								<apex:panelGrid columns="2" cellspacing="4" columnClasses="viewLabel,viewField">
+									<apex:outputLabel value="{!locale.trip}" for="select_Trip" style="position:relative; top:3px"/>
+					
+									<apex:selectList onchange="trip.loadTrip()" value="{!selectedTripId}" id="select_Trip" size="1" style="position:relative; top:2px;" >
+							        	<apex:selectOptions value="{!view.tripOptions}" />
+							        </apex:selectList>
+								</apex:panelGrid>			
+								
+							</apex:outputPanel>
+						</apex:outputPanel>						
+
+					</td>
+					
+					<td>
+						<apex:image url="/s.gif" width="30px" height="1px"/>
+					</td>
+					
+					<td width="100%" style="text-align:right; vertical-align:middle; padding-right:20px">
+						<apex:commandLink action="{!showPrintableView}" value="{!locale.printableView}" target="_blank" styleClass="listActionLink" />
+					</td>
+					
+				</tr>
+			</table>	
+	
+			
+		</apex:outputPanel>
+		<br/>
+
+
+		<!-- Add Marker -->
+		<apex:outputPanel id="panel_AddMarker">
+			<apex:inputHidden id="hidden_InsertCustomLocationId" value="{!view.insertCustomLocationId}" />
+		
+			<apex:outputPanel rendered="{!addMapMarkerIsVisible}">
+
+				<apex:pageBlock id="block_AddMarker" title="{!locale.addMarker}">
+
+					<apex:pageBlockButtons location="top">
+						<apex:commandButton value="{!locale.close}" action="{!closeAddMapMarker}" onclick="util.showLoadingImage();addMapMarker.cleanUp();" oncomplete="util.hideLoadingImage();territories.view.showLegend();" rerender="panel_AddMarker, panel_TripButtons, panel_ViewListing, panel_ViewDetails, panel_Messages" />
+					</apex:pageBlockButtons>
+
+
+					<apex:outputPanel layout="block">
+						<table cellspacing="3px" cellpadding="0px" style="margin:10px">
+							<tr>
+								<td>
+									<div id="button_Hand" onclick="addMapMarker.cleanUp();" style="width:31px; height:31px; background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'Bsd.png')}');"/>
+								</td>
+								<td>
+									<div id="button_PlaceMarker" onclick="addMapMarker.addDraggableCustomLocation();" style="width:31px; height:31px; background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'Bmu.png')}');"/>
+								</td>
+								<td>
+									<div style="margin: 7px 0px 0px 15px">
+										{!locale.toAddDraggable}
+									</div>
+								</td>
+							</tr>
+						</table>
+					</apex:outputPanel>
+			
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+					<apex:outputText escape="false" value="{!locale.toAddStatic}" />
+					<br/><br/>
+				
+				
+					<apex:panelGrid columns="2" cellspacing="4" columnClasses="viewDetailLabelCustomLocation,viewDetailField">
+						<apex:outputLabel value="{!locale.customLocationName}" />
+						<input type="text" size="50" maxlength="255" id="input_CustomLocationName" />
+					
+						<apex:outputLabel value="{!locale.customLocationAddress}" />
+						<input type="text" size="50" maxlength="255" id="input_CustomLocationAddress" />
+						
+						<apex:image url="/s.gif" width="1" height="1" />
+						<input class="btn" id="button_AddMapMarker" name="button_AddMapMarker" onclick="addMapMarker.addGeocodeCustomLocation()" value="{!locale.add}" type="button" />
+					</apex:panelGrid>
+				
+				</apex:pageBlock>
+			</apex:outputPanel>
+		</apex:outputPanel>		
+		
+		
+		<!-- Heat Maps -->
+		<apex:outputPanel id="panel_HeatMaps">
+		
+			<apex:outputPanel rendered="{!heatMapsIsVisible}">
+
+				<apex:pageBlock id="block_HeatMaps" title="{!locale.heatMaps}">
+
+					<apex:pageBlockButtons location="top">
+						<apex:commandButton value="{!locale.close}" action="{!closeHeatMaps}" onclick="util.showLoadingImage();heatMaps.cleanUp();" oncomplete="util.hideLoadingImage();territories.view.showLegend();" rerender="panel_HeatMaps, panel_TripButtons, panel_ViewListing, panel_ViewDetails, panel_Messages" />
+					</apex:pageBlockButtons>
+
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+							<tr>
+								<td>
+									<div style="padding:10px 13px;">
+										<table cellspacing="0px" cellpadding="0px">
+											<tr>
+												<td colspan="2" style="padding-bottom:10px">
+													Select one of the Number/Currency display fields used in this view as the 
+													basis for the heat map.
+												</td>
+											</tr>
+											<tr>
+												<td style="text-align: right; font-weight:bold;white-space:nowrap">
+													Number/Currency Fields:&nbsp;<br /><br />
+												</td>
+												<td style="width:100%">
+													<select id="select_HeatMapField" onchange="heatMaps.fieldChanged();"></select>
+												</td>
+											</tr>
+											<tr>
+												<td style="text-align: right; font-weight:bold; white-space:nowrap">
+													Aggregate Function:&nbsp;
+												</td>
+												<td>
+													<select id="select_HeatMapAggregateFunction" onchange="heatMaps.aggregateFunctionChanged();">
+														<option value="count">Count</option>
+														<option value="avg">Average</option>
+														<option value="min">Minimum</option>
+														<option value="max">Maximum</option>
+														<option value="total">Sum</option>
+													</select>
+												</td>
+											</tr>
+										</table>
+									</div>
+									
+									
+									
+									<div style="width:335px; margin:15px 10px 15px 8px;" class="gisLegendBox">
+										<table cellspacing="0px" cellpadding="2px">
+											<tr>
+												<td class="currentZoomLevelText">
+													Current Zoom Level:
+												</td>
+												<td class="currentZoomLevel">
+													<div id="div_CurrentZoomLevel">
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td style="white-space: nowrap;padding: 0px 10px">
+													State Heat Map:
+												</td>
+												<td style="white-space: nowrap;">
+													Zoom Levels 4 - 10
+												</td>
+											</tr>
+											<tr>
+												<td style="white-space:nowrap;padding: 0px 10px">
+													Zip Code Heat Map:
+												</td>
+												<td style="white-space: nowrap;">
+													Zoom Levels 11 - 15
+												</td>
+											</tr>
+										</table>
+									</div>
+									
+									
+									
+									<div style="width:335px;margin-left:10px;" class="gisLegendBox">
+										<table cellspacing="0px" cellpadding="7px">
+											<tr>
+												<td style="white-space:nowrap">
+													<b>Layer Opacity:</b>
+												</td>
+												<td>
+													<select id="select_LayerOpacity" onchange="heatMaps.layerOpacityChanged();">
+														<option value=".1">10%</option>
+														<option value=".2">20%</option>
+														<option value=".3">30%</option>
+														<option value=".4">40%</option>
+														<option value=".5">50%</option>
+														<option value=".6">60%</option>
+														<option selected="selected" value=".7">70%</option>
+														<option value=".8">80%</option>
+														<option value=".9">90%</option>
+														<option value="1.0">100%</option>
+													</select>
+												</td>
+											</tr>
+											
+											<tr>
+												<td>
+													<b>Tags:</b>
+												</td>
+												<td>
+													Click within an area to tag it. 
+														There are separate tag sets for each administrative level.
+														Tags last for the duration of your session.
+												</td>
+											</tr>
+											
+										</table>
+									</div>
+									<br/>
+									
+								</td>
+								
+								<td width="100%">
+
+									<table cellspacing="1px" cellpadding="0px" id="heatMapsDataTable">
+									</table>
+
+								</td>
+							</tr>
+						</table>
+
+
+				</apex:pageBlock>
+			</apex:outputPanel>
+		</apex:outputPanel>		
+		
+		
+
+		<!-- Export -->
+		<apex:outputPanel id="panel_Export" >
+			<apex:outputPanel rendered="{!exportIsVisible}">
+				<apex:pageBlock id="block_Export" mode="edit" title="{!locale.export} {!IF(trip.isActive,locale.theTrip,locale.theView)}">
+
+					<apex:pageBlockButtons location="top">
+						<apex:commandButton action="{!closeExport}" value="{!locale.close}" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();territories.view.showLegend();" rerender="panel_AddMarker, panel_ViewDetails, panel_ViewListing, panel_Export, panel_Messages, panel_TripButtons"/>
+					</apex:pageBlockButtons>
+					
+					<apex:outputPanel layout="block" style="padding:15px 0px 10px 25px">
+						<input id="check_ExportVisibleItemsOnly" name="check_ExportVisibleItemsOnly" type="checkbox" />
+						{!locale.visibleItemsOnly}
+					</apex:outputPanel>
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+					
+					
+					<apex:outputPanel style="padding:10px">
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+							<tr>
+								<td style="padding-left:20px">
+									<a href="javascript:exports.requestExport('kml',{!IF(trip.isActive,'true','false')});" onfocus="blur()">
+										<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'google_earth_64.png')}" />	
+									</a>
+								</td>
+								<td width="100%" style="padding:10px 20px 0px 10px">
+
+									<apex:outputLink styleClass="listActionLink" onfocus="blur()" value="javascript:exports.requestExport('kml', {!IF(trip.isActive,'true','false')});"><u>{!locale.click}</u></apex:outputLink>
+									<apex:outputText escape="false" value="&nbsp;{!locale.exportKML}">
+										<apex:param value="{!IF(trip.isActive,locale.theTrip,locale.theView)}" />
+									</apex:outputText>
+									<br/>
+									<br/>
+									<input id="check_KmlShowFullDetails" name="check_KmlShowFullDetails" type="checkbox" />
+									{!locale.includeDetails}
+								</td>
+							</tr>
+							<tr>
+								<td>
+								</td>
+							</tr>
+						</table>
+					</apex:outputPanel>
+
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+
+					<apex:outputPanel style="padding:10px">
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+							<tr>
+								<td style="padding-left:20px">
+									<a href="javascript:exports.requestExport('csv',{!IF(trip.isActive,'true','false')});" onfocus="blur()">
+										<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'csv_64.png')}" />	
+									</a>
+								</td>
+								<td width="100%" style="padding:20px 20px 0px 10px">
+									<apex:outputLink styleClass="listActionLink" onfocus="blur()" value="javascript:exports.requestExport('csv', {!IF(trip.isActive,'true','false')});"><u>{!locale.click}</u></apex:outputLink>
+									<apex:outputText escape="false" value="&nbsp;{!locale.exportCSV}">
+										<apex:param value="{!IF(trip.isActive,locale.theTrip,locale.theView)}" />
+									</apex:outputText>
+									<br/>
+									<br/>
+								</td>
+							</tr>
+
+						</table>
+					</apex:outputPanel>
+
+					
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+
+					<apex:outputPanel style="padding:10px">
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+							<tr>
+								<td style="padding-left:20px">
+									<a href="javascript:exports.requestExport('htm',{!IF(trip.isActive,'true','false')});" onfocus="blur()">
+										<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'htm_64.png')}" />	
+									</a>
+								</td>
+								<td width="100%" style="padding:20px 20px 0px 10px">
+									<apex:outputLink styleClass="listActionLink" onfocus="blur()" value="javascript:exports.requestExport('htm', {!IF(trip.isActive,'true','false')});"><u>{!locale.click}</u></apex:outputLink>
+									<apex:outputText escape="false" value="&nbsp;{!locale.exportHTML}">
+										<apex:param value="{!IF(trip.isActive,locale.theTrip,locale.theView)}" />
+									</apex:outputText>
+									<br/>
+									<br/>
+								</td>
+							</tr>
+
+						</table>
+					</apex:outputPanel>
+					<br/>
+
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+					<br/>
+					
+				</apex:pageBlock>
+			</apex:outputPanel>
+		</apex:outputPanel>
+
+
+
+		<!-- Trip -->
+		
+		<apex:outputPanel id="panel_TripPlanner">
+			<apex:outputPanel style="display:{!IF(trip.isActive,'block','none')}">
+				<apex:pageBlock id="block_TripPlanner" title="{!IF(trip.isNew,locale.trip,locale.trip+': '+trip.name)}">
+
+					<apex:pageBlockButtons location="top">
+						<apex:outputPanel id="panel_TripButtons">
+							<apex:outputPanel style="display:{!IF(AND(allowViewEdit,NOT(trip.isNew),trip.isModified,NOT(saveAsIsVisible)),'inline','none')}" >
+								<input class="btn" id="button_SaveTrip" onclick="trip.saveTrip();" value="{!locale.save}" type="button" />
+							</apex:outputPanel>
+							
+							<apex:outputPanel style="display:{!IF(AND(NOT(trip.isNew),NOT(saveAsIsVisible)),'inline','none')}" >
+								<apex:commandButton action="{!showSaveTripAs}" value="{!locale.saveAs}" onclick="util.showLoadingImage()" oncomplete="util.hideLoadingImage()" rerender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_Messages"/>
+							</apex:outputPanel>
+							
+							<apex:outputPanel style="display:{!IF(AND(allowViewEdit,NOT(saveAsIsVisible),NOT(addMapMarkerIsVisible)),'inline','none')}" >
+								<apex:commandButton action="{!showAddMapMarker}" value="{!locale.addMarker}" onclick="util.showLoadingImage()" oncomplete="util.hideLoadingImage()" reRender="panel_AddMarker, panel_TripButtons, panel_Messages" />
+							</apex:outputPanel>
+
+							<apex:outputPanel style="display:{!IF(NOT(saveAsIsVisible),'inline','none')}" >
+								<input class="btn" onclick="util.showLoadingImage();trip.beforeCloseTrip()" value="{!locale.close}" type="button"/>						
+							</apex:outputPanel>
+	
+							<apex:outputPanel style="display:{!IF(AND(allowViewEdit,NOT(trip.isNew),NOT(saveAsIsVisible)),'inline','none')}" >
+								<apex:commandButton action="{!deleteTrip}" value="{!locale.delete}" onclick="if(!confirm('{!locale.confirmDeleteTrip}'))return false;trip.beforeDeleteTrip();" oncomplete="util.hideLoadingImage();territories.view.showLegend();" rerender="panel_TripPlanner, panel_SelectTrip, panel_ViewDetails, panel_ViewListing, panel_AddMarker, panel_HiddenVars, panel_Messages"/>
+							</apex:outputPanel>
+
+							<apex:outputPanel style="display:{!IF(AND(NOT(exportIsVisible),allowViewEdit,NOT(saveAsIsVisible)),'inline','none')}" >
+								<apex:commandButton action="{!showExport}" value="{!locale.export}" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_Export, panel_TripButtons, panel_Messages"/>
+							</apex:outputPanel>
+
+							<apex:outputPanel style="display:{!IF(optimizeTripDistancesIsVisible,'inline','none')}" >
+								<input class="btn" onclick="trip.optimizeDistances();" value="Optimize" type="button" />
+							</apex:outputPanel>
+							
+						</apex:outputPanel>
+					</apex:pageBlockButtons>
+
+					<apex:inputHidden id="hidden_TripWaypointCount" value="{!trip.waypointCount}" />
+
+					<apex:outputPanel style="display:{!IF(OR(AND(trip.isNew,NOT(trip.waypointCount=1)), saveAsIsVisible),'block','none')}" >
+					
+						<apex:panelGrid columns="5" cellspacing="4" columnClasses="saveTripLabel,viewDetailField,saveTripLabel,viewDetailField,viewDetailField">
+							<apex:outputText value="{!locale.name}" style="position:relative; top:2px"/>
+							&nbsp;
+							<apex:outputPanel layout="block" styleClass="requiredInput" >
+								<apex:outputPanel layout="block" styleClass="requiredBlock" />
+								<apex:inputText value="{!trip.name}" style="display:{!IF(trip.isNew,'block','none')}"/>
+								<apex:inputText value="{!trip.saveAsName}" style="display:{!IF(saveAsIsVisible,'block','none')}"/>
+							</apex:outputPanel>
+							
+							<apex:outputPanel style="display:{!IF(trip.isNew,'block','none')}">
+								<input class="btn" id="button_SaveThisTrip" onclick="trip.saveThisTrip();" value="{!locale.saveThisTrip}" type="button" />
+							</apex:outputPanel>								
+
+  
+							<apex:outputPanel style="display:{!IF(saveAsIsVisible,'block','none')}" >
+								<input class="btn" id="button_SaveTripAs" onclick="trip.saveTripAs();" value="{!locale.saveAs}" type="button" />
+								<apex:commandButton value="{!locale.cancel}" action="{!cancelSaveTripAs}" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_TripPlanner"/>
+							</apex:outputPanel>
+							
+						</apex:panelGrid>
+						<br/>
+					</apex:outputPanel>
+
+
+
+					<apex:pageBlockTable id="table_TripWaypoints" value="{!trip.waypoints}" var="tripWaypoint">
+						<apex:column >
+							<apex:facet name="header">&nbsp;</apex:facet>
+							<b>
+								<apex:commandLink value="{!locale.remove}" action="{!removeTripWaypoint}" onclick="trip.removeWaypoint({!tripWaypoint.index})" oncomplete="trip.afterRemoveTripWaypoint()" rerender="panel_TripPlanner, panel_ViewDetails, panel_ViewListing, panel_SelectTrip">
+									<apex:param name="removeTripWaypointIndex" value="{!tripWaypoint.index}" />
+								</apex:commandLink>
+							</b>
+						</apex:column>
+
+
+						<apex:column >
+							<apex:facet name="header">&nbsp;</apex:facet>
+							<apex:outputText value="{!tripWaypoint.sequenceLetter}." style="font-weight:bold"/>
+						</apex:column>
+						
+						<apex:column style="padding-right:15px;">
+							<apex:facet name="header">
+								<apex:outputText value="{!locale.waypoint}"/>
+							</apex:facet>
+							<apex:outputText value="{!tripWaypoint.name}" style="vertical-align:middle;white-space:nowrap;padding-right:15px"/>
+						</apex:column>
+						
+						<apex:column width="100%">
+							<apex:facet name="header">
+								<apex:outputText value="{!locale.address}"/>
+							</apex:facet>
+							<apex:outputText id="input_WaypointAddress" value="{!tripWaypoint.address}" style="vertical-align:middle;color:#000666"/>
+						</apex:column>
+					</apex:pageBlockTable>
+
+								
+								
+								
+				</apex:pageBlock>
+			</apex:outputPanel>
+		</apex:outputPanel>
+
+
+		<table cellspacing="0" cellpadding="0" width="100%">
+			<tr id="panel_Directions" style="display:none">
+				<td>
+					<apex:outputPanel >
+						<table cellspacing="0" cellpadding="0" width="100%">
+							<tr>
+								<td>
+								
+								
+									<table cellpadding="0px" cellspacing="0px" width="100%" height="69px">
+										<tr>
+											<td width="10px" style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_left.png')}');background-repeat:no-repeat;" />
+														
+											<td style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_middle.png')}');background-repeat:repeat-x;">
+											</td>
+										</tr>
+									</table>
+								
+								
+								
+								
+								
+								</td>
+								<td>
+								
+								
+								
+									<table cellpadding="0px" cellspacing="0px" width="100%" height="69px">
+										<tr>
+														
+											<td style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_middle.png')}');background-repeat:repeat-x;text-align:center; font-weight:bold; font-size:150%;">
+												<div id="div_DirectionsTitle" style="padding-top:35px">{!locale.drivingDirections}</div>
+											</td>
+									
+											<td width="10px" style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_right.png')}');background-repeat:no-repeat;" />
+										</tr>
+									</table>
+								
+									
+								</td>
+							</tr>
+							<tr>
+							
+								<td width="20%" style="padding:0px 10px">
+<!--								
+									<table cellspacing="0px" cellpadding="2px" style="background:rgb(238, 238, 238); border: 1px solid silver;padding: 10px;margin-top:14px">
+										<tr>
+											<td style="text-align: right; white-space:nowrap">
+												<b>{!locale.directions}:</b>
+											</td>
+											<td>
+												<select id="select_TravelMode" onchange="trip.changeTravelMode()">
+													<option value="Driving">{!locale.byCar}</option>
+													<option value="Walking">{!locale.walking}</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td style="text-align: right">
+												<b>{!locale.highways}:</b>
+											</td>
+											<td>
+												<select id="select_HighwaysUsage" onchange="trip.changeHighwaysUsage()">
+													<option value="Use">{!locale.useHighways}</option>
+													<option value="Avoid">{!locale.avoidHighways}</option>
+												</select>
+											</td>
+										</tr>
+									</table>
+-->									
+									<br/>
+									<br/>
+									
+									<table cellspacing="0px" cellpadding="4px" width="185px" >
+										<tr>
+											<td>
+												<apex:commandLink onfocus="blur()" action="{!trip.openDirectionsPdf}" onclick="trip.generateDirectionsHtml();" target="_blank">
+													<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'pdf_64.png')}" />	
+												</apex:commandLink>
+											
+											</td>
+											<td style="padding-top:15px">
+												<apex:commandLink onfocus="blur()" styleClass="listActionLink" action="{!trip.openDirectionsPdf}" value="{!locale.click}" onclick="trip.generateDirectionsHtml();" target="_blank"/>
+												{!locale.toCreatePDF}
+											</td>
+										</tr>
+									</table>									
+									
+								</td>
+								
+								<td width="100%" style="padding-right:15px">
+							   		<div id="route" style="width: 100%; "></div>
+							   	</td>
+					   		</tr>
+						</table>				
+					</apex:outputPanel>
+				</td>		
+			</tr>		
+		</table>
+
+
+		<!-- GIS -->
+		<apex:outputPanel id="panel_GIS" >
+			<apex:outputPanel rendered="{!GISIsVisible}">
+				<apex:pageBlock id="block_GIS" mode="edit" title="{!locale.geographicInformationSystem}">
+
+<!-- TODO: USE LOCALE STRINGS --> 					
+
+					<apex:pageBlockButtons location="top">
+						<apex:commandButton rendered="{!NOT(selectedViewId=null)}" action="{!closeGIS}" value="{!locale.close}" onclick="util.showLoadingImage();gis.cleanUp();outlines.enableInfoWindow();" oncomplete="util.hideLoadingImage();territories.view.showLegend();" rerender="panel_ViewDetails, panel_ViewListing, panel_GIS, panel_Messages"/>
+					</apex:pageBlockButtons>
+					
+					<apex:outputPanel layout="block" style="width:{!settings.mapWidth}px; margin:10px">
+						
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+							<tr>
+								<td width="50%">
+
+									<div style="padding:0px 13px;">
+									
+									
+										<div id="div_DemographicDetails" style="display:none" class="gisDetail">
+											<div class="gisDetailHeader">
+												<span id="span_DemographicName" />
+											</div>
+											<div class="gisDetailDescription">
+												<span id="span_DemographicDescription" />
+											</div>
+										</div> 
+
+										<div id="div_DemographicZoomInfo" class="gisLegendBox boundariesZoomInfo">
+											<table cellspacing="0px" cellpadding="2px">
+											</table>
+										</div>
+
+										<table cellspacing="0px" cellpadding="7px">
+											<tr>
+												<td colspan="2">
+													<div style="margin:0px 7px 15px -7px;padding: 10px;" class="gisLegendBox">
+														<table cellspacing="0px" cellpadding="0px"  style="margin-top:5px">
+															<tr>													
+																<td style="white-space:nowrap">
+																	<b>Demographics Layer:</b>&nbsp;&nbsp;
+																</td>
+																<td>
+																	<select id="select_Demographics" onchange="gis.loadSelectedDemographic();"></select>
+																	<br/>
+																	<br/>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<b>Layer Opacity:</b>
+																</td>
+																<td>
+																	<select id="select_LayerOpacity" onchange="gis.layerOpacityChanged();">
+																		<option value=".1">10%</option>
+																		<option value=".2">20%</option>
+																		<option value=".3">30%</option>
+																		<option value=".4">40%</option>
+																		<option value=".5">50%</option>
+																		<option value=".6">60%</option>
+																		<option selected="selected" value=".7">70%</option>
+																		<option value=".8">80%</option>
+																		<option value=".9">90%</option>
+																		<option value="1.0">100%</option>
+																	</select>
+																	<br/>
+																	<br/>
+																</td>		
+															</tr>
+													
+															<tr>
+																<td>
+																	<b>Charts:</b> 
+																</td>
+																<td>
+																	At diferent administrative levels, click within an area for GIS detail, 
+																		including pie charts where applicable.
+																	<br/>
+																	<br/>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<b>Tags:</b>
+																</td>
+																<td>
+																	Click within an area to tag it. 
+																		There are separate tag sets for each administrative level.
+																		Tags last for the duration of your session.
+																	<br/>
+																	<br/>
+																	<br/>
+																</td>
+															</tr> 
+														</table>
+													</div>
+												</td>
+											</tr>
+										</table>
+										<br/>
+										<br/>
+										<br/>
+									
+									</div>
+
+
+								</td>
+								<td width="100%" >
+
+
+									<div id="div_GisLegendBox" class="gisLegendBox" style="display:none">
+										<div id="div_LegendTitle" class="gisLegendTitle"></div>
+										<div id="div_LegendSubtitle" class="gisLegendSubtitle"></div>
+										<table id="table_Legend" cellspacing="10px" cellpadding="0px">
+										</table>
+									</div>
+
+
+								</td>
+							</tr>
+						</table>
+
+
+
+					</apex:outputPanel>
+					
+				</apex:pageBlock>
+			</apex:outputPanel>
+		</apex:outputPanel>
+		
+		<!-- Boundaries -->
+		<apex:outputPanel id="panel_Boundaries" >
+			<apex:outputPanel rendered="{!boundariesIsVisible}">
+				<apex:pageBlock id="block_Boundaries" mode="edit" title="{!locale.boundaries}">
+
+					<apex:pageBlockButtons location="top">
+						<apex:commandButton rendered="{!NOT(selectedViewId=null)}" action="{!closeBoundaries}" value="{!locale.close}" onclick="boundaries.cleanUp();outlines.enableInfoWindow();util.showLoadingImage();" oncomplete="util.hideLoadingImage();territories.view.showLegend();" rerender="panel_ViewDetails, panel_ViewListing, panel_Boundaries, panel_Messages"/>
+					</apex:pageBlockButtons>
+					
+					<apex:outputPanel layout="block" style="width:{!settings.mapWidth}px; margin:10px">
+						
+						<table cellspacing="0px" cellpadding="0px" width="100%">
+							<tr>
+								<td width="50%">
+
+									<apex:outputPanel layout="block" style="padding:0px 13px;">
+									
+									
+										<div id="div_BoundariesInfo" style="display:none" class="boundariesInfo">
+											<div class="boundariesInfoHeader">
+												<span id="span_BoundaryName">{!locale.boundaries}</span>
+											</div>
+											<div class="boundariesDescription">
+												<span id="span_BoundaryDescription"></span>
+											</div>
+										</div> 
+
+										<div id="div_BoundariesZoomInfo" style="width:390px;" class="gisLegendBox boundariesZoomInfo">
+											<table id="table_InfoTable" cellspacing="0px" cellpadding="2px">
+											</table>
+										</div>
+	
+	
+										<div style="width:390px;margin-left:0px;" class="gisLegendBox">
+											<table cellspacing="0px" cellpadding="7px">
+												<tr>
+													<td style="white-space:nowrap">
+														<b>Boundary Layer:</b>
+													</td>
+													<td>
+														<select id="select_Boundaries" onchange="boundaries.loadSelectedBoundary();"></select>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<b>Layer Opacity:</b>
+													</td>
+													<td>
+														<select id="select_LayerOpacity" onchange="boundaries.layerOpacityChanged();">
+															<option value=".1">10%</option>
+															<option value=".2">20%</option>
+															<option value=".3">30%</option>
+															<option value=".4">40%</option>
+															<option selected="selected" value=".5">50%</option>
+															<option value=".6">60%</option>
+															<option value=".7">70%</option>
+															<option value=".8">80%</option>
+															<option value=".9">90%</option>
+															<option value="1.0">100%</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<b>Tags:</b>
+													</td>
+													<td>
+														Click within an area to tag it. 
+															There are separate tag sets for each administrative level.
+															Tags last for the duration of your session.
+													</td>
+												</tr>
+											</table>
+											<br/>
+										</div>
+										
+									</apex:outputPanel>
+
+
+								</td>
+							</tr>
+						</table>
+
+
+
+					</apex:outputPanel>
+					
+				</apex:pageBlock>
+			</apex:outputPanel>
+		</apex:outputPanel>
+		
+
+		<!-- Outlines -->
+		<apex:outputPanel id="panel_Outlines" >
+			<apex:outputPanel rendered="{!outlinesEditActive}">
+				<apex:pageBlock id="block_Outlines" mode="edit" title="{!locale.outlines}">
+
+					<apex:pageBlockButtons location="top">
+						<input class="btn" onclick="territories.view.onSaveOutlines();" value="{!locale.saveAndClose}" type="button" />
+
+						<!--
+						<apex:commandButton action="{!saveOutlines}" value="{!locale.saveAndClose}" onclick="util.showLoadingImage();outlines.onCloseOutlines();" oncomplete="util.hideLoadingImage();territories.view.showLegend();territories.view.refreshMarkers();" rerender="panel_ViewDetails, panel_ViewListing, panel_Outlines, panel_OutlineGeocodes, panel_Messages"/>
+						-->
+						<apex:commandButton action="{!view.outlines.saveOutlines}" value="{!locale.quickSave}" onclick="util.showLoadingImage();outlines.onQuickSave();" oncomplete="util.hideLoadingImage();" rerender="panel_OutlineGeocodes, panel_Messages"/>
+						<!--
+						<apex:commandButton action="{!closeOutlines}" value="Close" onclick="util.showLoadingImage();outlines.onCloseOutlines();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewDetails, panel_ViewListing, panel_Outlines, panel_Messages"/>
+						-->
+					</apex:pageBlockButtons>
+<!-- 					
+					<apex:outputPanel layout="block">
+						<table cellspacing="3px" cellpadding="0px" style="margin:10px">
+							<tr>
+								<td>
+									<div id="button_Hand" onclick="outlines.drawing.stopDrawing();" style="width:31px; height:31px; background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'Bsd.png')}');"/>
+								</td>
+								<td>
+									<div id="button_DrawLine" onclick="outlines.drawing.startLine();" style="width:31px; height:31px; background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'Blu.png')}');"/>
+								</td>
+								<td>
+									<div id="button_DrawShape" onclick="outlines.drawing.startShape();" style="width:31px; height:31px; background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'Bpu.png')}');"/>
+								</td>
+								<td>
+									<div id="button_DrawCircle" onclick="outlines.drawing.startCircle();" style="width:31px; height:31px; background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'Bcu.png')}');"/>
+								</td>
+							</tr>
+						</table>
+					</apex:outputPanel>
+
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+-->
+					<apex:outputPanel layout="block" style="margin:10px">
+						<apex:inputCheckbox id="check_LimitMarkersToOutlines" value="{!view.limitMarkersToShapes}" />
+						Only show markers that fall within circles and polygons (for this Map View only)
+					</apex:outputPanel>
+						
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+					
+					<apex:outputPanel id="panel_OutlineTemplates">
+
+						<apex:outputPanel layout="block" style="padding:10px">
+							{!locale.selectOutlineTemplate}
+						</apex:outputPanel>
+					
+						<apex:panelGrid columns="4" cellpadding="3" style="margin-left:7px; margin-bottom:7px">
+							<apex:outputText escape="false"><h2>{!locale.template}&nbsp;</h2></apex:outputText>
+							<apex:selectList value="{!view.outlines.selectedTemplateId}" id="select_Views" size="1">
+					        	<apex:selectOptions value="{!view.outlines.templateList}" />
+					        </apex:selectList>
+					        <apex:commandButton action="{!view.outlines.fetchSelectedTemplate}" value="{!locale.add}" onclick="if(!outlines.verifyOutlineCount())return false;util.showLoadingImage();" oncomplete="outlines.loadTemplate();" rerender="panel_OutlineTemplate, panel_OutlineTemplates, panel_Messages"/>
+				        	<apex:commandLink styleClass="listActionLink" action="{!view.outlines.deleteSelectedTemplate}" value="{!locale.delete}" onclick="if(!confirm('{!locale.deleteOutlineTemplate}'))return false;util.showLoadingImage()" oncomplete="util.hideLoadingImage()" style="position:relative; top:4px" rerender="panel_OutlineTemplates, panel_Messages"/>
+					        
+						</apex:panelGrid>
+
+
+					</apex:outputPanel>
+					
+					<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+					<apex:outputPanel layout="block" style="padding:10px">
+						{!locale.youCanLoad}&nbsp;<b>{!locale.get}</b>.
+					</apex:outputPanel>
+				
+					<apex:panelGrid columns="4" cellpadding="3" style="margin-left:7px; margin-bottom:7px">
+						<apex:outputText escape="false"><h2>{!locale.publicOutlines}&nbsp;</h2></apex:outputText>
+
+						<select id="select_PublicOutlines" onchange="util.showLoadingImage();outlines.fetchPublicOutlineItems();">
+							<option value="NONE">-- {!locale.select} --</option>
+						</select>
+
+						<select id="select_PublicOutlineItems">
+							<option value="NONE">-- {!locale.select} --</option>
+						</select>
+						<input class="btn" id="button_LoadPublicOutline" name="button_LoadPublicOutline" onclick="outlines.loadPublicOutline();" value="{!locale.get}" type="button"/>						
+					</apex:panelGrid>
+
+				</apex:pageBlock>
+			</apex:outputPanel>
+		</apex:outputPanel>
+
+
+		<!-- View Details -->
+		<apex:outputPanel id="panel_ViewDetails">
+			<apex:outputPanel rendered="{!showViewDetails}">
+				<apex:pageBlock id="block_ViewDetails" mode="edit" title="{!IF(NOT(selectedViewId=null),locale.view+': '+view.name,'')}">
+
+
+					<!--					
+					NOTE: If any new buttons added to this block, check if addMapMarker.cleanUp() needs to be called onclick
+					-->			        	
+					<apex:pageBlockButtons location="top">
+						<!--					
+			        	<apex:commandButton action="{!editCurrentView}" value="Edit" rendered="{!AND(allowViewEdit,NOT(selectedViewId=null))}" style="visibility:{!IF(OR(trip.isActive,outlinesEditActive),'hidden','visible')}"/>
+			        	<apex:commandButton action="{!deleteCurrentView}" value="Delete" rendered="{!AND(allowViewEdit,NOT(selectedViewId=null))}" onclick="if(!confirm('Delete the current view?'))return false;" style="visibility:{!IF(OR(trip.isActive,outlinesEditActive),'hidden','visible')}"/>
+						-->			        	
+			        	<apex:commandButton action="{!cloneCurrentView}" value="{!locale.clone}" rendered="{!NOT(selectedViewId=null)}" style="visibility:{!IF(OR(trip.isActive,outlinesEditActive),'hidden','visible')}"/>
+			        	
+						<apex:commandButton action="{!activateOutlinesEdit}" value="{!locale.outlines}" rendered="{!AND(allowViewEdit,NOT(selectedViewId=null))}" style="visibility:{!IF(OR(trip.isActive,outlinesEditActive),'hidden','visible')}" onclick="util.showLoadingImage();addMapMarker.cleanUp();outlines.initialize();" oncomplete="util.hideLoadingImage();outlines.onOpenOutlinesEditor();territories.view.onOpenOutlines();" rerender="panel_Outlines, panel_ViewDetails, panel_ViewListing, panel_AddMarker, panel_Messages"/>
+						<apex:commandButton action="{!showAddMapMarker}" value="{!locale.addMarker}" rendered="{!AND(NOT(view.type='Combination'),allowViewEdit,NOT(selectedViewId=null),NOT(addMapMarkerIsVisible))}" onclick="util.showLoadingImage()" oncomplete="util.hideLoadingImage()" reRender="panel_AddMarker, panel_ViewDetails, panel_Messages" />
+
+			        	<apex:commandButton action="{!showGIS}" value="{!locale.gis}" style="visibility:{!IF(OR(trip.isActive,outlinesEditActive,NOT(selectedListId=null),NOT(selectedAccountId=null)),'hidden','visible')}" onclick="util.showLoadingImage();addMapMarker.cleanUp();" oncomplete="gis.init();outlines.disableInfoWindow();util.hideLoadingImage();" rerender="panel_GIS, panel_ViewDetails, panel_ViewListing, panel_AddMarker, panel_Messages" />
+
+			        	<apex:commandButton action="{!showBoundaries}" value="{!locale.boundaries}" style="visibility:{!IF(OR(trip.isActive,outlinesEditActive,NOT(selectedListId=null),NOT(selectedAccountId=null)),'hidden','visible')}" onclick="util.showLoadingImage();addMapMarker.cleanUp();" oncomplete="boundaries.init();outlines.disableInfoWindow();util.hideLoadingImage();" rerender="panel_Boundaries, panel_ViewDetails, panel_ViewListing, panel_AddMarker, panel_Messages" />
+
+		        	
+						<apex:commandButton action="{!showHeatMaps}" value="{!locale.heatMaps}" rendered="{!AND(NOT(view.type='Combination'),NOT(view.type='Campaign'),NOT(selectedViewId=null),NOT(heatMapsIsVisible))}" onclick="util.showLoadingImage()" oncomplete="heatMaps.init();util.hideLoadingImage()" reRender="panel_HeatMaps, panel_ViewDetails, panel_Messages" />
+
+						<apex:commandButton action="{!saveViewState}" value="{!locale.saveViewState}" rendered="{!AND(allowViewEdit,NOT(selectedViewId=null))}" onclick="territories.view.beforeSaveViewState();" oncomplete="territories.view.afterSaveViewState();" rerender="panel_HiddenViewState"/>
+						<span id="export-button" style="display:none">
+							<apex:commandButton action="{!showExport}" value="{!locale.export}" rendered="{!AND(NOT(selectedViewId=null),NOT(addMapMarkerIsVisible))}" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_AddMarker, panel_ViewDetails, panel_ViewListing, panel_Export, panel_Messages"/>
+						</span>
+						<!--
+						<input class="btn" id="button_ResetViewState" name="button_ResetViewState" onclick="territories.view.setMapState();" value="Reset View State" type="button" style="visibility:{!IF(AND(NOT(OR(trip.isActive,outlinesEditActive)),allowViewEdit,NOT(selectedViewId=null)),'visible','hidden')}"/>
+						-->			        	
+						<!--
+						THIS APPEARS TO BE A BUG IN SALESFORCE--WHEN rendered IS SPECIFIED, THE ACTION METHOD IS NOT BEING INVOKED						
+			        	<apex:commandButton action="{!saveAccountView}" value="Save This View" rendered="{!AND(selectedViewId=null,NOT(selectedAccountId=null))}" />
+			        	<apex:commandButton action="{!saveListBasedView}" value="Save This View" rendered="{!AND(selectedViewId=null,NOT(selectedListId=null))}" />
+						-->			        	
+			        	<apex:commandButton action="{!saveExternalView}" value="{!locale.saveThisView}" style="visibility:{!IF(selectedViewId=null,'visible','hidden')}" />
+					</apex:pageBlockButtons>	
+
+					<div id="fullLegend" style="display:none">
+					<table cellspacing="0" cellpadding="0" style="margin:10px 0px;" width="100%">
+						<tr>
+							<td width="33%">
+								<div id="colorLegend" style="padding:0px 0px 5px 10px">
+									<apex:outputPanel rendered="{!NOT(view.mapLegend.title=null)}">
+										<apex:outputText value="{!locale.mapMarkers}: {!view.mapLegend.title}" style="font-weight:bold; color:#303030" />
+									</apex:outputPanel>
+									<hr style='height:1px;border-width:0;color:dimgray;background-color:dimgray'/>
+									
+									<apex:dataTable value="{!view.mapLegend.items}" var="legendItem" cellpadding="5" cellpadding="5">
+										<apex:column >						
+									   		<apex:outputPanel style="display:inline-block; width:{!IF(allowIcons,'26','40')}px; height:16px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(legendItem.color)}; " >
+									   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}" width="{!IF(allowIcons,'26','40')}px" height="16px"/>
+									   		</apex:outputPanel>
+										</apex:column>
+										
+										<apex:column rendered="{!AND(allowIcons,NOT(legendItem.hasSubItems),legendItem.hasIconImage)}">
+											<apex:image width="16px" height="16px" url="{!legendItem.iconImageUrl}"/>
+										</apex:column>
+										
+										<apex:column rendered="{!AND(allowIcons,NOT(legendItem.hasSubItems),NOT(legendItem.hasIconImage))}">
+											<apex:image width="16px" height="16px" url="/s.gif"/>
+										</apex:column>
+										
+										<apex:column >						
+									   		<apex:outputText value="{!legendItem.label}" />
+								   			<apex:dataTable rendered="{!legendItem.hasSubItems}" value="{!legendItem.subItems}" var="subItem" cellPadding="0px" cellSpacing="0px">
+												<apex:column style="padding: 5px 5px 0px 0px">						
+											   		<apex:outputPanel style="display:inline-block; width:{!IF(allowIcons,'20','32')}px; height:12px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(subItem.color)}; " >
+											   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}" width="{!IF(allowIcons,'20','32')}px" height="12px"/>
+											   		</apex:outputPanel>
+												</apex:column>
+												<apex:column rendered="{!allowIcons}">
+													<apex:image width="16px" height="16px" url="{!subItem.iconImageUrl}" style="padding-top:4px"/>
+												</apex:column>
+												<apex:column style="vertical-align:bottom;font-size:95%">						
+											   		<apex:outputText value="{!subItem.label}" />
+												</apex:column>
+								   			</apex:dataTable>
+										</apex:column>
+									</apex:dataTable>
+									
+									<apex:outputPanel rendered="{!view.showMapLegendExtra}">
+										<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+										<apex:dataTable value="{!view.mapLegendExtra.items}" var="legendItemExtra" cellpadding="5" cellpadding="5">
+											<apex:column >						
+										   		<apex:outputPanel style="display:inline-block; width:{!IF(allowIcons,'26','40')}px; height:15px; border: 1px solid dimgray; text-align:center; background-color:{!JSENCODE(legendItemExtra.color)}; " >
+										   			<apex:image url="{!URLFOR($Resource.pexmaps__TerritoryImagesZip, 'color_grad.png')}" width="{!IF(allowIcons,'26','40')}px" height="15px"/>
+										   		</apex:outputPanel>
+											</apex:column>
+											
+											<apex:column rendered="{!AND(allowIcons,legendItemExtra.hasIconImage)}">
+												<apex:image width="16px" height="16px" url="{!legendItemExtra.iconImageUrl}"/>
+											</apex:column>
+											<apex:column rendered="{!AND(allowIcons,NOT(legendItemExtra.hasIconImage))}">
+												<apex:image width="16px" height="16px" url="/s.gif"/>
+											</apex:column>
+											
+											<apex:column >						
+										   		<apex:outputText value="{!legendItemExtra.label}" />
+											</apex:column>
+										</apex:dataTable>
+									</apex:outputPanel>
+									
+								</div>
+							</td>
+							
+							<td width="34%">
+								<div  style="padding:0px 0px 5px 10px">
+									<apex:outputPanel >
+	
+										<apex:outputPanel >
+											<apex:outputText value="{!locale.viewDefinition}" style="font-weight:bold; color:#303030" />
+										</apex:outputPanel>
+										<hr style='height:1px;border-width:0;color:dimgray;background-color:dimgray'/>
+	
+										<apex:panelGrid columns="2" cellspacing="4" columnClasses="viewDetailLabel,viewDetailField">
+											<apex:outputText rendered="{!NOT(selectedViewId=null)}" value="{!locale.viewOwner}" />
+											
+											<apex:outputLink rendered="{!NOT(selectedViewId=null)}" value="/{!view.ownerId}">{!view.ownerName}</apex:outputLink>											
+											<apex:outputText value="{!locale.viewType}" />
+											<apex:outputText value="{!view.typeName}" />
+											<apex:outputText value="{!locale.visibleTo}" />
+											<apex:outputText value="{!view.permissionsOptionLabel}" />
+											<apex:outputText rendered="{!view.type='Campaign'}" value="{!locale.campaign}" />
+											<apex:outputText rendered="{!view.type='Campaign'}" value="{!view.campaignName}" />
+											<apex:outputText rendered="{!AND(NOT(view.type='Custom'),NOT(view.type='Campaign'),NOT(view.type='User'))}" value="{!locale.mappedObjects}" />
+											<apex:outputText rendered="{!AND(NOT(view.type='Custom'),NOT(view.type='Campaign'),NOT(view.type='User'))}" value="{!view.viewObjectPlural}" />
+											<apex:outputText rendered="{!AND(NOT(view.useContactAddress),OR(view.viewObject='Account',view.parentRelationshipObject='Account'))}" value="{!locale.addressType}" />
+											<apex:outputText rendered="{!AND(NOT(view.useContactAddress),OR(view.viewObject='Account',view.parentRelationshipObject='Account'))}" value="{!view.addressTypeLabel}" />
+											<apex:outputText rendered="{!view.type='Single Role'}" value="{!locale.role}" />
+											<apex:outputText rendered="{!view.type='Single Role'}" value="{!view.role.name}" />
+										</apex:panelGrid>
+		
+									</apex:outputPanel>
+
+
+									<apex:outputPanel layout="block" rendered="{!AND(view.type='Combination',view.hasRoleBasedViews)}" >				
+										<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+
+										<apex:repeat value="{!view.combinationViewData}" var="comboViewData">
+											<apex:outputPanel rendered="{!AND(comboViewData.view.useAllUsersAndRoles,comboViewData.view.type='Multiple Role')}" style="padding:5px">
+												<apex:outputPanel style="white-space:nowrap; padding:2px 2px 2px 1px;vertical-align:top">
+													<div style="display:inline-block; width:15px; height: 8px; background-color:{!JSENCODE(comboViewData.viewColor)};" />&nbsp;&nbsp;
+													<apex:outputText value="{!locale.allUsersInAllRoles}" />
+												</apex:outputPanel>
+											</apex:outputPanel>
+											
+											<apex:outputPanel rendered="{!AND(NOT(comboViewData.view.useAllUsersAndRoles),comboViewData.view.type='Multiple Role')}" >										
+												<apex:dataTable value="{!comboViewData.view.roles}" var="role" >
+													<apex:column style="vertical-align:top">
+														<apex:outputPanel layout="block" style="white-space:nowrap; padding:2px 2px 2px 6px;vertical-align:top">
+															<div style="display:inline-block; width:15px; height: 8px; background-color:{!JSENCODE(comboViewData.viewColor)};" />&nbsp;&nbsp;
+															<apex:outputText escape="false"><b>{!role.name}:&nbsp;</b></apex:outputText>
+															<apex:repeat value="{!role.users}" var="user" >
+																<apex:outputLink value="/{!user.id}">{!user.name}</apex:outputLink>&nbsp;													
+															</apex:repeat>
+															<br/>
+														</apex:outputPanel>
+													</apex:column>
+												</apex:dataTable>
+											</apex:outputPanel>
+										
+											<apex:outputPanel rendered="{!comboViewData.view.type='Single Role'}">	
+												<apex:outputPanel layout="block" style="white-space:nowrap; padding:2px 2px 2px 6px;vertical-align:top">
+													<div style="display:inline-block; width:15px; height: 8px; background-color:{!JSENCODE(comboViewData.viewColor)}; " />&nbsp;&nbsp;
+													<apex:outputText escape="false"><b>{!comboViewData.view.role.name}:&nbsp;</b></apex:outputText>
+													<apex:repeat value="{!comboViewData.view.role.users}" var="user" >
+														<apex:outputLink value="/{!user.id}">{!user.name}</apex:outputLink>&nbsp;													
+													</apex:repeat>
+													<br/>
+												</apex:outputPanel>
+											</apex:outputPanel>											
+											
+										</apex:repeat>
+									</apex:outputPanel>
+
+
+
+
+									<apex:outputPanel rendered="{!AND(view.type='Campaign',view.filter.filtersExist)}" >				
+										<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+										
+										<apex:outputPanel style="font-size:90%; layout:block; padding-left:6px">
+											{!locale.campaignOppsNotMapped}
+										</apex:outputPanel>
+									</apex:outputPanel>
+
+
+									<apex:outputPanel layout="block" rendered="{!view.isRoleBased}">
+									
+										<hr style='height:1px;border-width:0;color:gainsboro;background-color:gainsboro'/>
+								
+								
+								
+								
+										<apex:outputPanel rendered="{!view.type='Multiple Role'}" >				
+
+											<apex:outputPanel rendered="{!view.useAllUsersAndRoles}" style="padding:6px">
+												{!locale.allUsersInAllRoles}
+											</apex:outputPanel>
+
+											<apex:dataTable rendered="{!NOT(view.useAllUsersAndRoles)}" value="{!view.roles}" var="role" cellpadding="2px">
+												<apex:column style="padding-left:6px;vertical-align:top">
+													<apex:outputText escape="false"><b>{!role.name}:&nbsp;</b></apex:outputText>
+													<apex:repeat value="{!role.users}" var="user" >
+														<apex:outputLink value="/{!user.id}">{!user.name}</apex:outputLink>&nbsp;													
+													</apex:repeat>
+												</apex:column>
+											</apex:dataTable>
+										</apex:outputPanel>
+		
+										<apex:outputPanel rendered="{!view.type='Single Role'}" >	
+											<apex:outputPanel style="padding:2px 2px 2px 6px;vertical-align:top">
+												<apex:outputText escape="false"><b>{!view.role.name}:&nbsp;</b></apex:outputText>
+												<apex:repeat value="{!view.role.users}" var="user" >
+													<apex:outputLink value="/{!user.id}">{!user.name}</apex:outputLink>&nbsp;													
+												</apex:repeat>
+											</apex:outputPanel>
+										
+										</apex:outputPanel>
+		
+		
+		
+										
+									</apex:outputPanel>
+									
+								</div>
+
+							</td>
+							
+							<td width="33%">
+								<div style="padding:0px 0px 5px 10px">
+
+
+									<apex:outputText value="{!locale.filters}" style="font-weight:bold; color:#303030"/>
+									
+									<hr style='height:1px;border-width:0;color:dimgray;background-color:dimgray'/>
+
+									<apex:outputText rendered="{!view.type='Custom'}" style="padding:5px">
+										{!locale.notApplicable}
+									</apex:outputText>
+
+
+
+									<!--  NOTE: ANY CHANGES TO THIS BLOCK SHOULD ALSO BE MADE TO THE COMBINATION VIEW BLOCK BELOW -->
+									<apex:outputPanel layout="block" rendered="{!AND(NOT(view.type='Custom'),NOT(view.type='Combination'))}" style="padding:5px">
+	
+										<apex:outputText value="{!locale.singleFieldFilters}" style="font-weight:bold"/>
+								
+										<apex:outputPanel rendered="{!OR(view.filter.singleFieldFilters.usingAllOthersFilter,view.filter.singleFieldFilters.fieldFilterCount=0)}">
+											<br/>
+											<apex:outputText value="{!locale.noneDefined}" style="font-style:italic" />
+											<br/>
+											<br/>
+										</apex:outputPanel>
+										
+										<apex:outputPanel rendered="{!NOT(OR(view.filter.singleFieldFilters.usingAllOthersFilter,view.filter.singleFieldFilters.fieldFilterCount=0))}">
+											<apex:dataTable value="{!view.filter.singleFieldFilters.fieldFilters}" var="filter" >
+												<apex:column >
+													<apex:outputText value="{!IF(filter.parentRelationshipName=null,filter.objectLabel+': ','')}{!filter.displayString}"/>
+												</apex:column>
+											</apex:dataTable>
+											<br/>
+										</apex:outputPanel>
+										
+										<apex:outputText value="{!locale.multipleFieldFilters}" style="font-weight:bold; " />
+										<br/>
+								
+										<apex:outputPanel rendered="{!view.filter.multiFieldFilters.fieldFilterCount=0}">
+											<apex:outputText value="{!locale.noneDefined}" style="font-style:italic"/>
+										</apex:outputPanel>
+										
+										<apex:outputPanel rendered="{!NOT(view.filter.multiFieldFilters.fieldFilterCount=0)}" >
+											<apex:dataTable value="{!view.filter.multiFieldFilters.fieldFilters}" var="filter">
+												<apex:column >
+													<apex:outputText value="{!IF(filter.parentRelationshipName=null,filter.objectLabel+': ','')}{!filter.displayString}"/>
+												</apex:column>
+											</apex:dataTable>
+										</apex:outputPanel>
+	
+									</apex:outputPanel>
+
+
+									<!-- COMBINATION VIEW -->
+									<apex:outputPanel layout="block" rendered="{!view.type='Combination'}" style="padding:5px">
+	
+										<apex:outputText value="{!locale.singleFieldFilters}" style="font-weight:bold"/>
+								
+										<apex:outputPanel rendered="{!view.totalSingleFieldFilterCount=0}">
+											<br/>
+											<apex:outputText value="{!locale.noneDefined}" style="font-style:italic" />
+											<br/>
+											<br/>
+										</apex:outputPanel>
+										
+										<apex:outputPanel rendered="{!NOT(view.totalSingleFieldFilterCount=0)}">
+											<apex:repeat value="{!view.combinationViewData}" var="comboViewData">
+												<apex:dataTable value="{!comboViewData.view.filter.singleFieldFilters.fieldFilters}" var="filter" >
+													<apex:column >
+														<apex:outputPanel layout="block" style="padding:2px;vertical-align:top">
+															<div style="display:inline-block; width:15px; height: 8px; background-color:{!JSENCODE(comboViewData.viewColor)};" />&nbsp;&nbsp;
+															<apex:outputText value="{!comboViewData.view.viewObjectPlural}: {!filter.displayString}"/>
+														</apex:outputPanel>
+													</apex:column>
+												</apex:dataTable>
+											</apex:repeat>
+										</apex:outputPanel>
+										<br/>
+
+										<apex:outputText value="{!locale.multipleFieldFilters}" style="font-weight:bold; " />
+										<br/>
+								
+										<apex:outputPanel rendered="{!view.totalMultiFieldFilterCount=0}">
+											<apex:outputText value="{!locale.noneDefined}" style="font-style:italic"/>
+										</apex:outputPanel>
+										
+										<apex:outputPanel rendered="{!NOT(view.totalMultiFieldFilterCount=0)}" >
+											<apex:repeat value="{!view.combinationViewData}" var="comboViewData">
+												<apex:dataTable value="{!comboViewData.view.filter.multiFieldFilters.fieldFilters}" var="filter">
+													<apex:column >
+														<apex:outputPanel layout="block" style="padding:2px;vertical-align:top">
+															<div style="display:inline-block; width:15px; height: 8px; background-color:{!JSENCODE(comboViewData.viewColor)};" />&nbsp;&nbsp;
+															<apex:outputText value="{!comboViewData.view.viewObjectPlural}: {!filter.displayString}"/>
+														</apex:outputPanel>
+													</apex:column>
+												</apex:dataTable>
+											</apex:repeat>
+										</apex:outputPanel>
+	
+									</apex:outputPanel>
+
+								</div>
+							</td>
+						</tr>
+					</table>
+					</div>
+
+				</apex:pageBlock>
+
+			</apex:outputPanel>
+		</apex:outputPanel>
+		
+		
+		<!-- View Listing --> 
+		
+		<apex:outputPanel id="panel_ViewListing" >
+			<apex:outputPanel rendered="{!OR(NOT(view.type='Combination'),NOT(listingViewId=null))}">
+
+				<apex:outputPanel rendered="{!showViewListing}" >
+				
+					<table cellpadding="0px" cellspacing="0px" width="100%" height="69px">
+					<tr>
+					<td width="10px" style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_left.png')}');background-repeat:no-repeat;">
+					</td>
+					
+					<td style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_middle.png')}');background-repeat:repeat-x;">
+					
+					<table style="margin-top:20px" cellpadding="0" cellspacing="0" width="100%">
+						<tr>
+							<td>
+								<apex:panelGrid rendered="{!NOT(listing=null)}" columns="4">
+									<apex:outputText rendered="{!NOT(listing.view.type='Custom')}" escape="false"><h2>{!locale.show}&nbsp;</h2></apex:outputText>
+	
+									<apex:outputPanel id="panel_ListingView" rendered="{!view.type='Combination'}" styleClass="fBody">
+										<apex:selectList value="{!listingViewId}" id="select_ListingView" size="1">
+								        	<apex:actionSupport event="onchange" action="{!listingViewChanged}" onsubmit="util.showLoadingImage();geocoding.uncheckSelectAllItems();" oncomplete="util.hideLoadingImage()" rerender="panel_ViewListing, panel_Messages" />
+											<apex:selectOptions value="{!view.combinationViewsOptions}" />
+										</apex:selectList>
+									</apex:outputPanel>
+																	
+									<apex:outputPanel styleClass="fBody" rendered="{!NOT(listing.view.type='Custom')}">
+										<apex:selectList value="{!listing.mapObjectType}" id="select_MapObjectType" size="1">
+								        	<apex:actionSupport event="onchange" action="{!listing.listItemTypeChanged}" onsubmit="util.showLoadingImage();geocoding.uncheckSelectAllItems();" oncomplete="util.hideLoadingImage()" rerender="panel_ViewListing, panel_Messages" />
+								        	<apex:selectOption itemValue="Lead" itemLabel="{!locale.leads}" rendered="{!listing.view.type='Campaign'}"/>
+								        	<apex:selectOption itemValue="Contact" itemLabel="{!locale.contacts}" rendered="{!listing.view.type='Campaign'}"/>
+								        	<apex:selectOption itemValue="Opportunity" itemLabel="{!locale.opportunities}" rendered="{!AND(listing.view.type='Campaign',NOT(listing.view.filter.filtersExist))}"/>
+								        	<apex:selectOption itemValue="{!listing.view.viewObject}" itemLabel="{!listing.view.viewObjectPlural}"  rendered="{!NOT(listing.view.type='Campaign')}"/>
+								        	<apex:selectOption itemValue="User" itemLabel="{!locale.users}" rendered="{!listing.showUsersOption}"/>
+								        	<apex:selectOption itemValue="Custom Location" itemLabel="{!locale.customLocations}" rendered="{!NOT(listing.view.id=null)}"/>
+								        </apex:selectList>
+							        </apex:outputPanel>
+							        
+									<apex:outputPanel styleClass="fBody">
+										<apex:selectList rendered="{!listing.showStandardObjectUI}" value="{!listing.showWhat}" id="select_ShowWhat" size="1">
+								        	<apex:actionSupport event="onchange" action="{!listing.showWhatChanged}" onsubmit="util.showLoadingImage();geocoding.uncheckSelectAllItems();" oncomplete="util.hideLoadingImage()" rerender="panel_ViewListing, panel_Messages" />
+								        	<apex:selectOption itemValue="All" itemLabel="{!locale.all}"/>
+								        	<apex:selectOption itemValue="Not on the map" itemLabel="{!locale.notOnTheMap}"/>
+								        	<apex:selectOption itemValue="Not geocoded" itemLabel="{!locale.notGeocoded}"/>
+										</apex:selectList>
+									</apex:outputPanel>
+								</apex:panelGrid>
+							</td>
+							<td>
+								<apex:outputPanel layout="block" rendered="{!listing.showPager}" style="text-align:right;">
+									<apex:outputPanel style="font-weight:bold">
+										<apex:outputText value="{!locale.pageOf}" >
+											<apex:param value="{!listing.pageNumber}" />
+											<apex:param value="{!listing.totalPages}" />
+										</apex:outputText>
+									</apex:outputPanel>
+									&nbsp;&nbsp;
+									<apex:outputPanel rendered="{!listing.showPrevious}">
+										&lt;&nbsp;
+										<apex:commandLink action="{!listing.prev}" value="{!locale.prevPage}" rerender="panel_ViewListing" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();"/>
+										<apex:image url="/s.gif" width="5" height="1" />
+									</apex:outputPanel>
+									<apex:outputText value="|" rendered="{!AND(listing.showPrevious, listing.showNext)}"/>
+									<apex:outputPanel rendered="{!listing.showNext}">
+										<apex:image url="/s.gif" width="5" height="1" />
+										<apex:commandLink action="{!listing.next}" value="{!locale.nextPage}" rerender="panel_ViewListing" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();"/>&nbsp;&gt;
+									</apex:outputPanel>
+								</apex:outputPanel>
+							</td>							
+						</tr>
+					</table>
+					
+					</td>
+					<td width="10px" style="background-image:url('{!URLFOR($Resource.TerritoryImagesZip, 'grad_right.png')}');background-repeat:no-repeat;">
+					</td>
+					</tr>
+					</table>
+
+
+				
+					<apex:outputPanel layout="block" rendered="{!listing.showRolodex}">			
+						<table cellspacing="0" cellpadding="0" width="100%">
+							<tr>
+								<td>
+									<c:Rolodex method="viewListing.changeLetterFilter" currentLetter="{!listing.letterFilter}" other="{!locale.other}" all="{!locale.all}"/>
+								</td>
+							</tr>
+						</table>
+					</apex:outputPanel>
+				
+				
+				
+					<apex:pageBlock id="block_ViewListing" title="{!view.name} {!locale.listing}">
+					
+						<apex:pageBlockButtons location="top">
+							<apex:outputPanel rendered="{!AND(NOT(listing.listItemCount=0),listing.showStandardObjectUI)}">
+								<input class="btn" id="button_Geocode" name="button_Geocode" onclick="geocoding.start()" value="{!locale.geocode}" type="button"/>
+							</apex:outputPanel>
+						</apex:pageBlockButtons>
+			
+			
+						<apex:outputPanel rendered="{!NOT(listing.listItemCount=0)}" >
+							<apex:pageBlockTable id="table_ViewListing" value="{!listing.listItems}" var="item" cellpadding="2">
+		
+								<apex:column rendered="{!listing.showStandardObjectUI}" >
+									<apex:facet name="header">
+										<apex:inputCheckbox id="check_SelectAllItems" onclick="geocoding.selectAllItems(this)"/>
+									</apex:facet>
+									<apex:inputCheckbox id="check_SelectedItem" style="visibility:{!IF(item.geocodeItemId=null,'hidden','visible')}" onclick="geocoding.itemSelected(this)" value="{!item.selected}"/>
+								</apex:column>
+		
+								<apex:column rendered="{!listing.showStandardObjectUI}" style="vertical-align:middle;white-space:nowrap;padding-right:5px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:5px">
+											{!locale.action}
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel style="white-space:nowrap;">
+										<apex:outputLink styleClass="listActionLink" value="/{!item.id}">{!locale.view}</apex:outputLink>
+										<apex:outputPanel rendered="{!NOT(item.geocodeItemId=null)}">
+											|&nbsp;
+											<apex:outputLink styleClass="listActionLink" value="/{!item.editLinkId}/e?retURL=%2Fapex%2Fpexmaps__Territories" >{!item.editLinkText}</apex:outputLink>
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</apex:column>
+
+								<apex:column rendered="{!listing.mapObjectType='Custom Location'}" style="vertical-align:middle;white-space:nowrap;padding-right:5px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:5px">
+											{!locale.action}
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel style="white-space:nowrap">
+									
+										<apex:outputLink styleClass="listActionLink" value="javascript:territories.view.removeCustomLocation('{!item.id}')">{!locale.del}</apex:outputLink>
+										<span style="vertical-align:top">|</span>
+										<a class="listActionLink" style="vertical-align:top" href="javascript:iconPicker.setIcon(document.getElementById('page_Territories:form_Territories:block_ViewListing:table_ViewListing:{!item.index}:image_CustomLocationIcon'),'territories.view.saveCustomLocationIcon','{!item.id}');">{!locale.setIcon}</a>
+										<span style="vertical-align:top">|</span>
+										<a class="listActionLink" style="vertical-align:top" href="javascript:var iconImage=document.getElementById('page_Territories:form_Territories:block_ViewListing:table_ViewListing:{!item.index}:image_CustomLocationIcon'); iconImage.src='';iconImage.style.visibility='hidden';territories.view.saveCustomLocationIcon('{!item.id}',null); ">{!locale.clearIcon}</a>
+										
+									</apex:outputPanel>
+								</apex:column>
+								
+								
+								<apex:column rendered="{!listing.mapObjectType='Custom Location'}" style="vertical-align:middle; white-space:nowrap;padding-right:15px;">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											{!locale.customLocation}
+										</apex:outputPanel>
+<!--  									
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!locale.customLocation}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.nameFieldName}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.nameFieldName}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+-->
+
+									</apex:facet>
+									<apex:outputLink value="#" onclick="window.scrollTo(0,0);territories.popupInfoWindowFromId('{!item.id}');">{!item.name}</apex:outputLink>
+								</apex:column>
+
+
+								<apex:column rendered="{!listing.mapObjectType='Custom Location'}" style="vertical-align:middle; white-space:nowrap;padding-right:15px;{!IF(NOT(allowCustomLocationIcons),'width:100%','')}">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											{!locale.draggable}
+										</apex:outputPanel>
+									</apex:facet>
+
+									<apex:outputText rendered="{!item.isDraggable}" value="{!locale.yes}"/>
+									<apex:outputText rendered="{!NOT(item.isDraggable)}" value="{!locale.no}"/>
+
+								</apex:column>
+
+								<apex:column width="100%" rendered="{!AND(allowCustomLocationIcons,listing.mapObjectType='Custom Location')}">
+									<apex:facet name="header">
+										{!locale.icon}
+									</apex:facet>
+									<apex:outputPanel >
+										<apex:image id="image_CustomLocationIcon" width="16px" height="16px" url="{!item.mapIcon.iconImageUrl}" onclick="iconPicker.setIcon(document.getElementById('page_Territories:form_Territories:block_ViewListing:table_ViewListing:{!item.index}:image_CustomLocationIcon'),'territories.view.saveCustomLocationIcon','{!item.id}');" style="cursor:pointer;visibility:{!IF(item.mapIcon.mapIconSelected,'visible','hidden')}"/>
+								   	</apex:outputPanel>
+								</apex:column>
+							
+							
+								<apex:column rendered="{!listing.showStandardObjectUI}" style="vertical-align:middle; padding-right:15px;width:25%;">
+									<apex:facet name="header">
+										<apex:outputPanel >
+											<apex:outputPanel rendered="{!listing.mapObjectType='User'}" style="padding-right:15px">
+												{!locale.user}
+											</apex:outputPanel>
+											<apex:outputPanel rendered="{!NOT(listing.mapObjectType='User')}" style="padding-right:15px">
+												<apex:commandLink action="{!listing.sort}" value="{!listing.view.viewObjectLabel}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+													<apex:param name="fieldToSort" value="{!listing.nameFieldName}" />
+												</apex:commandLink>
+												<apex:outputPanel rendered="{!listing.nameFieldName=listing.sortField}">
+													<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+													<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+												</apex:outputPanel>
+											</apex:outputPanel>
+										</apex:outputPanel>
+
+<!--										
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!IF(listing.mapObjectType='User',locale.user,listing.view.viewObjectLabel)}" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.nameFieldName}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.nameFieldName}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+-->											
+
+
+									</apex:facet>
+									<apex:outputLink rendered="{!item.geocodeStatus='G_GEO_SUCCESS'}" value="#" onclick="window.scrollTo(0,0);territories.popupInfoWindowFromId('{!item.editLinkId}');">{!item.name}</apex:outputLink>
+									<apex:outputText rendered="{!NOT(item.geocodeStatus='G_GEO_SUCCESS')}">{!item.name}</apex:outputText>
+
+									<apex:inputHidden id="hidden_GeocodeComplete" value="{!item.completed}" />
+									<apex:inputHidden id="hidden_Updated" value="{!item.updated}" />
+									<apex:inputHidden id="hidden_GeocodeItemId" value="{!item.geocodeItemId}" />
+									<apex:inputHidden id="hidden_Address" value="{!item.address}" />
+									<apex:inputHidden id="hidden_AddressStreet" value="{!item.addressStreet}" />
+									<apex:inputHidden id="hidden_AddressCity" value="{!item.addressCity}" />
+									<apex:inputHidden id="hidden_AddressState" value="{!item.addressState}" />
+									<apex:inputHidden id="hidden_AddressPostalCode" value="{!item.addressPostalCode}" />
+									<apex:inputHidden id="hidden_GeocodeCounty" value="{!item.geocodeCounty}" />
+									<apex:inputHidden id="hidden_AddressCountry" value="{!item.addressCountry}" />
+									<apex:inputHidden id="hidden_GeocodeStatus" value="{!item.geocodeStatus}" />
+									<apex:inputHidden id="hidden_Latitude" value="{!item.latitude}" />
+									<apex:inputHidden id="hidden_Longitude" value="{!item.longitude}" />
+									<apex:inputHidden id="hidden_GeocodeAccuracy" value="{!item.geocodeAccuracy}" />
+									<apex:inputHidden id="hidden_GeocodeAddress" value="{!item.geocodeAddress}" />
+								</apex:column>
+	
+								<apex:column rendered="{!listing.showOwnerColumn}" style="vertical-align:middle;white-space:nowrap;padding-right:15px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!locale.ownerAlias}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="Owner.Alias" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField='Owner.Alias'}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+										<apex:outputLink value="/{!item.ownerId}" >{!item.ownerAlias}</apex:outputLink>
+								</apex:column>
+
+
+
+								<apex:column style="vertical-align:middle;white-space:nowrap;padding-right:15px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!locale.city}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.addressCityField}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.addressCityField}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+										<apex:outputText value="{!item.addressCity}" />
+								</apex:column>
+								
+								<apex:column style="vertical-align:middle;white-space:nowrap;padding-right:15px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!locale.state}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.addressStateField}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.addressStateField}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+										<apex:outputText value="{!item.addressState}" />
+								</apex:column>
+
+
+ 
+
+
+								<apex:column style="vertical-align:middle;white-space:nowrap;padding-right:15px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!locale.postalCode}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.addressPostalCodeField}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.addressPostalCodeField}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+										<apex:outputText value="{!item.addressPostalCode}" />
+								</apex:column>
+
+
+
+
+
+
+
+
+	
+								<apex:column rendered="{!listing.showCompanyColumn}" style="vertical-align:middle;white-space:nowrap;padding-right:15px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											{!locale.company}
+										</apex:outputPanel>
+									</apex:facet>
+										<apex:outputText value="{!item.company}" />
+								</apex:column>
+
+								<apex:column rendered="{!listing.showRelatedToColumn}" style="vertical-align:middle;white-space:nowrap;padding-right:15px">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											{!locale.relatedTo}
+										</apex:outputPanel>
+									</apex:facet>
+										<apex:outputLink value="/{!item.relatedToId}" >{!item.relatedToName}</apex:outputLink>
+								</apex:column>
+							
+
+<!-- DISPLAY FIELDS  -->
+								<apex:column rendered="{!AND(listing.showDisplayFields,listing.view.displayFieldCount>0)}" style="vertical-align:middle;padding-right:15px;width:{!IF(listing.view.displayField1Type='TextArea','50','10')}%">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!listing.view.displayField1Label}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.view.displayField1Name}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.view.displayField1Name}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel layout="block" style="text-align:{!IF(OR(listing.view.displayField1Type='Number',listing.view.displayField1Type='Currency',listing.view.displayField1Type='Percent'),'right','left')}">
+										<apex:outputPanel layout="block" style="{!IF(AND(listing.view.displayField1Type='TextArea',item.displayField1Value!=null),'max-height:45px; overflow-y:scroll;','')}">
+											<apex:outputText value="{!JSENCODE(item.displayField1Value)}" />
+									<!--										
+											<apex:outputText rendered="{!NOT(listing.view.displayField1Type='Lookup')}" value="{!JSENCODE(item.displayField1Value)}" />
+											<apex:outputLink rendered="{!listing.view.displayField1Type='Lookup'}" value="/{!item.relatedToId}">{!JSENCODE(item.displayField1Value)}</apex:outputLink>
+									-->
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</apex:column>
+
+								<apex:column rendered="{!AND(listing.showDisplayFields,listing.view.displayFieldCount>1)}" style="vertical-align:middle;padding-right:15px;width:{!IF(listing.view.displayField2Type='TextArea','50','10')}%">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!listing.view.displayField2Label}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.view.displayField2Name}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.view.displayField2Name}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel layout="block" style="text-align:{!IF(OR(listing.view.displayField2Type='Number',listing.view.displayField2Type='Currency',listing.view.displayField2Type='Percent'),'right','left')}">
+										<apex:outputPanel layout="block" style="{!IF(AND(listing.view.displayField2Type='TextArea',item.displayField2Value!=null),'max-height:45px; overflow-y:scroll;','')}">
+											<apex:outputText value="{!JSENCODE(item.displayField2Value)}" />
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</apex:column>
+
+								<apex:column rendered="{!AND(listing.showDisplayFields,listing.view.displayFieldCount>2)}" style="vertical-align:middle;padding-right:15px;width:{!IF(listing.view.displayField3Type='TextArea','50','10')}%">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!listing.view.displayField3Label}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.view.displayField3Name}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.view.displayField3Name}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel layout="block" style="text-align:{!IF(OR(listing.view.displayField3Type='Number',listing.view.displayField3Type='Currency',listing.view.displayField3Type='Percent'),'right','left')}">
+										<apex:outputPanel layout="block" style="{!IF(AND(listing.view.displayField3Type='TextArea',item.displayField3Value!=null),'max-height:45px; overflow-y:scroll;','')}">
+											<apex:outputText value="{!JSENCODE(item.displayField3Value)}" />
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</apex:column>
+
+								<apex:column rendered="{!AND(listing.showDisplayFields,listing.view.displayFieldCount>3)}" style="vertical-align:middle;padding-right:15px;width:{!IF(listing.view.displayField4Type='TextArea','50','10')}%">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!listing.view.displayField4Label}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.view.displayField4Name}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.view.displayField4Name}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel layout="block" style="text-align:{!IF(OR(listing.view.displayField4Type='Number',listing.view.displayField4Type='Currency',listing.view.displayField4Type='Percent'),'right','left')}">
+										<apex:outputPanel layout="block" style="{!IF(AND(listing.view.displayField4Type='TextArea',item.displayField4Value!=null),'max-height:45px; overflow-y:scroll;','')}">
+											<apex:outputText value="{!JSENCODE(item.displayField4Value)}" />
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</apex:column>
+
+								<apex:column rendered="{!AND(listing.showDisplayFields,listing.view.displayFieldCount>4)}" style="vertical-align:middle;padding-right:15px;width:{!IF(listing.view.displayField5Type='TextArea','50','10')}%">
+									<apex:facet name="header">
+										<apex:outputPanel style="padding-right:15px">
+											<apex:commandLink action="{!listing.sort}" value="{!listing.view.displayField5Label}"  onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();" rerender="panel_ViewListing, panel_Messages">
+												<apex:param name="fieldToSort" value="{!listing.view.displayField5Name}" />
+											</apex:commandLink>												
+											<apex:outputPanel rendered="{!listing.sortField=listing.view.displayField5Name}">
+												<apex:image rendered="{!listing.sortOrder='ASC'}" url="/s.gif" alt="Sorted Ascending"  styleClass="sortAsc" title="Sorted Ascending"/>
+												<apex:image rendered="{!listing.sortOrder='DESC'}" url="/s.gif" alt="Sorted Descending"  styleClass="sortDesc" title="Sorted Descending"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel layout="block" style="text-align:{!IF(OR(listing.view.displayField5Type='Number',listing.view.displayField5Type='Currency',listing.view.displayField5Type='Percent'),'right','left')}">
+										<apex:outputPanel layout="block" style="{!IF(AND(listing.view.displayField5Type='TextArea',item.displayField5Value!=null),'max-height:45px; overflow-y:scroll;','')}">
+											<apex:outputText value="{!JSENCODE(item.displayField5Value)}" />
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</apex:column>
+
+<!--  -->
+
+
+								<apex:column rendered="{!listing.showStandardObjectUI}" width="100%" style="vertical-align:middle;padding-right:15px">
+									<apex:facet name="header" >
+										<apex:outputPanel style="padding-right:15px">
+											<apex:outputText value="{!locale.geocodeStatus}"/>
+										</apex:outputPanel>
+									</apex:facet>
+									<apex:outputPanel rendered="{!item.geocodeItemId=null}">
+										<apex:outputText value="N/A" />
+									</apex:outputPanel>
+									<apex:outputPanel rendered="{!NOT(item.geocodeItemId=null)}">
+										<apex:outputText value="{!item.geocodeStatusText}" style="color:{!IF(OR(item.geocodeStatus='G_GEO_SUCCESS',item.geocodeStatus='OK'),'black','red')}"/>
+									</apex:outputPanel>
+								</apex:column>
+
+							</apex:pageBlockTable>
+						</apex:outputPanel>
+						
+						<apex:outputPanel rendered="{!listing.listItemCount=0}" >
+							<br/>
+							<div style="padding-left:10px; white-space:nowrap">
+								<apex:outputText >{!locale.noItemsToDisplay}</apex:outputText>
+							</div>
+							<br/>
+							<br/>
+						</apex:outputPanel>
+						
+					</apex:pageBlock>
+	
+	
+	
+					<table style="margin:5px 10px 0px 0px" cellpadding="0" cellspacing="0" width="100%">
+						<tr>
+							<td style="padding-left:15px; padding-right:30px">
+								<apex:outputText rendered="{!NOT(listing.listItemCount=0)}" style="font-size:95%;" value="{!locale.listInfo}" />
+							</td>
+							<td>		
+								<apex:outputPanel layout="block" rendered="{!listing.showPager}" style="text-align:right;white-space:nowrap">
+									<apex:outputPanel style="font-weight:bold">
+										<apex:outputText value="{!locale.pageOf}" >
+											<apex:param value="{!listing.pageNumber}" />
+											<apex:param value="{!listing.totalPages}" />
+										</apex:outputText>
+									</apex:outputPanel>
+									&nbsp;&nbsp;
+									<apex:outputPanel rendered="{!listing.showPrevious}">
+										&lt;&nbsp;
+										<apex:commandLink action="{!listing.prev}" value="{!locale.prevPage}" rerender="panel_ViewListing" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();"/>
+										<apex:image url="/s.gif" width="5" height="1" />
+									</apex:outputPanel>
+									<apex:outputText value="|" rendered="{!AND(listing.showPrevious, listing.showNext)}"/>
+									<apex:outputPanel rendered="{!listing.showNext}">
+										<apex:image url="/s.gif" width="5" height="1" />
+										<apex:commandLink action="{!listing.next}" value="{!locale.nextPage}" rerender="panel_ViewListing" onclick="util.showLoadingImage();" oncomplete="util.hideLoadingImage();"/>&nbsp;&gt;
+									</apex:outputPanel>
+								</apex:outputPanel>
+							</td>
+						</tr>
+					</table>
+	
+				</apex:outputPanel>
+			</apex:outputPanel>		
+		</apex:outputPanel>		
+		
+	</apex:form>
+
+	<form id="form_ExportRequest" name="form_ExportRequest" method="post" style="display:none">
+		<input type="hidden" name="input_ExportFormat" id="input_ExportFormat" />
+		<input type="hidden" name="input_ExportDocName" id="input_ExportDocName" />
+		<input type="hidden" name="input_ExportBounds" id="input_ExportBounds" />
+		<textarea name="input_Export" id="input_Export" style="display:none" cols="100" rows="10"/>
+		<textarea name="input_ExportOutlines" id="input_ExportOutlines" style="display:none" cols="100" rows="10"/>
+		<textarea name="input_ExportTrip" id="input_ExportTrip" style="display:none" cols="100" rows="10"/>
+	</form> 	
+
+	<form id="csvPostingForm" name="csvPostingForm" method="post" target="_self" style="display:none">
+		<textarea style="display:none" name="csvExportDocName" id="csvExportDocName"></textarea>
+		<textarea name="csvExportPostData" id="csvExportPostData" style="display:none"></textarea>
+	</form>
+
+	<form id="htmPostingForm" name="htmPostingForm" method="post" target="_blank" style="display:none">
+		<textarea style="display:none" name="htmExportDocName" id="htmExportDocName"></textarea>
+		<textarea name="htmExportPostData" id="htmExportPostData" style="display:none"></textarea>
+	</form>
+
+
+<script type="text/javascript">
+
+/****** migration *****/
+
+var InfoWindow = new google.maps.InfoWindow();
+
+var mapTypeIds = {};
+mapTypeIds["G_HYBRID_MAP"] = google.maps.MapTypeId.HYBRID;
+mapTypeIds["G_NORMAL_MAP"] = google.maps.MapTypeId.ROADMAP;
+mapTypeIds["G_STATELLITE_MAP"] = google.maps.MapTypeId.SATELLITE;
+mapTypeIds["G_PHYSICAL_MAP"] = google.maps.MapTypeId.TERRAIN;
+/****** migration *****/
+
+var printView = false;//{!printableView};
+var markerSize = {!settings.markerSize};
+var mapType = mapTypeIds["{!JSENCODE(settings.mapType)}"];
+var mapWidth = {!settings.mapWidth};
+var mapHeight = {!settings.mapHeight};
+var centerLatitude = {!settings.initialCenterLatitude};
+var centerLongitude = {!settings.initialCenterLongitude};
+var initialZoom = {!settings.initialZoom};
+var userRoleId = "{!userRoleId}";
+var userLocale = "{!userLocale}";
+var userLanguage = "{!userLanguage}";
+var userIsSysAdmin = {!userIsSysAdmin};
+var allowIcons = {!allowIcons};
+var allowCustomLocationIcons = {!allowCustomLocationIcons};
+//var iconsPath = "https://www.pexmaps.com:8443/img/icons/";
+var logosPath = "https://www.pexmaps.com:8443/img/logos/";
+var imagesPath = "https://www.pexmaps.com:8443/img/";
+//var territoriesImagePath = "..{!URLFOR($Resource.TerritoryImagesZip, '')}/";
+//var colorPickerImagePath = "..{!URLFOR($Resource.ColorPickerImagesZip, '')}/";
+//var mapIconImagePath = "{!view.iconImagePath}";
+var OrgId = "{!$Organization.Id}";
+
+
+var locale = {};
+locale.viewStateSaved = "{!locale.viewStateSaved}";
+locale.outlines = "{!locale.outlines}";
+locale.startTrip = "{!locale.startTrip}";
+locale.streetView = "{!locale.streetView}";
+locale.trip = "{!locale.trip}";
+locale.start = "{!locale.start}";
+locale.add = "{!locale.add}";
+locale.toEnd = "{!locale.toEnd}";
+locale.before = "{!locale.before}";
+locale.addToEnd = "{!locale.addToEnd}";
+locale.moveTo = "{!locale.moveTo}";
+locale.edit = "{!locale.edit}";
+locale.remove = "{!locale.remove}";
+locale.name = "{!locale.name}";
+locale.drivingDirections = "{!locale.drivingDirections}";
+locale.walkingDirections = "{!locale.walkingDirections}";
+locale.avoidHighways = "{!locale.avoidHighways}";
+locale.tripTotals = "{!locale.tripTotals}";
+locale.traffic = "{!locale.traffic}";
+locale.more = "{!locale.more}";
+locale.showHideTraffic = "{!locale.showHideTraffic}";
+locale.showHideLayers = "{!locale.showHideLayers}";
+locale.none = "{!locale.none}";
+locale.unableToLoadTrip = "{!locale.unableToLoadTrip}";
+locale.eitherTheStart = "{!locale.eitherTheStart}";
+locale.pleaseEnterAName = "{!locale.pleaseEnterAName}";
+locale.couldNotResolveName = "{!locale.couldNotResolveName}";
+locale.errorParsingGeocode = "{!locale.errorParsingGeocode}";
+locale.noAssignedRole = "{!locale.noAssignedRole}";
+locale.accountNotOnMap = "{!locale.accountNotOnMap}";
+locale.noStreetView = "{!locale.noStreetView}";
+locale.dragZoom = "{!locale.dragZoom}";
+locale.title = "{!locale.title}";
+locale.untitled = "{!locale.untitled}";
+locale.lineColor = "{!locale.lineColor}";
+locale.lineOpacity = "{!locale.lineOpacity}";
+locale.lineSize = "{!locale.lineSize}";
+locale.fillColor = "{!locale.fillColor}";
+locale.fillOpacity = "{!locale.fillOpacity}";
+locale.area = "{!locale.area}";
+locale.radius = "{!locale.radius}";
+locale.saveAsTemplate = "{!locale.saveAsTemplate}";
+locale.ok = "{!locale.ok}";
+locale.cancel = "{!locale.cancel}";
+locale.enterNameForTemplate = "{!locale.enterNameForTemplate}";
+locale.saveOutlineTemplate = "{!locale.saveOutlineTemplate}";
+locale.save = "{!locale.save}";
+locale.outlineLimitReached = "{!locale.outlineLimitReached}";
+locale.jan = "{!locale.jan}";
+locale.feb = "{!locale.feb}";
+locale.mar = "{!locale.mar}";
+locale.apr = "{!locale.apr}";
+locale.may = "{!locale.may}";
+locale.jun = "{!locale.jun}";
+locale.jul = "{!locale.jul}";
+locale.aug = "{!locale.aug}";
+locale.sep = "{!locale.sep}";
+locale.oct = "{!locale.oct}";
+locale.nov = "{!locale.nov}";
+locale.dec = "{!locale.dec}";
+locale.dateFormat = "{!locale.dateFormat}";
+locale.dateTimeFormat = "{!locale.dateTimeFormat}";
+locale.account = "{!locale.account}";
+locale.opportunities = "{!locale.opportunities}";
+locale.contacts = "{!locale.contacts}";
+locale.select = "{!locale.select}";
+locale.geocodingOverLimit = "{!locale.geocodingOverLimit}";
+
+</script>
+
+<script type="text/javascript" src="{!$Resource.UtilityJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesPermissionsJS}"></script>
+
+<script type="text/javascript" src="{!$Resource.DragZoomJS}"></script>
+<script type="text/javascript" src="{!$Resource.MapIconMakerJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesJS}"></script>
+<script type="text/javascript" src="{!$Resource.OutlinesJS}"></script>
+<script type="text/javascript" src="{!$Resource.MapButtonsJS}"></script>
+<script type="text/javascript">
+
+
+var userId = util.fixId("{!$User.Id}");
+
+try
+{
+    sforce.connection.init("{!$Api.Session_ID}", "{!$Api.Partner_Server_URL_160}");
+}
+catch (error)
+{
+    alert("{!locale.connectionFailed}" + " " + error);
+}
+
+if (browserInfo.isMSIE())
+{
+	var securityAlertDiv = document.getElementById("browser_security_alert");
+	
+	securityAlertDiv.style.fontSize = "90%";
+	securityAlertDiv.style.width = "300px";
+	securityAlertDiv.style.border = "thin solid black";
+	securityAlertDiv.style.padding = "10px";
+	securityAlertDiv.style.backgroundColor = "white";
+	
+	securityAlertDiv.innerHTML = "<b>{!locale.wheresTheMap}</b><br/><br/> \
+		{!locale.ifAMixedContent} <b><font style=\'color:blue\'>{!locale.doYouWantToView}</font></b> {!locale.youMustClickNo} \
+		&nbsp;{!locale.reloadThisPage}<br/><br/>{!locale.followTheseSteps} \
+		<br/> \
+		<br/> \
+		<table cellspacing=\'0px\' cellpadding=\'0px\'> \
+		<tr><td>1.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep1}</div></td></tr> \
+		<tr><td>2.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep2}</div></td></tr> \
+		<tr><td>3.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep3}</div></td></tr> \
+		<tr><td>4.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep4}</div></td></tr> \
+		<tr><td>5.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep5}</div></td></tr> \
+		<tr><td></td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep5a}</div></td></tr> \
+		<tr><td>6.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep6}</div></td></tr> \
+		<tr><td>7.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep7}</div></td></tr> \
+		<tr><td>8.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep8}</div></td></tr> \
+		<tr><td>9.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep9}</div></td></tr> \
+		<tr><td>10.&nbsp;</td><td><div style=\'padding-bottom:5px\'>{!locale.ieStep10}</div></td></tr> \
+		</table>";
+}
+
+
+
+var previousOnload = window.onload;        
+window.onload = function()
+{ 
+	if (previousOnload)
+	{ 
+    	previousOnload();
+    }
+
+	territories.init();
+	territories.loadExistingView();
+	
+	if ({!gisIsVisible})
+	{
+		gis.init();
+	}
+}
+
+var previousOnunload = window.onunload;        
+window.onunload = function()
+{ 
+	if (previousOnunload)
+	{ 
+    	previousOnunload();
+    }
+
+//	if (util.isDefined(streetView))
+//	{
+//		streetView.closeStreetView();
+//	}
+	
+//	GUnload();
+}
+
+filterViewSelection();
+function filterViewSelection()
+{
+	permissions.filterViewSelectList("page_Territories:form_Territories:select_Views");
+}
+
+function getMapCanvas()
+{
+	return document.getElementById("map_canvas");
+}
+
+
+</script>
+
+<script type="text/javascript" src="{!$Resource.ColorPickerJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesIconPickerJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesExportJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesGisJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesHeatMapsJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesBoundariesJS}"></script>
+<script type="text/javascript" src="{!$Resource.SearchBoxJS}"></script>
+<script type="text/javascript" src="{!$Resource.TerritoriesBatchGeocodingJS}"></script>
+
+<script type="text/javascript">
+processOrgSpecificFeatures();
+function processOrgSpecificFeatures()
+{
+	if (typeof(__HIDE_EXPORT_FUNCTION) == "undefined" || 
+		!__HIDE_EXPORT_FUNCTION("{!$Organization.Id}"))
+	{
+		$("#export-button").show();
+	}
+}
+</script>
+
+</apex:page>

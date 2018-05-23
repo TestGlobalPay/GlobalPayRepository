@@ -1,0 +1,72 @@
+<apex:page tabStyle="Case" sidebar="false">
+    <style>
+        .titleIcon {
+            height: 75px;
+            width: 75px;
+        }
+        .titleTextBox {
+            padding: 12px 0 0 15px;
+        }
+        .titleText {
+            font-size: 32px;
+            font-weight: bold;            
+        }
+        .titleSubtext {
+            font-size: 14px;
+            margin-top: -3px;
+            padding-left: 2px;
+            font-style: italic;
+        }
+        .feature {
+            font-size: 14px;
+            padding: 45px 0 0 285px; 
+            font-style: italic;
+        }
+        .featureTitle {
+            font-style: normal;
+        }
+        .feature a {
+            color: #2E64FE;
+            text-decoration: none;
+        }
+        .feature a:hover {
+            color: #2E9AFE;
+            text-decoration: none;
+        }        
+        .tipGmail {
+            height: 18px;
+            width: 18px;        
+            padding-left: 8px;
+            margin-bottom: -3px;
+        }
+        .enhList {
+
+        }
+        .left {
+            float: left;
+        }        
+        .clear-left {
+            clear: left;
+        }
+        .clear-right {
+            clear: right;
+        }
+    </style>
+    <!-- Title -->
+    <img class="titleIcon left" src="{!$Resource.Case_HomeIcon}" />
+    <div class="titleTextBox left">
+        <div class="titleText left">Cases</div><br />    
+        <div class="titleSubtext left">Sales Analytics and Solutions</div>
+    </div>
+    <!-- Feature Text -->
+    <div class="feature left">
+        <!-- <div style="padding-left: 13px;">Save clicks by creating a case directly from most records, or</div> -->
+        <span class="left">Create a case by email: 
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=acquisitions-eto-support@google.com" target="_blank" style="font-style: normal;">acquisitions-eto-support@google.com</a>
+        </span>        
+    </div>
+    <!-- Case Toolbar -->
+    <apex:include pageName="Case_Toolbar" />
+    <!-- List View -->
+    <div class="enhList clear-left"><apex:enhancedList type="Case" height="600" /></div>
+</apex:page>

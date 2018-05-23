@@ -1,0 +1,27 @@
+<apex:page standardController="Case" extensions="pexmaps.TerritoriesListController" action="{!init}" recordSetVar="items"
+	tabStyle="Account_Maps__tab" id="page_TerritoriesListView" title="Google Maps for Salesforce: {!locale.listBasedView}"	
+	showHeader="true">
+
+	<apex:sectionHeader subtitle="{!locale.listBasedView}" title="Google Maps for Salesforce"/>
+
+
+	<apex:form >
+	
+		<apex:outputPanel id="panel_Messages">
+			<font color="red">
+		    	<apex:messages />
+			</font>
+		</apex:outputPanel>
+	
+		<apex:outputPanel layout="block" style="padding:10px">
+			<apex:outputText value="{!locale.noItemsSelected}">
+				<apex:param value="{!locale.cases}" />
+			</apex:outputText>
+		<br/>
+		<br/>
+		<apex:commandButton value="OK" action="{!noItemsSelected}" />
+		</apex:outputPanel>
+	
+	</apex:form>
+
+</apex:page>

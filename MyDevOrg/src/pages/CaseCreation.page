@@ -1,0 +1,83 @@
+<apex:page docType="html-5.0" id="caseCreationString" showHeader="false" sidebar="false" standardStylesheets="false" StandardController="Case" extensions="CCcaseExtensionController">
+<!--Latest compiled and minified j query-->
+<script>
+function removeUnrelatedProductFamilyOptions(){
+          var selectsssss = document.getElementById("caseCreationString:NewCaseForm:filteredList");
+          var sizeOfselects = document.getElementById("caseCreationString:NewCaseForm:filteredList").length;
+          if(sizeOfselects >0) {
+              for(var i = 0;i<sizeOfselects;i++) {
+                 var selecteds = document.getElementById("caseCreationString:NewCaseForm:selectedFamilyOptions").value;
+                 var selects = selecteds.split(';');
+                 for(var j = 0; j<selects.length;j++ ) {
+                     var pickListVal = document.getElementById("caseCreationString:NewCaseForm:filteredList").options[i].text;
+                     if(pickListVal != selects[j] ) {
+                         selectsssss.remove(i)
+                     }
+                 }
+              }
+          }
+      }
+
+</script>
+ <apex:form id="NewCaseForm">
+ <body onload="removeUnrelatedProductFamilyOptions();">       
+  <h3>Case creation</h3>
+ 
+  <div>
+  <apex:outputLabel value="Subject" ></apex:outputLabel>
+  <apex:inputtext value="{!Case.Subject}" />
+  </div>
+ <apex:inputHidden id="selectedFamilyOptions" value="{!familySelectedOptions }"/>
+  <div>
+  <apex:outputLabel value="Description" ></apex:outputLabel>
+  <apex:inputTextarea value="{!Case.Description}"/>
+  </div>
+  
+   <div>
+  <apex:outputLabel value="Product Family" ></apex:outputLabel>  
+  <!--<apex:selectList value="{!Case.Product_Family__c}" id="filteredList">   
+    <apex:selectOptions value="{!filtered_options}"></apex:selectOptions>   
+  </apex:selectList>-->
+  
+  <apex:inputfield value="{!Case.Product_Family__c}" id="filteredList"/>
+  </div>
+  
+  
+  
+   <div>
+   
+  <apex:outputLabel value="Product Type" ></apex:outputLabel>
+  <apex:inputField value="{!Case.Product_Type__c}"/> 
+  </div>
+  
+   <div>
+  <apex:outputLabel value="Severity" ></apex:outputLabel>
+  <apex:inputfield value="{!Case.Priority}"/>
+  </div>
+  
+ <!-- <apex:inputHidden value="{!Case.AccountId}" id="account" />
+  <apex:inputHidden value="{!Case.ContactId}" id="contact" />-->
+  
+  <apex:commandButton value="Save"  action="{!save}" />
+  <apex:messages />
+  
+  <script type="text/javascript">
+  
+  document.addEventListener("DOMContentLoaded", function(){ 
+    
+    
+    <!-- var acc=document.getElementById("{!$Component.NewCaseForm.account}");
+     var con=  document.getElementById("{!$Component.NewCaseForm.contact}");
+     acc.value='{!loggedInContact[0].Account.Id}';
+     con.value='{!loggedInContact[0].Id}';
+     console.log(document.getElementById("{!$Component.NewCaseForm.account}").value);-->
+    
+     
+      });
+      
+      
+  
+  </script>
+  </body>
+ </apex:form>
+</apex:page>

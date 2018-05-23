@@ -1,0 +1,2 @@
+<apex:page sidebar="true" showHeader="true" standardStylesheets="false" action="http://www.gocloudz.com/documentation-PDF/Product-Bundle-Usage-Guide.pdf" title="GoCloudz :: Documentation">
+</apex:page>

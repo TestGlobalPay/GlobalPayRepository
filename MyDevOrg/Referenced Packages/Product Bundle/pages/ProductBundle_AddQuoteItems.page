@@ -1,0 +1,8 @@
+<apex:page standardController="Quote">
+    <script>        
+        if('{!Quote.Pricebook2Id}'=='')
+            window.top.location='/_ui/sales/quote/lineitem/ChooseQuotePricebook/e?id={!Quote.Id}&retURL=/apex/sfcloud__ProductBundle_Add?id={!Quote.Id}&retURL={!Quote.Id}';
+        else
+            window.top.location='/apex/ProductBundle_Add?id={!Quote.Id}&retURL=/{!Quote.Id}';
+    </script>
+</apex:page>

@@ -1,0 +1,107 @@
+<apex:page controller="pexmaps.TerritoriesMapSettingsController" 
+	tabStyle="Account_Maps__tab" id="page_TerritoriesMapSettings" showHeader="true" action="{!init}"
+	title="Google Maps for Salesforce: {!locale.mapSettings}">
+	
+	<apex:sectionHeader title="Google Maps for Salesforce" subtitle="{!locale.mapSettingsFor} {!$User.FirstName} {!$User.LastName}"/>
+	
+	<apex:form id="form_TerritoriesMapSettings">
+	
+	    <apex:pageBlock title="" id="block_TerritoriesMapSettings" mode="edit">
+	    
+			<font color="red">
+            	<apex:messages />
+			</font>
+			
+			<apex:pageBlockButtons location="both">
+				<apex:commandButton action="{!saveSettings}" value="{!locale.save}" />
+				<apex:commandButton action="{!cancel}" value="{!locale.cancel}" />
+			</apex:pageBlockButtons>
+
+			<br/>
+			<apex:pageBlockSection columns="1" id="section_MapCenterSettings" title="{!locale.defaultMapCenterAndZoom}">
+				<apex:outputText escape="false" value="{!locale.latLngZoomInfo}" />
+				<br/>
+				{!locale.blankLatLng}
+				<br/>
+				<br/>
+				
+				<apex:pageBlockSectionItem id="sectionItem_InitialCenterLatitude">
+					<apex:outputLabel value="{!locale.latitude}" for="field_InitialCenterLatitude"/>
+					<apex:inputText value="{!initialCenterLatitude}" id="field_InitialCenterLatitude" maxLength="32"/>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem id="sectionItem_InitialCenterLongitude">
+					<apex:outputLabel value="{!locale.longitude}" for="field_InitialCenterLongitude"/>
+					<apex:inputText value="{!initialCenterLongitude}" id="field_InitialCenterLongitude" maxLength="32" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem id="sectionItem_InitialZoom">
+					<apex:outputLabel value="{!locale.zoomLevel}" for="field_InitialZoom"/>
+					<apex:inputText value="{!initialZoom}" id="field_InitialZoom"  maxLength="8"/>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem id="sectionItem_UseCurrent">
+					<apex:outputLabel value=" "/>
+					<apex:commandLink action="{!getCurrentMapParams}" value="{!locale.useCurrentMapValues}" rerender="field_InitialCenterLatitude, field_InitialCenterLongitude, field_InitialZoom"/>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+			<br/>
+			<br/>
+			
+			<apex:pageBlockSection columns="1" id="section_MapMarkerSettings" title="{!locale.markerSize}">
+				<apex:outputText escape="false" value="{!locale.markerSizeInfo}" />
+				<br/>
+				<apex:pageBlockSectionItem id="sectionItem_MarkerSize">
+					<apex:outputLabel value="{!locale.markerSize}" for="field_MarkerSize"/>
+					<apex:inputText value="{!markerSize}" id="field_MarkerSize" maxLength="8" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+			<br/>
+			<br/>
+
+			<apex:pageBlockSection columns="1" id="section_MapTypeSettings" title="{!locale.defaultMapType}">
+				<apex:outputText escape="false" value="{!locale.mapTypeInfo}" />
+				<br/>
+				<apex:pageBlockSectionItem id="sectionItem_MapType">
+					<apex:outputLabel value="{!locale.mapType}" for="field_MapTyppe"/>
+					<apex:selectList value="{!mapType}" id="field_MapType" size="1">
+                    	<apex:selectOption itemValue="G_NORMAL_MAP" itemLabel="{!locale.street}" />
+                        <apex:selectOption itemValue="G_SATELLITE_MAP" itemLabel="{!locale.satellite}" />
+                        <apex:selectOption itemValue="G_HYBRID_MAP" itemLabel="{!locale.hybrid}" />
+                        <apex:selectOption itemValue="G_PHYSICAL_MAP" itemLabel="{!locale.terrain}" />
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+			<br/>
+			<br/>
+
+			<apex:pageBlockSection columns="1" id="section_MapSizeSettings" title="{!locale.defaultMapSize}">
+				<apex:outputText escape="false" value="{!locale.mapSizeInfo}" />
+				<br/>
+				<apex:pageBlockSectionItem id="sectionItem_DefaultMapWidth">
+					<apex:outputLabel value="{!locale.width}" for="field_DefaultMapWidth"/>
+					<apex:inputText value="{!mapWidth}" id="field_DefaultMapWidth" maxLength="8" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem id="sectionItem_DefaultMapHeight">
+					<apex:outputLabel value="{!locale.height}" for="field_DefaultMapHeight"/>
+					<apex:inputText value="{!mapHeight}" id="field_DefaultMapHeight" maxLength="8" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+			<br/>
+			<br/>
+
+			<apex:pageBlockSection columns="1" id="section_LoadLastViewSettings" title="{!locale.loadLastView}">
+				<apex:outputText value="{!locale.loadLastViewInfo}" />
+				<br/>
+				<apex:pageBlockSectionItem id="sectionItem_LoadLastView">
+					<apex:outputLabel value="{!locale.loadLastView}" for="field_LoadLastView"/>
+					<apex:inputCheckbox value="{!loadLastView}" id="field_LoadLastView"/>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+			<br/>
+			<br/>
+
+
+		</apex:pageBlock>	
+	
+	</apex:form>
+	
+	
+</apex:page>

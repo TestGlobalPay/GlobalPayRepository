@@ -8,7 +8,7 @@
    
    <body>
       <div>
-         <label>Name:</label>
+         <label>NameEEE:</label>
          <input type = "text" ng-model = "yourName" placeholder = "Enter a name here"/>
          <hr />
          
